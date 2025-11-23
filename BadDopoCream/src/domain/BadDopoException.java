@@ -1,4 +1,4 @@
-package domain;
+package Domain;
 public class BadDopoException extends Exception {
     public static final String SABOR_INVALIDO = "El sabor del helado no puede ser nulo o vacío";
     public static final String TABLERO_NULO = "No se puede asignar un tablero nulo al helado";
