@@ -8,7 +8,9 @@ public class Helado implements Poder, Mover, RompeHielo {
     private ArrayList<Integer> posicion;
     private Tablero tablero;
     private GrafoTablero grafo;
-    private String ultimaDireccion; 
+    private String ultimaDireccion;
+
+
     public Helado(String sabor) throws BadDopoException {
         if (sabor == null || sabor.trim().isEmpty()) {
             throw new BadDopoException(BadDopoException.SABOR_INVALIDO);
@@ -51,13 +53,14 @@ public class Helado implements Poder, Mover, RompeHielo {
         this.posicion.set(0, fila);
         this.posicion.set(1, col);
     }
+
     @Override
-    public void mover() throws BadDopoException {
+    public void mover(String direccion) throws BadDopoException {
         // Este método genérico usa la última dirección guardada
         if (ultimaDireccion == null) {
             throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
         }
-        moverEnDireccion(ultimaDireccion);
+        moverEnDireccion(direccion);
     }
     /**
      * Metodo moverEnDireccion  que permite mover el helado
@@ -65,7 +68,6 @@ public class Helado implements Poder, Mover, RompeHielo {
      * @param direccion La direccion en la que se desea mover el helado (ARRIBA, ABAJO, DERECHA, IZQUIERDA)
      * @throws BadDopoException Si la configuracion es incompleta, la direccion es invalida o desconocida
      */
-    @Override
     public void moverEnDireccion(String direccion) throws BadDopoException {
         if (tablero == null || grafo == null) {
             throw new BadDopoException(BadDopoException.CONFIGURACION_INCOMPLETA);
@@ -239,24 +241,23 @@ public class Helado implements Poder, Mover, RompeHielo {
         if (fruta.getPosicion().get(0).equals(posicion.get(0)) && 
             fruta.getPosicion().get(1).equals(posicion.get(1))) {
             puntaje += fruta.getGANANCIA();
-            fruta.setReinicio(true);
         } else {
             throw new BadDopoException(BadDopoException.FRUTA_FUERA_DE_ALCANCE);
         }
     }
     
-    public void tomarGanancia(Ganancia ganancia) throws BadDopoException {
-        if (ganancia == null) {
-            throw new BadDopoException(BadDopoException.GANANCIA_NULA);
-        }
-        if (ganancia.getPosicion().get(0).equals(posicion.get(0)) && 
-            ganancia.getPosicion().get(1).equals(posicion.get(1))) {
-            puntaje += ganancia.getValor();
-            ganancia.setRecolectada(true);
-        } else {
-            throw new BadDopoException(BadDopoException.GANANCIA_FUERA_DE_ALCANCE);
-        }
-    }
+//    public void tomarGanancia(Ganancia ganancia) throws BadDopoException {
+//        if (ganancia == null) {
+//            throw new BadDopoException(BadDopoException.GANANCIA_NULA);
+//        }
+//        if (ganancia.getPosicion().get(0).equals(posicion.get(0)) &&
+//            ganancia.getPosicion().get(1).equals(posicion.get(1))) {
+//            puntaje += ganancia.getValor();
+//            ganancia.setRecolectada(true);
+//        } else {
+//            throw new BadDopoException(BadDopoException.GANANCIA_FUERA_DE_ALCANCE);
+//        }
+//    }
     
     public void escogerNivel(int nivel) throws BadDopoException {
         if (nivel < 1) {

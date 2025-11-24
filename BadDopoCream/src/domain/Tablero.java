@@ -1,3 +1,4 @@
+package domain;
 // Tablero.java
 public class Tablero {
     private final int filas;

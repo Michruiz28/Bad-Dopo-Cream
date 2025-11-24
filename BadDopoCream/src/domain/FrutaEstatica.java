@@ -9,8 +9,8 @@ import java.util.ArrayList;
 public class FrutaEstatica extends Fruta {
     private String tipo;
     
-    public FrutaEstatica(int fila, int col, int ganancia, Celda celda, String tipo) throws BadDopoException {
-        super(fila, col, ganancia, celda); 
+    public FrutaEstatica(int fila, int col, Celda celda, String tipo) throws BadDopoException {
+        super(fila, col, celda);
     }
     
     /**

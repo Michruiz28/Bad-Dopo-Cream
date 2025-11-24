@@ -247,7 +247,7 @@ public class HeladoTest {
         helado.setPosicionInicial(5, 5);
         
         Celda celda = tablero.getCelda(5, 5);
-        Uva uva = new Uva(5, 5, 30, celda); // ✅ Constructor con ganancia
+        Uva uva = new Uva(5, 5, celda); // ✅ Constructor con ganancia
         
         int puntajeAntes = helado.getPuntaje();
         helado.comerFruta(uva);
@@ -269,7 +269,7 @@ public class HeladoTest {
         helado.mover("DERECHA"); // (5, 6)
         
         Celda celda2 = tablero.getCelda(5, 6);
-        Uva uva = new Uva(5, 6, 30, celda2);
+        Uva uva = new Uva(5, 6, celda2);
         helado.comerFruta(uva);
         
         assertEquals("El puntaje total debería ser 80", 80, helado.getPuntaje());

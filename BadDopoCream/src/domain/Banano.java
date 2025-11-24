@@ -14,7 +14,7 @@ public class Banano extends FrutaEstatica {
      * @throws BadDopoException Si los parámetros son inválidos
      */
     public Banano(int fila, int col, int ganancia, Celda celda) throws BadDopoException {
-        super(fila, col, ganancia, celda, "BANANO");
+        super(fila, col, celda, "BANANO");
     }
     
 }

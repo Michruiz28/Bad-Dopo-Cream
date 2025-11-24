@@ -1,4 +1,4 @@
-
+package domain;
 
 // GrafoTablero.java
 public class GrafoTablero {
