@@ -28,7 +28,7 @@ public class BadDopoCreamGUI extends JFrame {
     private JPanel sur;
     private JPanel oeste;
     private JPanel este;
-    private JPanel boardPanel;
+    private MapPanel boardPanel; // Cambiado a BoardPanel
 
     //Botones
     private JButton cambiarModoJuego;
@@ -156,9 +156,11 @@ public class BadDopoCreamGUI extends JFrame {
         sur.add(buttonPanel, BorderLayout.CENTER);
 
         //Panel central
-        boardPanel = new JPanel();
-        boardPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        boardPanel.setBorder(BorderFactory.createTitledBorder("Board"));
+        boardPanel = new MapPanel();
+        boardPanel.setBorder(BorderFactory.createTitledBorder("Nivel " + nivel));
+
+        // Cargar el nivel actual con los sabores seleccionados
+        cargarNivelActual();
 
         panel.add(oeste, BorderLayout.WEST);
         panel.add(boardPanel, BorderLayout.CENTER);
@@ -319,6 +321,9 @@ public class BadDopoCreamGUI extends JFrame {
             this.perfilMaq1 = necesitaPerfil1 ? (String) comboPerfil1.getSelectedItem() : null;
             this.perfilMaq2 = necesitaPerfil2 ? (String) comboPerfil2.getSelectedItem() : null;
 
+            // Recargar el nivel con los nuevos sabores
+            cargarNivelActual();
+
             JOptionPane.showMessageDialog(this, "Modo de juego actualizado correctamente");
         }
     }
@@ -376,6 +381,10 @@ public class BadDopoCreamGUI extends JFrame {
 
             this.sabor1 = nuevoSabor1;
             this.sabor2 = nuevoSabor2;
+
+            // Recargar el nivel con los nuevos sabores
+            cargarNivelActual();
+
             JOptionPane.showMessageDialog(this, "Sabores actualizados correctamente");
         }
     }
@@ -410,6 +419,8 @@ public class BadDopoCreamGUI extends JFrame {
 
         if (result == JOptionPane.OK_OPTION) {
             this.nivel = Integer.parseInt((String) comboNivel.getSelectedItem());
+            cargarNivelActual(); // Cargar el nuevo nivel
+            boardPanel.setBorder(BorderFactory.createTitledBorder("Nivel " + nivel));
             JOptionPane.showMessageDialog(this, "Nivel cambiado a: " + this.nivel);
         }
     }
@@ -525,6 +536,34 @@ public class BadDopoCreamGUI extends JFrame {
 
         if (confirmacion == JOptionPane.YES_OPTION) {
             System.exit(0);
+        }
+    }
+
+    /**
+     * Carga el nivel actual en el tablero según el número de nivel
+     */
+    private void cargarNivelActual() {
+        int[][] mapaNivel = Niveles.getNivel(nivel);
+        boardPanel.cargarNivel(mapaNivel, sabor1, sabor2);
+    }
+
+    /**
+     * Cambia al siguiente nivel
+     */
+    public void avanzarNivel() {
+        if (nivel < 3) {
+            nivel++;
+            cargarNivelActual();
+            boardPanel.setBorder(BorderFactory.createTitledBorder("Nivel " + nivel));
+            JOptionPane.showMessageDialog(this,
+                    "¡Nivel completado! Avanzando al nivel " + nivel,
+                    "¡Felicidades!",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "¡Felicidades! Has completado todos los niveles",
+                    "¡Juego Completado!",
+                    JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
