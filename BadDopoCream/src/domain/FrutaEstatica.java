@@ -11,6 +11,7 @@ public class FrutaEstatica extends Fruta {
     
     public FrutaEstatica(int fila, int col, Celda celda, String tipo) throws BadDopoException {
         super(fila, col, celda);
+        this.tipo = tipo;
     }
     
     /**

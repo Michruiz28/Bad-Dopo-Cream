@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class Fruta {
 
     private ArrayList<Integer> posicion;
-    private static final int GANANCIA = 50;
+    private int ganancia;
     private boolean reinicio;
     private Celda celda; 
 

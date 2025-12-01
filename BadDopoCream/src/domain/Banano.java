@@ -4,7 +4,7 @@ package domain;
  * El banano es una fruta estática que permanece en su posición hasta ser recolectada
  */
 public class Banano extends FrutaEstatica {
-    public static final int GANANCIA_BANANO = 50;
+    public static final int GANANCIA_BANANO = 100;
     /**
      * Constructor con ganancia personalizada
      * @param fila Fila donde se ubica el banano
