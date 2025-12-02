@@ -55,12 +55,11 @@ public class Helado implements Poder, Mover, RompeHielo {
     }
 
     @Override
-    public void mover(String direccion) throws BadDopoException {
-        // Este método genérico usa la última dirección guardada
-        if (ultimaDireccion == null) {
+    public void mover(Direccion direccion) throws BadDopoException {
+        if (direccion == null ){
             throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
         }
-        moverEnDireccion(direccion);
+        moverEnDireccion(direccion.name());
     }
     /**
      * Metodo moverEnDireccion  que permite mover el helado

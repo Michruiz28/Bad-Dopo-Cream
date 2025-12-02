@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Clase que representa una fruta estatica en el juego Bad Dopo Cream
  * Las frutas estáticas permanecen en una posición fija durante todo el nivel
  */
-public class FrutaEstatica extends Fruta {
+public abstract class FrutaEstatica extends Fruta {
     private String tipo;
     
     public FrutaEstatica(int fila, int col, Celda celda, String tipo) throws BadDopoException {
