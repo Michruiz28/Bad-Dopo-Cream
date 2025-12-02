@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Clase que representa una fruta en el juego Bad Dopo Cream
  * Las frutas deben ser recolectadas por el helado para ganar puntos
  */
-public class Fruta {
+public abstract class Fruta {
 
     private ArrayList<Integer> posicion;
     private int ganancia;

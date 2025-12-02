@@ -11,7 +11,7 @@ public abstract class Enemigo implements Mover, RompeHielo{
     protected Tablero tablero;
     private ArrayList<Integer> posicion;
     private GrafoTablero grafo;
-    private String ultimaDireccion; 
+    protected String ultimaDireccion; 
 
 
     public Enemigo(int fila, int columna, int velocidad, TipoComportamiento comportamiento, Tablero tablero) {
@@ -21,21 +21,27 @@ public abstract class Enemigo implements Mover, RompeHielo{
         this.comportamiento = comportamiento;
         this.tablero = tablero;
         this.direccionActual = Direccion.ABAJO;
+        this.ultimaDireccion = "ABAJO";
+        this.posicion = new ArrayList<>();
+        posicion.add(fila);
+        posicion.add(columna);
     }
-
+    
     @Override
-    public void mover(String direccion) throws BadDopoException {
-        // Este método genérico usa la última dirección guardada
-        if (ultimaDireccion == null) {
+    public void mover(Direccion direccion) throws BadDopoException {
+
+        if (direccion == null) {
             throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
         }
-        moverEnDireccion(ultimaDireccion);
+
+        this.ultimaDireccion = direccion.name();
+        moverEnDireccion(this.ultimaDireccion);
     }
     
     /**
-     * Metodo moverEnDireccion  que permite mover el helado
+     * Metodo moverEnDireccion  que permite mover el enemigo
      * en las cuatro direcciones, este metodo usa los metodos privados moverArriba,Abajo etc
-     * @param direccion La direccion en la que se desea mover el helado (ARRIBA, ABAJO, DERECHA, IZQUIERDA)
+     * @param direccion La direccion en la que se desea mover el enemigo(ARRIBA, ABAJO, DERECHA, IZQUIERDA)
      * @throws BadDopoException Si la configuracion es incompleta, la direccion es invalida o desconocida
      */
     public void moverEnDireccion(String direccion) throws BadDopoException {
@@ -68,52 +74,49 @@ public abstract class Enemigo implements Mover, RompeHielo{
     }
     
     private void moverArriba() throws BadDopoException {
-        int filaActual = posicion.get(0);
-        int colActual = posicion.get(1);
-        int nuevaFila = filaActual - 1;
-        
-        if (!validarMovimiento(nuevaFila, colActual)) {
+        int filaNueva = posicion.get(0) - 1;
+        int col = posicion.get(1);
+
+        if (!validarMovimiento(filaNueva, col)) {
             throw new BadDopoException(BadDopoException.MOVIMIENTO_INVALIDO);
         }
-        
-        posicion.set(0, nuevaFila);
+        posicion.set(0, filaNueva);
+        this.fila = filaNueva;
     }
     
     private void moverAbajo() throws BadDopoException {
-        int filaActual = posicion.get(0);
-        int colActual = posicion.get(1);
-        int nuevaFila = filaActual + 1;
-        
-        if (!validarMovimiento(nuevaFila, colActual)) {
+        int filaNueva = posicion.get(0) + 1;
+        int col = posicion.get(1);
+
+        if (!validarMovimiento(filaNueva, col)) {
             throw new BadDopoException(BadDopoException.MOVIMIENTO_INVALIDO);
         }
-        
-        posicion.set(0, nuevaFila);
+        posicion.set(0, filaNueva);
+        this.fila = filaNueva;
     }
     
     private void moverDerecha() throws BadDopoException {
-        int filaActual = posicion.get(0);
-        int colActual = posicion.get(1);
-        int nuevaCol = colActual + 1;
-        
-        if (!validarMovimiento(filaActual, nuevaCol)) {
+        int fila = posicion.get(0);
+        int colNueva = posicion.get(1) + 1;
+
+        if (!validarMovimiento(fila, colNueva)) {
             throw new BadDopoException(BadDopoException.MOVIMIENTO_INVALIDO);
         }
-        
-        posicion.set(1, nuevaCol);
+        posicion.set(1, colNueva);
+        this.columna = colNueva;
     }
     
     private void moverIzquierda() throws BadDopoException {
-        int filaActual = posicion.get(0);
-        int colActual = posicion.get(1);
-        int nuevaCol = colActual - 1;
-        
-        if (!validarMovimiento(filaActual, nuevaCol)) {
+        int fila = posicion.get(0);
+        int colNueva = posicion.get(1) - 1;
+
+        if (!validarMovimiento(fila, colNueva)) {
             throw new BadDopoException(BadDopoException.MOVIMIENTO_INVALIDO);
         }
-        
-        posicion.set(1, nuevaCol);
+        posicion.set(1, colNueva);
+        this.columna = colNueva;
     }
+    
     /**
      * Metodo para validar  los movimientos especificos del helado en el tablero
      * @param fila La fila a la que se desea mover
@@ -121,21 +124,21 @@ public abstract class Enemigo implements Mover, RompeHielo{
      * @return true si el movimiento es valido, false en caso contrario
      * @throws BadDopoException Si la configuracion es incompleta
      */
-    private boolean validarMovimiento(int fila, int col) throws BadDopoException {
-        if (tablero == null || grafo == null) {
-            throw new BadDopoException(BadDopoException.CONFIGURACION_INCOMPLETA);
-        }
-        if (fila < 0 || fila >= tablero.getFilas() || col < 0 || col >= tablero.getColumnas()) {
+    protected boolean validarMovimiento(int filaNueva, int colNueva) {
+
+        if (filaNueva < 0 || filaNueva >= tablero.getFilas() ||
+            colNueva < 0 || colNueva >= tablero.getColumnas()) {
             return false;
         }
-        Celda celdaDestino = tablero.getCelda(fila, col);
-        if (celdaDestino == null || !celdaDestino.esTransitable()) {
-            return false;
-        }
-        int filaActual = posicion.get(0);
-        int colActual = posicion.get(1);
-        return grafo.puedeMover(filaActual, colActual, fila, col);
+
+        Celda celdaDestino = tablero.getCelda(filaNueva, colNueva);
+        return celdaDestino != null && celdaDestino.esTransitable();
     }
+    /**
+     * Método que el enemigo ejecuta automáticamente en cada turno.
+     * Debe ser implementado por Troll, Narval, Calamar, etc.
+     */
+    public abstract void realizarMovimiento(Nivel nivel) throws BadDopoException;
     
     @Override
     public abstract void romperHielo();
