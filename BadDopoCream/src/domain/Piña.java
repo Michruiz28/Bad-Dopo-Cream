@@ -2,13 +2,13 @@
 package domain;
  
  /**
-  * Clase que representa una Piña en el juego Bad Dopo Cream.
+  * Clase que representa una Pina en el juego Bad Dopo Cream.
   * Es una fruta en movimiento que se desplaza automáticamente por el tablero.
   */
-public class Piña extends FrutaEnMovimiento {
-    public static final int GANANCIA_PIÑA = 200;
-    public Piña(int fila, int col, Celda celda) throws BadDopoException {
-        super(fila, col, GANANCIA_PIÑA, celda);
+public class Pina extends FrutaEnMovimiento {
+    public static final int GANANCIA_Pina = 200;
+    public Pina(int fila, int col, Celda celda) throws BadDopoException {
+        super(fila, col, GANANCIA_Pina, celda);
     }
 
     @Override

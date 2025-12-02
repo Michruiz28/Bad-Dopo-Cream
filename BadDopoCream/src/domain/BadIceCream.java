@@ -24,7 +24,7 @@ public class BadIceCream implements Serializable {
     private final long TIEMPO_MAXIMO = 180_000; // 3 minutos por nivel
 
     // Persistencia temporal
-    private long ultimoMovimientoHelado; // Para activar movimiento de piñas
+    private long ultimoMovimientoHelado; // Para activar movimiento de Pinas
     private long ultimoCrecimientoCactus; // Para púas
 
     // -------------------------------
@@ -127,7 +127,7 @@ public class BadIceCream implements Serializable {
         //----------------------------
         // Nota: Jugador.realizarMovimiento(Nivel) retorna void en tu diseño,
         // por eso NO podemos usarlo como boolean. Para detectar si al menos un helado
-        // se movió (necesario para mover piñas) guardamos posiciones antes y después.
+        // se movió (necesario para mover Pinas) guardamos posiciones antes y después.
         boolean heladoSeMovio = false;
         List<int[]> posicionesAntes = new ArrayList<>(jugadores.size());
         for (Jugador j : jugadores) {
@@ -180,9 +180,9 @@ public class BadIceCream implements Serializable {
     }
 
     // -------------------------------------------------
-    //      LÓGICA DE FRUTAS (PIÑA, CEREZA, CACTUS)
+    //      LÓGICA DE FRUTAS (Pina, CEREZA, CACTUS)
     // -------------------------------------------------
-    // ahora recibe heladoSeMovio para decidir si mover piñas
+    // ahora recibe heladoSeMovio para decidir si mover Pinas
     private void actualizarFrutas(Nivel nivel, long ahora, boolean heladoSeMovio) throws BadDopoException {
 
         // iteramos sobre copia para evitar ConcurrentModification si se recolectan
@@ -190,10 +190,10 @@ public class BadIceCream implements Serializable {
 
         for (Fruta f : copia) {
 
-            // Piñas -> se mueven SOLO cuando se mueve un helado
-            if (f instanceof Piña) {
+            // Pinas -> se mueven SOLO cuando se mueve un helado
+            if (f instanceof Pina) {
                 if (heladoSeMovio) {
-                    ((Piña) f).mover(nivel);
+                    ((Pina) f).mover(nivel);
                 }
             }
 
