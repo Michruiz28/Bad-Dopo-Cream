@@ -6,10 +6,10 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MapPanel extends JPanel {
+public class BoardPanel extends JPanel {
     private static final int FILAS = 18;
     private static final int COLUMNAS = 18;
-    private static final int TAMAÑO_CELDA = 35; // Tamaño en píxeles de cada celda
+    private static final int TAMAÑO_CELDA = 38; // Ajustado para ventana 800x800
 
     private JLabel[][] celdas; // Matriz de labels para mostrar imágenes
     private int[][] mapa; // Matriz que representa el estado del juego
@@ -27,7 +27,7 @@ public class MapPanel extends JPanel {
     public static final int ENEMIGO = 6;          // Enemigo
     public static final int BLOQUE_HIELO = 7;     // Bloque de hielo creado por jugador
 
-    public MapPanel() {
+    public BoardPanel() {
         setLayout(new GridLayout(FILAS, COLUMNAS, 0, 0));
         setPreferredSize(new Dimension(COLUMNAS * TAMAÑO_CELDA, FILAS * TAMAÑO_CELDA));
         setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
@@ -51,7 +51,8 @@ public class MapPanel extends JPanel {
                 celdas[i][j].setVerticalAlignment(SwingConstants.CENTER);
                 celdas[i][j].setOpaque(true);
                 celdas[i][j].setBackground(Color.WHITE);
-                celdas[i][j].setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
+                // Sin borde para que las imágenes se vean mejor
+                celdas[i][j].setBorder(null);
                 add(celdas[i][j]);
 
                 mapa[i][j] = VACIO;
@@ -65,21 +66,46 @@ public class MapPanel extends JPanel {
      */
     private void cargarImagenes() {
         // IMPORTANTE: Ajusta esta ruta según la ubicación de tus imágenes
-        String rutaBase = "Presentation/images/";
+        String[] rutasPosibles = {
+                "Presentation/images/",
+                "src/Presentation/images/",
+                "./Presentation/images/",
+                "images/",
+                "../images/"
+        };
 
-        System.out.println("=== Cargando imágenes del juego ===");
-        System.out.println("Ruta base: " + rutaBase);
+        String rutaBase = null;
+        File carpetaImagenes = null;
 
-        File carpetaImagenes = new File(rutaBase);
+        System.out.println("=== Buscando carpeta de imágenes ===");
+        System.out.println("Directorio actual: " + System.getProperty("user.dir"));
 
-        // Verificar que la carpeta existe
-        if (!carpetaImagenes.exists() || !carpetaImagenes.isDirectory()) {
-            System.err.println("✗ ERROR: La carpeta de imágenes no existe: " + rutaBase);
+        // Buscar la carpeta en diferentes ubicaciones
+        for (String ruta : rutasPosibles) {
+            File carpeta = new File(ruta);
+            System.out.println("Probando ruta: " + ruta + " → " + carpeta.getAbsolutePath());
+            if (carpeta.exists() && carpeta.isDirectory()) {
+                rutaBase = ruta;
+                carpetaImagenes = carpeta;
+                System.out.println("✓ Carpeta encontrada!");
+                break;
+            }
+        }
+
+        if (carpetaImagenes == null) {
+            System.err.println("✗ ERROR: No se encontró la carpeta de imágenes");
+            System.err.println("  Buscadas en:");
+            for (String ruta : rutasPosibles) {
+                System.err.println("    - " + ruta);
+            }
             System.err.println("  Usando colores y emojis como fallback");
             return;
         }
 
-        // Filtrar solo archivos PNG
+        System.out.println("Ruta base seleccionada: " + rutaBase);
+        System.out.println();
+
+        // Filtrar solo archivos PNG/JPG
         File[] archivos = carpetaImagenes.listFiles((dir, name) ->
                 name.toLowerCase().endsWith(".png") ||
                         name.toLowerCase().endsWith(".jpg") ||
@@ -87,9 +113,19 @@ public class MapPanel extends JPanel {
         );
 
         if (archivos == null || archivos.length == 0) {
-            System.err.println("✗ No se encontraron imágenes en: " + rutaBase);
+            System.err.println("✗ No se encontraron imágenes PNG/JPG en: " + rutaBase);
+            System.err.println("  Archivos en la carpeta:");
+            File[] todosArchivos = carpetaImagenes.listFiles();
+            if (todosArchivos != null) {
+                for (File f : todosArchivos) {
+                    System.err.println("    - " + f.getName());
+                }
+            }
             return;
         }
+
+        System.out.println("Encontrados " + archivos.length + " archivos de imagen");
+        System.out.println();
 
         // Cargar cada imagen encontrada
         for (File archivo : archivos) {
@@ -98,9 +134,11 @@ public class MapPanel extends JPanel {
             String clave = nombreArchivo.substring(0, nombreArchivo.lastIndexOf('.'));
 
             // Cargar y escalar la imagen
-            cargarYEscalarImagen(clave, archivo.getPath());
+            cargarYEscalarImagen(clave, archivo.getAbsolutePath());
         }
 
+        System.out.println("====================================");
+        System.out.println("Total de imágenes cargadas: " + imagenes.size());
         System.out.println("====================================");
     }
 
@@ -119,11 +157,12 @@ public class MapPanel extends JPanel {
                 return;
             }
 
-            // Escalar la imagen al tamaño de celda
-            Image img = icono.getImage().getScaledInstance(TAMAÑO_CELDA, TAMAÑO_CELDA, Image.SCALE_SMOOTH);
-            imagenes.put(clave, new ImageIcon(img));
+            Image img = icono.getImage();
 
-            System.out.println("✓ Imagen cargada: " + clave + " (" + icono.getIconWidth() + "x" + icono.getIconHeight() + " px)");
+            Image imgEscalada = img.getScaledInstance(TAMAÑO_CELDA, TAMAÑO_CELDA, Image.SCALE_SMOOTH);
+            imagenes.put(clave, new ImageIcon(imgEscalada));
+
+            System.out.println("✓ Imagen cargada: " + clave + " (" + icono.getIconWidth() + "x" + icono.getIconHeight() + " px → " + TAMAÑO_CELDA + "x" + TAMAÑO_CELDA + " px)");
 
         } catch (Exception e) {
             System.out.println("✗ EXCEPCIÓN al cargar '" + clave + "': " + e.getMessage());
@@ -164,9 +203,11 @@ public class MapPanel extends JPanel {
 
         celda.setIcon(null);
         celda.setText("");
+        celda.setFont(new Font("Arial", Font.BOLD, 18));
 
         ImageIcon imagen = null;
         Color colorFondo = Color.WHITE;
+        String textoFallback = "";
 
         switch (tipo) {
             case VACIO:
@@ -174,72 +215,65 @@ public class MapPanel extends JPanel {
                 break;
 
             case PARED_BORDE:
-                imagen = imagenes.get("pared_borde");
+                imagen = imagenes.get("Borde");
                 colorFondo = new Color(0, 51, 102); // Azul oscuro
-                if (imagen == null) {
-                    celda.setBackground(colorFondo);
-                }
+                textoFallback = "";
                 break;
 
             case HIELO_ROMPIBLE:
-                imagen = imagenes.get("hielo_rompible");
+                imagen = imagenes.get("BloqueDeHielo");
                 colorFondo = new Color(173, 216, 230); // Azul claro
-                if (imagen == null) {
-                    celda.setBackground(colorFondo);
-                }
+                textoFallback = "";
                 break;
 
             case FRUTA:
-                imagen = imagenes.get("fruta");
+                imagen = imagenes.get("platano");
                 colorFondo = Color.WHITE;
-                if (imagen == null) {
-                    celda.setBackground(Color.WHITE);
-                    celda.setText("🍊");
-                    celda.setFont(new Font("Arial", Font.PLAIN, 20));
-                }
+                textoFallback = "🍇";
                 break;
 
             case JUGADOR1:
             case JUGADOR2:
                 if (saborHelado != null) {
-                    String claveImagen = "helado_" + saborHelado.toLowerCase();
+                    String claveImagen = saborHelado + "Abajo";
                     imagen = imagenes.get(claveImagen);
+
+                    System.out.println("    Buscando imagen: '" + claveImagen + "' - " +
+                            (imagen != null ? "ENCONTRADA" : "NO ENCONTRADA"));
+
+                    if (imagen == null) {
+                        System.out.println("    Imágenes disponibles: " + imagenes.keySet());
+                    }
                 }
                 colorFondo = Color.WHITE;
-                if (imagen == null) {
-                    celda.setBackground(Color.WHITE);
-                    celda.setText("🍦");
-                    celda.setFont(new Font("Arial", Font.PLAIN, 20));
-                }
+                textoFallback = "🍦";
                 break;
 
             case ENEMIGO:
-                imagen = imagenes.get("enemigo");
+                imagen = imagenes.get("Iglu");
                 colorFondo = Color.WHITE;
-                if (imagen == null) {
-                    celda.setBackground(Color.WHITE);
-                    celda.setText("👾");
-                    celda.setFont(new Font("Arial", Font.PLAIN, 20));
-                }
+                textoFallback = "🐧";
                 break;
 
             case BLOQUE_HIELO:
-                imagen = imagenes.get("bloque_hielo");
+                imagen = imagenes.get("BloqueDeHielo");
                 colorFondo = new Color(135, 206, 250); // Azul cielo
-                if (imagen == null) {
-                    celda.setBackground(colorFondo);
-                }
+                textoFallback = "";
                 break;
 
             default:
                 colorFondo = Color.WHITE;
         }
 
-        if (imagen != null) {
+        // Si hay imagen, mostrarla; si no, usar fallback
+        if (imagen != null && imagen.getIconWidth() > 0) {
             celda.setIcon(imagen);
             celda.setBackground(Color.WHITE);
         } else {
             celda.setBackground(colorFondo);
+            if (!textoFallback.isEmpty()) {
+                celda.setText(textoFallback);
+            }
         }
     }
 
@@ -254,19 +288,27 @@ public class MapPanel extends JPanel {
 
         limpiarTablero();
 
+        System.out.println("=== Cargando nivel con sabores ===");
+        System.out.println("Sabor jugador 1: " + sabor1);
+        System.out.println("Sabor jugador 2: " + sabor2);
+
         for (int i = 0; i < FILAS; i++) {
             for (int j = 0; j < COLUMNAS; j++) {
                 int elemento = nivelMapa[i][j];
 
                 if (elemento == JUGADOR1) {
+                    System.out.println("  Colocando JUGADOR1 en (" + i + "," + j + ") con sabor: " + sabor1);
                     setElementoConSabor(i, j, JUGADOR1, sabor1);
                 } else if (elemento == JUGADOR2 && sabor2 != null) {
+                    System.out.println("  Colocando JUGADOR2 en (" + i + "," + j + ") con sabor: " + sabor2);
                     setElementoConSabor(i, j, JUGADOR2, sabor2);
                 } else {
                     setElemento(i, j, elemento);
                 }
             }
         }
+
+        System.out.println("================================");
     }
 
     /**
@@ -281,18 +323,100 @@ public class MapPanel extends JPanel {
     }
 
     /**
-     * Mueve un elemento de una posición a otra
+     * Mueve un elemento de una posición a otra con dirección
      */
-    public void moverElemento(int filaOrigen, int colOrigen, int filaDestino, int colDestino, String sabor) {
+    public void moverElemento(int filaOrigen, int colOrigen, int filaDestino, int colDestino, String sabor, String direccion) {
         if (esValido(filaOrigen, colOrigen) && esValido(filaDestino, colDestino)) {
             int elemento = mapa[filaOrigen][colOrigen];
+
+            // Si hay fruta en destino, recolectarla
+            if (mapa[filaDestino][colDestino] == FRUTA) {
+                // TODO: Incrementar puntaje
+                System.out.println("¡Fruta recolectada!");
+            }
+
+            // Limpiar origen
             setElemento(filaOrigen, colOrigen, VACIO);
 
+            // Colocar en destino con nueva dirección
             if (elemento == JUGADOR1 || elemento == JUGADOR2) {
-                setElementoConSabor(filaDestino, colDestino, elemento, sabor);
+                setElementoConSaborYDireccion(filaDestino, colDestino, elemento, sabor, direccion);
             } else {
                 setElemento(filaDestino, colDestino, elemento);
             }
+        }
+    }
+
+    /**
+     * Cambia solo la dirección del jugador sin moverlo
+     */
+    public void cambiarDireccion(int fila, int col, String sabor, String direccion) {
+        if (esValido(fila, col)) {
+            int elemento = mapa[fila][col];
+            if (elemento == JUGADOR1 || elemento == JUGADOR2) {
+                setElementoConSaborYDireccion(fila, col, elemento, sabor, direccion);
+            }
+        }
+    }
+
+    /**
+     * Establece un elemento con sabor y dirección específica
+     */
+    private void setElementoConSaborYDireccion(int fila, int columna, int tipo, String sabor, String direccion) {
+        if (!esValido(fila, columna)) {
+            return;
+        }
+
+        mapa[fila][columna] = tipo;
+        actualizarCeldaConDireccion(fila, columna, sabor, direccion);
+    }
+
+    /**
+     * Actualiza celda con dirección específica
+     */
+    private void actualizarCeldaConDireccion(int fila, int columna, String sabor, String direccion) {
+        JLabel celda = celdas[fila][columna];
+        int tipo = mapa[fila][columna];
+
+        celda.setIcon(null);
+        celda.setText("");
+
+        if (tipo == JUGADOR1 || tipo == JUGADOR2) {
+            // Construir clave con dirección
+            String claveImagen = sabor + direccion; // Ej: "ChocolateAbajo", "VainillaDerecha"
+            ImageIcon imagen = imagenes.get(claveImagen);
+
+            if (imagen != null && imagen.getIconWidth() > 0) {
+                celda.setIcon(imagen);
+                celda.setBackground(Color.WHITE);
+            } else {
+                celda.setBackground(Color.WHITE);
+                celda.setText("🍦");
+                celda.setFont(new Font("Arial", Font.BOLD, 18));
+            }
+        }
+    }
+
+    /**
+     * Crea un bloque de hielo en la posición especificada
+     */
+    public void crearBloqueHielo(int fila, int col) {
+        if (!esValido(fila, col)) {
+            return;
+        }
+
+        int elemento = mapa[fila][col];
+
+        // Solo puede crear hielo en espacios vacíos o sobre hielo rompible
+        if (elemento == VACIO) {
+            setElemento(fila, col, BLOQUE_HIELO);
+            System.out.println("Bloque de hielo creado en (" + fila + "," + col + ")");
+        } else if (elemento == HIELO_ROMPIBLE) {
+            setElemento(fila, col, VACIO);
+            System.out.println("Hielo rompible destruido en (" + fila + "," + col + ")");
+        } else if (elemento == BLOQUE_HIELO) {
+            setElemento(fila, col, VACIO);
+            System.out.println("Bloque de hielo destruido en (" + fila + "," + col + ")");
         }
     }
 
@@ -346,4 +470,4 @@ public class MapPanel extends JPanel {
     public int getColumnas() {
         return COLUMNAS;
     }
-}
+}s

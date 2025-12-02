@@ -42,9 +42,9 @@ public class ConfigDialog extends JDialog {
         labelModoMaquina1 = new JLabel("Perfil máquina 1:");
         labelModoMaquina2 = new JLabel("Perfil máquina 2:");
 
-        // Configuración inicial: todo oculto excepto modo y nivel
-        comboSabor1.setVisible(false);
-        labelSabor1.setVisible(false);
+        // Configuración inicial: sabor1 visible, resto oculto
+        comboSabor1.setVisible(true);   // Siempre visible
+        labelSabor1.setVisible(true);   // Siempre visible
         comboSabor2.setVisible(false);
         labelSabor2.setVisible(false);
         perfilMaquina1.setVisible(false);
