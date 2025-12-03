@@ -6,15 +6,13 @@ public class Tablero {
     private final Celda[][] celdas;
 
     /**
-     * Constructor.
-     * Si autoBordes == true, marca las celdas del borde exterior como BORDE.
+     * Constructor
      */
     public Tablero(int filas, int columnas, boolean autoBordes) {
         this.filas = filas;
         this.columnas = columnas;
         this.celdas = new Celda[filas][columnas];
 
-        // Inicializamos todas VACIAS por defecto
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
                 TipoCelda tipo = TipoCelda.VACIA;
@@ -51,6 +49,6 @@ public class Tablero {
             cel.setTipo(TipoCelda.VACIA);
             return true;
         }
-        return false; // no era hielo o no rompible (ej: BORDE)
+        return false;
     }
 }

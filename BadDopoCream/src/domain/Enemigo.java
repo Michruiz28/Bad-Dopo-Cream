@@ -8,18 +8,16 @@ public abstract class Enemigo implements Mover, RompeHielo{
     protected int velocidad;
     protected Direccion direccionActual;
     protected TipoComportamiento comportamiento;
-    protected Tablero tablero;
     private ArrayList<Integer> posicion;
     private GrafoTablero grafo;
     protected String ultimaDireccion; 
 
 
-    public Enemigo(int fila, int columna, int velocidad, TipoComportamiento comportamiento, Tablero tablero) {
+    public Enemigo(int fila, int columna, int velocidad, TipoComportamiento comportamiento) {
         this.fila = fila;
         this.columna = columna;
         this.velocidad = velocidad;
         this.comportamiento = comportamiento;
-        this.tablero = tablero;
         this.direccionActual = Direccion.ABAJO;
         this.ultimaDireccion = "ABAJO";
         this.posicion = new ArrayList<>();
@@ -45,9 +43,6 @@ public abstract class Enemigo implements Mover, RompeHielo{
      * @throws BadDopoException Si la configuracion es incompleta, la direccion es invalida o desconocida
      */
     public void moverEnDireccion(String direccion) throws BadDopoException {
-        if (tablero == null || grafo == null) {
-            throw new BadDopoException(BadDopoException.CONFIGURACION_INCOMPLETA);
-        }
         if (direccion == null || direccion.trim().isEmpty()) {
             throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
         }
@@ -116,24 +111,7 @@ public abstract class Enemigo implements Mover, RompeHielo{
         posicion.set(1, colNueva);
         this.columna = colNueva;
     }
-    
-    /**
-     * Metodo para validar  los movimientos especificos del helado en el tablero
-     * @param fila La fila a la que se desea mover
-     * @param col La columna a la que se desea mover
-     * @return true si el movimiento es valido, false en caso contrario
-     * @throws BadDopoException Si la configuracion es incompleta
-     */
-    protected boolean validarMovimiento(int filaNueva, int colNueva) {
 
-        if (filaNueva < 0 || filaNueva >= tablero.getFilas() ||
-            colNueva < 0 || colNueva >= tablero.getColumnas()) {
-            return false;
-        }
-
-        Celda celdaDestino = tablero.getCelda(filaNueva, colNueva);
-        return celdaDestino != null && celdaDestino.esTransitable();
-    }
     /**
      * Método que el enemigo ejecuta automáticamente en cada turno.
      * Debe ser implementado por Troll, Narval, Calamar, etc.

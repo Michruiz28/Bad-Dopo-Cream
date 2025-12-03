@@ -7,41 +7,54 @@ package domain;
  */
 public abstract class Jugador {
 
-    protected String nombre;
-    protected Helado helado;
+    protected int fila;
+    protected int col;
+    protected String sabor;
     protected int puntaje;
 
     /**
      * Constructor del jugador
-     * @param nombre Nombre del jugador
-     * @param helado Helado asociado
+     * @param fila número fila
+     * @param col número columna
+     * @param sabor Helado asociado
      * @throws BadDopoException Si los datos son inválidos
      */
-    public Jugador(String nombre, Helado helado) throws BadDopoException {
-        if (nombre == null || nombre.isBlank()) {
-            throw new BadDopoException("El nombre del jugador no puede estar vacío");
-        }
-        if (helado == null) {
-            throw new BadDopoException("El jugador debe tener un helado asociado");
+    public Jugador(int fila, int col, String sabor) throws BadDopoException {
+        if (fila == 0 || fila == 1 || fila == 16 || fila == 17 || col == 0 || col == 1 || col == 16 || col == 17) {
+            throw new BadDopoException("El jugador debe tener un posición válida");
         }
 
-        this.nombre = nombre;
-        this.helado = helado;
+        this.fila = fila;
+        this.col = col;
+        this.sabor = sabor;
         this.puntaje = 0;
     }
 
-    public String getNombre() {
-        return nombre;
+    public int getFila() {
+        return fila;
     }
 
-    public Helado getHelado() {
-        return helado;
+    public int getCol() {
+        return col;
     }
 
-    public void setHelado(Helado helado) {
-        this.helado = helado;
+    public String getSabor() {
+        return sabor;
     }
 
+    public void setCol(int col) {
+        this.col = col;
+    }
+
+    public void setSabor(String sabor) {
+        this.sabor = sabor;
+    }
+    public void setFila(int fila) {
+        this.fila = fila;
+    }
+    public void setPuntaje(int puntaje) {
+        this.puntaje = puntaje;
+    }
     public int getPuntaje() {
         return puntaje;
     }

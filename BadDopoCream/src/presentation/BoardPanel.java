@@ -1,4 +1,4 @@
-package Presentation;
+package presentation;
 
 import javax.swing.*;
 import java.awt.*;
@@ -470,4 +470,4 @@ public class BoardPanel extends JPanel {
     public int getColumnas() {
         return COLUMNAS;
     }
-}s
+}

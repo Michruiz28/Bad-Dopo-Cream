@@ -1,12 +1,12 @@
 package domain;
 
-public class JugadorMaquina extends Jugador {
+public class JugadorMaquina extends Helado {
 
     private EstrategiaMovimiento estrategia;
 
-    public JugadorMaquina(String nombre, Helado helado, EstrategiaMovimiento estrategia)
+    public JugadorMaquina(int fila, int col, String sabor, String estrategia)
             throws BadDopoException {
-        super(nombre, helado);
+        super(fila, col, sabor);
 
         if (estrategia == null) {
             throw new BadDopoException("La máquina debe tener una estrategia de movimiento");
@@ -21,7 +21,7 @@ public class JugadorMaquina extends Jugador {
 
     @Override
     public void realizarMovimiento(Nivel nivel) throws BadDopoException {
-        Direccion dir = estrategia.calcularMovimiento(helado, nivel);
-        helado.mover(dir, nivel);
+        //Direccion dir = estrategia.calcularMovimiento(helado, nivel);
+        //helado.mover(dir);
     }
 }

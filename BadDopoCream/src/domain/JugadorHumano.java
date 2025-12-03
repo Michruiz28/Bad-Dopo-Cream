@@ -1,11 +1,11 @@
  
 package domain;
-public class JugadorHumano extends Jugador {
+public class JugadorHumano extends Helado {
 
     private Direccion ultimaDireccion;
 
-    public JugadorHumano(String nombre, Helado helado) throws BadDopoException {
-        super(nombre, helado);
+    public JugadorHumano(int fila, int col, String sabor) throws BadDopoException {
+        super(fila, col, sabor);
         this.ultimaDireccion = null;
     }
 
@@ -15,11 +15,11 @@ public class JugadorHumano extends Jugador {
 
     @Override
     public void realizarMovimiento(Nivel nivel) throws BadDopoException {
-        if (ultimaDireccion == null) return; 
-        if (helado == null) {
-            throw new BadDopoException("El jugador humano no tiene helado asignado.");
-        }
-        helado.mover(ultimaDireccion);
+       // if (ultimaDireccion == null) return;
+       // if (helado == null) {
+       //     throw new BadDopoException("El jugador humano no tiene helado asignado.");
+       // }
+       // helado.mover(ultimaDireccion);
         this.ultimaDireccion = null;
     }
 }

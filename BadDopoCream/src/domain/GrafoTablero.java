@@ -55,14 +55,14 @@ public class GrafoTablero {
     }
 
     /**
-     * Reconstruye el grafo por completo (útil luego de romper hielo).
+     * Reconstruye el grafo por completo.
      */
     public void reconstruir() {
         construirGrafo();
     }
 
     /**
-     * Chequea si se puede mover desde (f1,c1) a (f2,c2) considerando el grafo.
+     * Revisa movimiento según la estructura del grafo
      */
     public boolean puedeMover(int f1, int c1, int f2, int c2) {
         Nodo desde = getNodo(f1, c1);
