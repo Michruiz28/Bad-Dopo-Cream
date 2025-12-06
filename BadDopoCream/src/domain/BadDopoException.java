@@ -21,6 +21,8 @@ public class BadDopoException extends Exception {
     public static final String GANANCIA_FUERA_DE_ALCANCE = "La ganancia no está en la misma posición que el helado";
     public static final String NIVEL_INVALIDO = "El nivel debe ser mayor o igual a 1";
     public static final String PUNTAJE_INVALIDO = "El puntaje no puede ser negativo";
+    public static final String POSICION_INVALIDA = "Fila o columna ingresadas inválidas";
+    public static final String TIPO_NO_IDENTIFICADO = "Tipo de elemento no identificado";
     public BadDopoException(String message) {
         super(message);
     }

@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Nodo {
-    private final Celda celda;
     private final List<Nodo> vecinos = new ArrayList<>();
+    private Celda celda;
 
-    public Nodo(Celda celda) {
-        this.celda = celda;
+    public Nodo(int fila, int columna, String tipo, CreadorElemento creador) throws BadDopoException {
+        // El Nodo crea su Celda, pasando la responsabilidad de crear el Elemento
+        this.celda = new Celda(fila, columna, tipo, creador);
     }
 
     public Celda getCelda() { return celda; }
+
     public List<Nodo> getVecinos() { return vecinos; }
 
     public void agregarVecino(Nodo n) {
@@ -23,3 +25,4 @@ public class Nodo {
         return "Nodo " + celda.toString();
     }
 }
+

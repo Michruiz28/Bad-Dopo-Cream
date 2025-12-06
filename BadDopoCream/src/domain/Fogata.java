@@ -8,8 +8,8 @@ public class Fogata extends Obstaculo {
 
     private boolean encendida;
 
-    public Fogata(int fila, int col, Celda celda) throws BadDopoException {
-        super(fila, col, celda);
+    public Fogata(int fila, int col) throws BadDopoException {
+        super(fila, col);
         this.encendida = true;
     }
 

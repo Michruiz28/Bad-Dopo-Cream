@@ -1,54 +1,37 @@
 package domain;
+
+import java.util.ArrayList;
+
 // Tablero.java
 public class Tablero {
-    private final int filas;
-    private final int columnas;
-    private final Celda[][] celdas;
+    private String[][] InfoNivel;
+    private static int filas;
+    private static int columnas;
+    private CreadorElemento creador;
+    private GrafoTablero grafo;
 
     /**
      * Constructor
      */
-    public Tablero(int filas, int columnas, boolean autoBordes) {
-        this.filas = filas;
-        this.columnas = columnas;
-        this.celdas = new Celda[filas][columnas];
-
-        for (int f = 0; f < filas; f++) {
-            for (int c = 0; c < columnas; c++) {
-                TipoCelda tipo = TipoCelda.VACIA;
-                if (autoBordes && (f == 0 || f == filas - 1 || c == 0 || c == columnas - 1)) {
-                    tipo = TipoCelda.BORDE;
-                }
-                celdas[f][c] = new Celda(f, c, tipo);
-            }
+    public Tablero(String[][] infoNivel, CreadorElemento creador) throws BadDopoException {
+        if (infoNivel == null || infoNivel.length == 0 || infoNivel[0].length == 0) {
+            throw new BadDopoException(BadDopoException.INFONIVEL_VACIO);
         }
+
+        this.InfoNivel = InfoNivel;
+        Tablero.filas = InfoNivel.length;
+        Tablero.columnas = InfoNivel[0].length;
+
+        // El Tablero pasa toda la información necesaria al Grafo para que este lo construya
+        // El Grafo se encarga de crear Nodos, que crean Celdas, que crean Elementos.
+        this.grafo = new GrafoTablero(filas, columnas, infoNivel, creador);
     }
 
-    public int getFilas() { return filas; }
-    public int getColumnas() { return columnas; }
-
-    public Celda getCelda(int fila, int col) {
-        if (fila < 0 || fila >= filas || col < 0 || col >= columnas) return null;
-        return celdas[fila][col];
+    public void setElementoEnGrafo(int fila, int col, String tipo) throws BadDopoException{
+        grafo.setNodo(fila, col, tipo);
     }
 
-    public void setCelda(int fila, int col, TipoCelda tipo) {
-        if (fila < 0 || fila >= filas || col < 0 || col >= columnas) return;
-        celdas[fila][col].setTipo(tipo);
-    }
-
-    /**
-     * Intentar romper un bloque de hielo en (fila,col).
-     * Retorna true si se rompió (y la celda pasó a VACIA).
-     * No permite romper BORDE ni VACIA.
-     */
-    public boolean romperHielo(int fila, int col) {
-        Celda cel = getCelda(fila, col);
-        if (cel == null) return false;
-        if (cel.esRompible()) {
-            cel.setTipo(TipoCelda.VACIA);
-            return true;
-        }
-        return false;
+    public int getColumnas() {
+        return columnas;
     }
 }

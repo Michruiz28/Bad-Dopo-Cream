@@ -2,24 +2,26 @@ package domain;
 
 import java.util.ArrayList;
 
-public class Helado implements Poder, Mover, RompeHielo {
+public class Helado extends Elemento implements Poder, Mover, RompeHielo {
     private String sabor;
     private int puntaje;
-    private ArrayList<Integer> posicion;
+    private int fila;
+    private int col;
     private Tablero tablero;
     private GrafoTablero grafo;
     private String ultimaDireccion;
 
 
-    public Helado(String sabor) throws BadDopoException {
+    public Helado(int fila, int col, String sabor) throws BadDopoException {
+        super(fila, col);
+        if (fila == 0 || col == 0 || fila == 1 ||col == 1 || fila == 16 ||col == 16 || fila == 17 ||col == 17 ){
+            throw new BadDopoException(BadDopoException.POSICION_INVALIDA);
+        }
         if (sabor == null || sabor.trim().isEmpty()) {
             throw new BadDopoException(BadDopoException.SABOR_INVALIDO);
         }
         this.sabor = sabor;
         this.puntaje = 0;
-        this.posicion = new ArrayList<>();
-        this.posicion.add(0);
-        this.posicion.add(0);
     }
 
     public void setTablero(Tablero tablero) throws BadDopoException {

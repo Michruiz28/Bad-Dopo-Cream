@@ -5,7 +5,7 @@ package domain;
  */
 public class BaldosaCaliente extends Obstaculo {
 
-    public BaldosaCaliente(int fila, int col, Celda celda) throws BadDopoException {
-        super(fila, col, celda);
+    public BaldosaCaliente(int fila, int col) throws BadDopoException {
+        super(fila, col);
     }
 }

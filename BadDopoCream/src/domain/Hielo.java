@@ -5,7 +5,7 @@ package domain;
  */
 public class Hielo extends Obstaculo {
 
-    public Hielo(int fila, int col, Celda celda) throws BadDopoException {
-        super(fila, col, celda);
+    public Hielo(int fila, int col) throws BadDopoException {
+        super(fila, col);
     }
 }

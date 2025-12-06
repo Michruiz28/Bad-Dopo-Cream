@@ -1,35 +1,29 @@
 package domain;
 
-// Celda.java
 public class Celda {
     private final int fila;
     private final int col;
-    private TipoCelda tipo;
+    private Elemento elemento;
 
-    public Celda(int fila, int col, TipoCelda tipo) {
+    public Celda(int fila, int col, String tipo, CreadorElemento creador) throws BadDopoException {
         this.fila = fila;
         this.col = col;
-        this.tipo = tipo;
+        this.elemento = creador.creadorElemento(fila, col, tipo);
     }
 
     public int getFila() { return fila; }
+
     public int getCol() { return col; }
 
-    public TipoCelda getTipo() { return tipo; }
-    public void setTipo(TipoCelda tipo) { this.tipo = tipo; }
+    public Elemento getElemento() { return elemento; }
 
-    // Solo VACIA es transitable
-    public boolean esTransitable() {
-        return tipo == TipoCelda.VACIA;
-    }
+    public void setElemento(Elemento tipo) { this.elemento = tipo; }
 
-    // Solo HIELO puede romperse
-    public boolean esRompible() {
-        return tipo == TipoCelda.HIELO;
-    }
+    //public boolean esTransitable() {
+    //    return tipo == TipoCelda.VACIA;
+    //}
 
-    @Override
-    public String toString() {
-        return "(" + fila + "," + col + ") " + tipo;
-    }
+    //public boolean esRompible() {
+        // return tipo == TipoCelda.HIELO;
+    //}
 }

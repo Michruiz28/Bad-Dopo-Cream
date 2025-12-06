@@ -23,10 +23,10 @@ public class BadDopoCream implements Serializable {
     // Persistencia temporal
     private long ultimoMovimientoHelado; // Para activar movimiento de Pinas
     private long ultimoCrecimientoCactus; // Para púas
-
+    
     private CreadorElemento creador;
     private ArrayList<Helado> jugadores;
-    private java.util.List<Enemigo> enemigos;
+    private List<Enemigo> enemigos;
 
     public BadDopoCream(String modo, String sabor1, String sabor2, String perfil1, String perfil2) {
         // Seleccionar factory según el modo

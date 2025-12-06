@@ -1,6 +1,6 @@
-package presentation;
+import presentation.BoardPanel;
 
-public class Niveles {
+public class InfoNivel {
 
     /**
      * Retorna el mapa del nivel especificado
