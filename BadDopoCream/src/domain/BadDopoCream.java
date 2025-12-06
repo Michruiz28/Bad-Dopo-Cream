@@ -9,7 +9,7 @@ import java.util.List;
  * jugadores, enemigos y frutas. Independiente de GUI.
  */
 public class BadDopoCream implements Serializable {
-
+    private Tablero tablero;
     private List<Nivel> niveles;
     private int indiceNivel;
 
@@ -172,8 +172,6 @@ public class BadDopoCream implements Serializable {
     }
 
     private void actualizarFrutas(Nivel nivel, long ahora, boolean heladoSeMovio) throws BadDopoException {
-
-
         List<Fruta> copia = new ArrayList<>(nivel.getFrutas());
 
         for (Fruta f : copia) {
@@ -225,6 +223,14 @@ public class BadDopoCream implements Serializable {
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo));
         oos.writeObject(this);
         oos.close();
+    }
+
+    public void moverElemento(int fila, int col, String direccion) throws BadDopoException {
+        try {
+            tablero.solicitarMovimiento(fila, col, direccion);
+        } catch (BadDopoException e) {
+            throw new BadDopoException(BadDopoException.NO_SE_PUEDE_REALIZAR_MOVIMIENTO);
+        }
     }
 
     public static BadDopoCream cargar(String archivo)

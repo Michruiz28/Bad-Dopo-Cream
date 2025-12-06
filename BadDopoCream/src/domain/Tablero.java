@@ -34,4 +34,8 @@ public class Tablero {
     public int getColumnas() {
         return columnas;
     }
+
+    public boolean solicitarMovimiento(int fila, int columna, String direccion) throws BadDopoException {
+        return grafo.solicitarMovimiento(fila, columna, direccion);
+    }
 }

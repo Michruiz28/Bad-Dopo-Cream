@@ -2,13 +2,13 @@ package domain;
 
 import java.util.ArrayList;
 
-public class Helado extends Elemento implements Poder, Mover, RompeHielo {
+public class Helado extends Elemento implements Poder, RompeHielo {
     private String sabor;
     private int puntaje;
     private int fila;
     private int col;
-    private Tablero tablero;
-    private GrafoTablero grafo;
+    private int filaInicial;
+    private int columnaInicial;
     private String ultimaDireccion;
 
 
@@ -22,47 +22,32 @@ public class Helado extends Elemento implements Poder, Mover, RompeHielo {
         }
         this.sabor = sabor;
         this.puntaje = 0;
+        this.filaInicial = fila;
+        this.columnaInicial = col;
     }
 
-    public void setTablero(Tablero tablero) throws BadDopoException {
-        if (tablero == null) {
-            throw new BadDopoException(BadDopoException.TABLERO_NULO);
-        }
-        this.tablero = tablero;
+    public void setPosicionInicial() throws BadDopoException {
+        this.fila = filaInicial;
+        this.col = columnaInicial;
     }
-    
-    public void setGrafo(GrafoTablero grafo) throws BadDopoException {
-        if (grafo == null) {
-            throw new BadDopoException(BadDopoException.GRAFO_NULO);
-        }
-        this.grafo = grafo;
+
+    public void setFila(int fila) {
+        this.fila = fila;
     }
-    
-    public void setPosicionInicial(int fila, int col) throws BadDopoException {
-        if (tablero == null) {
-            throw new BadDopoException(BadDopoException.TABLERO_NO_CONFIGURADO);
-        }
-        
-        if (fila < 0 || fila >= tablero.getFilas() || col < 0 || col >= tablero.getColumnas()) {
-            throw new BadDopoException(BadDopoException.POSICION_FUERA_DE_RANGO);
-        }
-        
-        Celda celda = tablero.getCelda(fila, col);
-        if (celda == null || !celda.esTransitable()) {
-            throw new BadDopoException(BadDopoException.POSICION_NO_TRANSITABLE);
-        }
-        
-        this.posicion.set(0, fila);
-        this.posicion.set(1, col);
+
+    public void setColumna(int columna) {
+        this.col = columna;
     }
 
     @Override
-    public void mover(Direccion direccion) throws BadDopoException {
+    public void mover(String direccion) throws BadDopoException {
         if (direccion == null ){
             throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
         }
-        moverEnDireccion(direccion.name());
+        this.ultimaDireccion = direccion;
+        // Pendiente imagen
     }
+
     /**
      * Metodo moverEnDireccion  que permite mover el helado
      * en las cuatro direcciones, este metodo usa los metodos privados moverArriba,Abajo etc
@@ -70,9 +55,7 @@ public class Helado extends Elemento implements Poder, Mover, RompeHielo {
      * @throws BadDopoException Si la configuracion es incompleta, la direccion es invalida o desconocida
      */
     public void moverEnDireccion(String direccion) throws BadDopoException {
-        if (tablero == null || grafo == null) {
-            throw new BadDopoException(BadDopoException.CONFIGURACION_INCOMPLETA);
-        }
+
         if (direccion == null || direccion.trim().isEmpty()) {
             throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
         }
@@ -99,52 +82,53 @@ public class Helado extends Elemento implements Poder, Mover, RompeHielo {
     }
     
     private void moverArriba() throws BadDopoException {
-        int filaActual = posicion.get(0);
-        int colActual = posicion.get(1);
+        int filaActual = this.fila;
+        int colActual = this.col;
         int nuevaFila = filaActual - 1;
         
         if (!validarMovimiento(nuevaFila, colActual)) {
             throw new BadDopoException(BadDopoException.MOVIMIENTO_INVALIDO);
         }
         
-        posicion.set(0, nuevaFila);
+        this.fila = nuevaFila;
     }
     
     private void moverAbajo() throws BadDopoException {
-        int filaActual = posicion.get(0);
-        int colActual = posicion.get(1);
+        int filaActual = this.fila;
+        int colActual = this.col + 1;
         int nuevaFila = filaActual + 1;
         
         if (!validarMovimiento(nuevaFila, colActual)) {
             throw new BadDopoException(BadDopoException.MOVIMIENTO_INVALIDO);
         }
         
-        posicion.set(0, nuevaFila);
+        this.fila = nuevaFila;
     }
     
     private void moverDerecha() throws BadDopoException {
-        int filaActual = posicion.get(0);
-        int colActual = posicion.get(1);
+        int filaActual = this.fila;
+        int colActual = this.col;
         int nuevaCol = colActual + 1;
         
         if (!validarMovimiento(filaActual, nuevaCol)) {
             throw new BadDopoException(BadDopoException.MOVIMIENTO_INVALIDO);
         }
         
-        posicion.set(1, nuevaCol);
+        this.col =  nuevaCol;
     }
     
     private void moverIzquierda() throws BadDopoException {
-        int filaActual = posicion.get(0);
-        int colActual = posicion.get(1);
+        int filaActual = this.fila;
+        int colActual = this.col;
         int nuevaCol = colActual - 1;
         
         if (!validarMovimiento(filaActual, nuevaCol)) {
             throw new BadDopoException(BadDopoException.MOVIMIENTO_INVALIDO);
         }
         
-        posicion.set(1, nuevaCol);
+        this.col =  nuevaCol;
     }
+
     /**
      * Metodo para validar  los movimientos especificos del helado en el tablero
      * @param fila La fila a la que se desea mover
@@ -153,9 +137,7 @@ public class Helado extends Elemento implements Poder, Mover, RompeHielo {
      * @throws BadDopoException Si la configuracion es incompleta
      */
     private boolean validarMovimiento(int fila, int col) throws BadDopoException {
-        if (tablero == null || grafo == null) {
-            throw new BadDopoException(BadDopoException.CONFIGURACION_INCOMPLETA);
-        }
+
         if (fila < 0 || fila >= tablero.getFilas() || col < 0 || col >= tablero.getColumnas()) {
             return false;
         }
@@ -321,4 +303,5 @@ public class Helado extends Elemento implements Poder, Mover, RompeHielo {
     public GrafoTablero getGrafo() {
         return grafo;
     }
+
 }

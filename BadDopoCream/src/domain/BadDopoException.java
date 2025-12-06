@@ -23,6 +23,7 @@ public class BadDopoException extends Exception {
     public static final String PUNTAJE_INVALIDO = "El puntaje no puede ser negativo";
     public static final String POSICION_INVALIDA = "Fila o columna ingresadas inválidas";
     public static final String TIPO_NO_IDENTIFICADO = "Tipo de elemento no identificado";
+    public static final String NO_SE_PUEDE_REALIZAR_MOVIMIENTO = "No se puede realizar el movimiento";
     public BadDopoException(String message) {
         super(message);
     }

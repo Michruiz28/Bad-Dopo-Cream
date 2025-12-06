@@ -8,7 +8,6 @@ public class Nodo {
     private Celda celda;
 
     public Nodo(int fila, int columna, String tipo, CreadorElemento creador) throws BadDopoException {
-        // El Nodo crea su Celda, pasando la responsabilidad de crear el Elemento
         this.celda = new Celda(fila, columna, tipo, creador);
     }
 
