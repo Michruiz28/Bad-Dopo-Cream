@@ -146,14 +146,44 @@ public class GrafoTablero {
         return posiciones;
     }
 
+    public boolean permitirRomperHielo(int fila, int columna, String ultimaDireccion) throws BadDopoException {
+        Nodo nodo = getNodo(fila, columna);
+        if (ultimaDireccion.equals("DERECHA")) {
+            Nodo nodoVecino = getNodo(fila, columna + 1);
+            return romperHieloEnNodo(nodoVecino);
+        } else if (ultimaDireccion.equals("ARRIBA")) {
+            Nodo nodoVecino = getNodo(fila - 1, columna);
+            return romperHieloEnNodo(nodoVecino);
+        } else  if (ultimaDireccion.equals("ABAJO")) {
+            Nodo nodoVecino = getNodo(fila + 1, columna);
+            return romperHieloEnNodo(nodoVecino);
+        } else  if (ultimaDireccion.equals("IZQUIERDA")) {
+            Nodo nodoVecino = getNodo(fila, columna - 1);
+            return romperHieloEnNodo(nodoVecino);
+        }
+        return false;
+    }
 
-    /**
-     * Revisa movimiento según la estructura del grafo
-     */
-    //public boolean puedeMover(int f1, int c1, int f2, int c2) {
-    //    Nodo desde = getNodo(f1, c1);
-    //    Nodo hasta = getNodo(f2, c2);
-    //    if (desde == null || hasta == null) return false;
-    //    return desde.getVecinos().contains(hasta);
-    //}
+    public boolean romperHieloEnNodo(Nodo nodoVecino) throws BadDopoException {
+        Celda celda = nodoVecino.getCelda();
+        if (celda.getTipo().equals("H")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void romperHielo(int fila, int columna, String ultimaDireccion) throws BadDopoException {
+        Nodo nodo = getNodo(fila, columna);
+        if (ultimaDireccion.equals("DERECHA")) {
+            while (permitirRomperHielo(fila, columna, ultimaDireccion)) {
+                Celda celda = nodo.getCelda();
+                celda.setElementoConTipo("V", creador);
+            }
+        }
+    }
+
+
+
+
 }
