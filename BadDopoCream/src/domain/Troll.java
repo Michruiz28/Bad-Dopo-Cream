@@ -1,48 +1,46 @@
 package domain;
-import java.util.Random;
-public class Troll extends Enemigo implements Mover {
-    private Random random = new Random();
+public class Troll extends Enemigo  {
     
-    public Troll(int fila, int columna, Tablero tablero) {
-        super(fila, columna, 10, TipoComportamiento.LINEAL, tablero);
-        this.ultimaDireccion = "DERECHA";
+    public Troll(int fila, int col) {
+        super(fila, col, 1, TipoComportamiento.LINEAL);
+        this.ultimaDireccion = "ARRIBA";
     }
-
+    /**
+     * El Troll intenta moverse en la misma dirección.
+     * Si adelante hay algo NO transitable, invierte la dirección.
+     * No persigue a jugadores.
+     */
     @Override
-    public void mover(Direccion direccion) throws BadDopoException {
-        if (direccion == null) {
-            throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
+    public String decidirMovimiento(Tablero tablero, Helado jugador) throws BadDopoException {
+        // Nodo actual
+        Nodo nodoActual = tablero.getNodo(getFila(), getColumna());
+        if (nodoActual == null) return ultimaDireccion;
+        // Determinar nodo destino según ultimaDireccion
+        int nuevaFila = getFila();
+        int nuevaCol = getColumna();
+        switch (ultimaDireccion) {
+            case "ARRIBA"    -> nuevaFila--;
+            case "ABAJO"     -> nuevaFila++;
+            case "IZQUIERDA" -> nuevaCol--;
+            case "DERECHA"   -> nuevaCol++;
         }
-
-        this.ultimaDireccion = direccion.name();
-        moverEnDireccion(this.ultimaDireccion);
-    }
-    
-    @Override
-    public void romperHielo(){}
-    @Override
-    public void realizarMovimiento(Nivel nivel) throws BadDopoException {
-
-        try {
-            moverEnDireccion(ultimaDireccion);
-        } catch (BadDopoException e) {
-            // Cambiar dirección al chocar
-            ultimaDireccion = cambiarDireccion(ultimaDireccion);
-            moverEnDireccion(ultimaDireccion);
+        Nodo nodoDestino = tablero.getNodo(nuevaFila, nuevaCol);
+        // Caso 1: si no existe o no es transitable → invertir dirección
+        if (nodoDestino == null || !nodoDestino.getCelda().esTransitable()) {
+            invertirDireccion();
         }
+        return ultimaDireccion;
     }
-    
-    private String cambiarDireccion(String dir) {
-        return switch (dir) {
-            case "ARRIBA" -> "ABAJO";
-            case "ABAJO" -> "ARRIBA";
+    /**
+     * Cambia la dirección actual a la opuesta.
+     */
+    private void invertirDireccion() {
+        ultimaDireccion = switch (ultimaDireccion) {
+            case "ARRIBA"    -> "ABAJO";
+            case "ABAJO"     -> "ARRIBA";
             case "IZQUIERDA" -> "DERECHA";
-            default -> "IZQUIERDA";
+            case "DERECHA"   -> "IZQUIERDA";
+            default -> ultimaDireccion;
         };
     }
- 
-    
-    public int getFila() { return fila; }
-    public int getColumna() { return columna; }
-
 }

@@ -4,5 +4,7 @@ package domain;
 public enum TipoCelda {
     VACIA,
     HIELO,
-    BORDE
+    BORDE,
+    FOGATA,
+    BALDOSA_CALIENTE,
 }

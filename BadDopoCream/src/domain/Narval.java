@@ -1,63 +1,127 @@
 package domain;
+
+import java.util.*;
+
 public class Narval extends Enemigo {
 
-    public Narval(int fila, int columna, Tablero tablero) {
-        super(fila, columna, 14, TipoComportamiento.EMBESTIDA, tablero);
-        this.ultimaDireccion = "IZQUIERDA";
-    }
-
-    @Override
-    public void realizarMovimiento(Nivel nivel) throws BadDopoException {
-        Direccion dir = estaAlineado(nivel);
-        if (dir != null) {
-            embestida(dir);
-            return;
-        }
-        mover(Direccion.valueOf(ultimaDireccion));
+    public Narval(int fila, int col) {
+        super(fila, col, 1, TipoComportamiento.PERSEGUIDOR);
     }
 
     /**
-     * Determina si algún helado está alineado en fila o columna.
+     * Narval persigue al jugador usando BFS.
+     * - Si hay ruta válida → devuelve la dirección del primer paso.
+     * - Si no hay ruta → intenta movimiento aleatorio.
+     * - Si ni eso puede → se queda con última dirección válida.
      */
-    private Direccion estaAlineado(Nivel nivel) {
-        if (nivel.getJugadores().isEmpty()) return null;
-        for (Jugador j : nivel.getJugadores()) {
-            Helado h = j.getHelado();
-            if (h.getFila() == this.fila) {
-                return (h.getColumna() < this.columna) ?
-                        Direccion.IZQUIERDA : Direccion.DERECHA;
-            }
+    @Override
+    public String decidirMovimiento(Tablero tablero, Helado jugador) throws BadDopoException {
 
-            if (h.getColumna() == this.columna) {
-                return (h.getFila() < this.fila) ?
-                        Direccion.ARRIBA : Direccion.ABAJO;
-            }
+        int destinoFila = jugador.getFila();
+        int destinoCol = jugador.getColumna();
+
+        // BFS desde mi posición hacia el jugador
+        String direccion = bfsDireccionHacia(tablero, destinoFila, destinoCol);
+
+        if (direccion != null) {
+            ultimaDireccion = direccion;
+            return direccion;
         }
-        return null;
+
+        // Si no hay ruta → movimiento aleatorio seguro
+        String aleatoria = elegirDireccionAleatoria(tablero);
+        if (aleatoria != null) {
+            ultimaDireccion = aleatoria;
+            return aleatoria;
+        }
+
+        // No se puede mover → se queda en su dirección actual
+        return ultimaDireccion;
     }
+
 
     /**
-     * La embestida avanza 3 casillas en la misma dirección,
-     * rompiendo hielo en cada paso.
+     * BFS mínimo para obtener SOLO la primera dirección hacia el jugador.
      */
-    public void embestida(Direccion direccion) throws BadDopoException {
-        this.ultimaDireccion = direccion.name();
-        for (int i = 0; i < 3; i++) {
-            romperHielo(); 
-            mover(direccion); 
+    private String bfsDireccionHacia(Tablero tablero, int objetivoFila, int objetivoCol) {
+
+        record Estado(int fila, int col, String primerPaso) {}
+
+        Queue<Estado> cola = new LinkedList<>();
+        boolean[][] visitado = new boolean[tablero.getFilas()][tablero.getColumnas()];
+
+        int f0 = getFila();
+        int c0 = getColumna();
+
+        // Expandimos desde la posición del Narval
+        cola.add(new Estado(f0, c0, null));
+        visitado[f0][c0] = true;
+
+        int[][] dirs = { {-1,0}, {1,0}, {0,1}, {0,-1} };
+        String[] nombres = { "ARRIBA", "ABAJO", "DERECHA", "IZQUIERDA" };
+
+        while (!cola.isEmpty()) {
+            Estado actual = cola.remove();
+
+            // ¿Llegamos al jugador?
+            if (actual.fila == objetivoFila && actual.col == objetivoCol) {
+                return actual.primerPaso;
+            }
+
+            // Expandimos vecinos
+            for (int i = 0; i < 4; i++) {
+                int nf = actual.fila + dirs[i][0];
+                int nc = actual.col + dirs[i][1];
+
+                if (!tablero.esPosicionValida(nf, nc)) continue;
+                if (visitado[nf][nc]) continue;
+
+                Celda celdaDestino = tablero.getNodo(nf, nc).getCelda();
+
+                // Narval NO entra en hielo, ni obstáculos, ni enemigos
+                if (!celdaDestino.esTransitableParaEnemigos()) continue;
+
+                visitado[nf][nc] = true;
+
+                // Si aún estamos en la raíz, el primer paso es este
+                String primer = (actual.primerPaso == null) ? nombres[i] : actual.primerPaso;
+
+                cola.add(new Estado(nf, nc, primer));
+            }
         }
+
+        return null; // Sin camino encontrado
     }
 
-    @Override
-    public void romperHielo() {
-        int f = fila;
-        int c = columna;
-        Direccion dir = Direccion.valueOf(ultimaDireccion);
-        switch (dir) {
-            case ARRIBA    -> tablero.romperHielo(f - 1, c);
-            case ABAJO     -> tablero.romperHielo(f + 1, c);
-            case IZQUIERDA -> tablero.romperHielo(f, c - 1);
-            case DERECHA   -> tablero.romperHielo(f, c + 1);
+
+    /**
+     * Movimiento aleatorio solo a celdas válidas.
+     */
+    private String elegirDireccionAleatoria(Tablero tablero) {
+
+        List<String> posibles = new ArrayList<>();
+
+        String[] dirs = {"ARRIBA", "ABAJO", "DERECHA", "IZQUIERDA"};
+        int[][] delta = { {-1,0},{1,0},{0,1},{0,-1} };
+
+        int f = getFila();
+        int c = getColumna();
+
+        for (int i = 0; i < dirs.length; i++) {
+            int nf = f + delta[i][0];
+            int nc = c + delta[i][1];
+
+            if (!tablero.esPosicionValida(nf, nc)) continue;
+
+            Celda dest = tablero.getNodo(nf, nc).getCelda();
+
+            if (dest.esTransitableParaEnemigos()) {
+                posibles.add(dirs[i]);
+            }
         }
+
+        if (posibles.isEmpty()) return null;
+
+        return posibles.get(new Random().nextInt(posibles.size()));
     }
 }

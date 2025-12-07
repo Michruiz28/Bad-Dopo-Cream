@@ -1,25 +1,34 @@
 package domain;
 
-import java.util.ArrayList;
-
 /**
- * Clase abstracta que representa un obstáculo en el juego Bad Dopo Cream.
+ * Obstáculo estándar del juego.
+ * Por defecto es sólido y bloquea paso.
  */
 public abstract class Obstaculo extends Elemento {
-    private int fila;
-    private int columna;
-
     public Obstaculo(int fila, int col) throws BadDopoException {
         super(fila, col);
-
     }
-
-    public int getFila() {
-        return fila;
+    /**
+     * Por defecto un obstáculo es sólido.
+     */
+    @Override
+    public boolean esSolido() {
+        return true;
     }
-
-    public int getColumna() {
-        return columna;
+    /**
+     * Por defecto no es peligroso.
+     */
+    public boolean esPeligroso() {
+        return false;
     }
-
+    /**
+     * Por defecto no es rompible.
+     */
+    public boolean esRompible() {
+        return false;
+    }
+    @Override
+    public void mover(String direccion) {
+        // Los obstáculos NO se mueven — no implementado
+    }
 }

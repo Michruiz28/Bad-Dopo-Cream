@@ -2,41 +2,27 @@ package domain;
 
 public abstract class FrutaEnMovimiento extends Fruta {
 
-    protected Direccion direccionActual;
+    protected String direccionActual = "NINGUNA";
 
-    public FrutaEnMovimiento(int fila, int col, int ganancia, Celda celda)
-            throws BadDopoException {
-        super(fila, col, ganancia, celda);
-        this.direccionActual = Direccion.ABAJO;
+    public FrutaEnMovimiento(int fila, int columna, int ganancia) throws BadDopoException {
+        super(fila, columna, ganancia);
+    }
+    @Override
+    public void mover(String direccion) throws BadDopoException{
+        moverEnDireccion(direccion);
     }
 
-    /**
-     * Mueve la fruta una casilla según su lógica interna.
-     * Debe ser implementado por Piña y Cereza.
-     */
-    public abstract void mover(Nivel nivel) throws BadDopoException;
-    /**
-     * Verifica si la fruta puede moverse a una celda.
-     */
-    protected boolean validarMovimiento(int nuevaFila, int nuevaCol, Nivel nivel) {
-        Tablero tablero = nivel.getTablero();
-        if (nuevaFila < 0 || nuevaFila >= tablero.getFilas() ||
-            nuevaCol < 0 || nuevaCol >= tablero.getColumnas()) {
-            return false;
+    protected void moverEnDireccion(String direccion) throws BadDopoException{
+        if (direccion == null || direccion.isEmpty())
+            throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
+        switch (direccion.toUpperCase()){
+            case "ARRIBA": setFila(getFila() - 1); break;
+            case "ABAJO" : setFila(getFila() + 1); break;
+            case "IZQUIERDA": setColumna(getColumna() - 1); break;
+            case "DERECHA" : setColumna(getColumna() + 1); break;
+            default: throw new BadDopoException(BadDopoException.DIRECCION_DESCONOCIDA);
         }
-        Celda celdaDestino = tablero.getCelda(nuevaFila, nuevaCol);
-        if (celdaDestino == null || !celdaDestino.esTransitable()) return false;
-        for (Enemigo e : nivel.getEnemigos()) {
-            if (e.getFila() == nuevaFila && e.getColumna() == nuevaCol) {
-                return false;
-            }
-        }
-        for (Jugador j : nivel.getJugadores()) {
-            Helado h = j.getHelado();
-            if (h.getFila() == nuevaFila && h.getColumna() == nuevaCol) {
-                return false;
-            }
-        }
-        return true;
+        direccionActual = direccion.toUpperCase();
     }
+
 }

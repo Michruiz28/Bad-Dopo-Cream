@@ -1,127 +1,92 @@
 package domain;
 import java.util.ArrayList;
 
-public abstract class Enemigo implements Mover, RompeHielo{
+public abstract class Enemigo implements Elemento{
 
-    protected int fila;
-    protected int columna;
     protected int velocidad;
-    protected Direccion direccionActual;
+    protected String ultimaDireccion;
     protected TipoComportamiento comportamiento;
-    private ArrayList<Integer> posicion;
-    private GrafoTablero grafo;
-    protected String ultimaDireccion; 
 
 
-    public Enemigo(int fila, int columna, int velocidad, TipoComportamiento comportamiento) {
-        this.fila = fila;
-        this.columna = columna;
+
+    public Enemigo(int fila, int col, int velocidad, TipoComportamiento comportamiento) {
+        super(fila,col);
         this.velocidad = velocidad;
         this.comportamiento = comportamiento;
-        this.direccionActual = Direccion.ABAJO;
-        this.ultimaDireccion = "ABAJO";
-        this.posicion = new ArrayList<>();
-        posicion.add(fila);
-        posicion.add(columna);
+        this.ultimaDireccion = "ARRIBA";
     }
-    
+    public abstract String decidirMovimiento(Tablero tablero, Helado jugador) throws BadDopoException;
+
     @Override
-    public void mover(Direccion direccion) throws BadDopoException {
-
-        if (direccion == null) {
-            throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
-        }
-
-        this.ultimaDireccion = direccion.name();
-        moverEnDireccion(this.ultimaDireccion);
+    public boolean esSolido(){
+        return true;
     }
-    
-    /**
-     * Metodo moverEnDireccion  que permite mover el enemigo
-     * en las cuatro direcciones, este metodo usa los metodos privados moverArriba,Abajo etc
-     * @param direccion La direccion en la que se desea mover el enemigo(ARRIBA, ABAJO, DERECHA, IZQUIERDA)
-     * @throws BadDopoException Si la configuracion es incompleta, la direccion es invalida o desconocida
-     */
-    public void moverEnDireccion(String direccion) throws BadDopoException {
-        if (direccion == null || direccion.trim().isEmpty()) {
+
+    @Override
+    public void mover(String direccion) throws BadDopoException {
+        if (direccion == null || direccion.isEmpty()) {
             throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
         }
+
+        this.ultimaDireccion = direccion;
+
         switch (direccion.toUpperCase()) {
-            case "ARRIBA":
-            case "UP":
-                moverArriba();
-                break;
-            case "ABAJO":
-            case "DOWN":
-                moverAbajo();
-                break;
-            case "DERECHA":
-            case "RIGHT":
-                moverDerecha();
-                break;
-            case "IZQUIERDA":
-            case "LEFT":
-                moverIzquierda();
-                break;
-            default:
-                throw new BadDopoException(BadDopoException.DIRECCION_DESCONOCIDA);
+            case "ARRIBA"    -> setFila(getFila() - velocidad);
+            case "ABAJO"     -> setFila(getFila() + velocidad);
+            case "IZQUIERDA" -> setColumna(getColumna() - velocidad);
+            case "DERECHA"   -> setColumna(getColumna() + velocidad);
+            default -> throw new BadDopoException(BadDopoException.DIRECCION_DESCONOCIDA);
         }
     }
-    
-    private void moverArriba() throws BadDopoException {
-        int filaNueva = posicion.get(0) - 1;
-        int col = posicion.get(1);
-
-        if (!validarMovimiento(filaNueva, col)) {
-            throw new BadDopoException(BadDopoException.MOVIMIENTO_INVALIDO);
-        }
-        posicion.set(0, filaNueva);
-        this.fila = filaNueva;
-    }
-    
-    private void moverAbajo() throws BadDopoException {
-        int filaNueva = posicion.get(0) + 1;
-        int col = posicion.get(1);
-
-        if (!validarMovimiento(filaNueva, col)) {
-            throw new BadDopoException(BadDopoException.MOVIMIENTO_INVALIDO);
-        }
-        posicion.set(0, filaNueva);
-        this.fila = filaNueva;
-    }
-    
-    private void moverDerecha() throws BadDopoException {
-        int fila = posicion.get(0);
-        int colNueva = posicion.get(1) + 1;
-
-        if (!validarMovimiento(fila, colNueva)) {
-            throw new BadDopoException(BadDopoException.MOVIMIENTO_INVALIDO);
-        }
-        posicion.set(1, colNueva);
-        this.columna = colNueva;
-    }
-    
-    private void moverIzquierda() throws BadDopoException {
-        int fila = posicion.get(0);
-        int colNueva = posicion.get(1) - 1;
-
-        if (!validarMovimiento(fila, colNueva)) {
-            throw new BadDopoException(BadDopoException.MOVIMIENTO_INVALIDO);
-        }
-        posicion.set(1, colNueva);
-        this.columna = colNueva;
-    }
-
     /**
-     * Método que el enemigo ejecuta automáticamente en cada turno.
-     * Debe ser implementado por Troll, Narval, Calamar, etc.
+     * BFS interno para encontrar la mejor dirección hacia el objetivo.
+     *
+     * NO mueve al enemigo.
+     * SOLO calcula la DIRECCIÓN recomendada.
      */
-    public abstract void realizarMovimiento(Nivel nivel) throws BadDopoException;
-    
-    @Override
-    public abstract void romperHielo();
+    protected String calcularDireccionHacia(Tablero tablero, Helado objetivo) {
+        Nodo inicio = tablero.getNodo(getFila(), getColumna());
+        Nodo fin    = tablero.getNodo(objetivo.getFila(), objetivo.getColumna());
+        if (inicio == null || fin == null) return null;
+        Queue<Nodo> cola = new LinkedList<>();
+        Map<Nodo, Nodo> padre = new HashMap<>();
+        cola.add(inicio);
+        padre.put(inicio, null);
+        while (!cola.isEmpty()) {
+            Nodo actual = cola.poll();
+            if (actual == fin)
+                break;
+            for (Nodo vecino : actual.getVecinos()) {
+                boolean transitable = vecino.getCelda().esTransitable();
 
-    public int getFila() { return fila; }
-    public int getColumna() { return columna; }
-
+                if (!padre.containsKey(vecino) && transitable) {
+                    padre.put(vecino, actual);
+                    cola.add(vecino);
+                }
+            }
+        }
+        if (!padre.containsKey(fin)) {
+            return null; // no hay ruta posible
+        }
+        // Retroceder desde el objetivo hasta encontrar el primer paso
+        Nodo paso = fin;
+        while (padre.get(paso) != inicio) {
+            paso = padre.get(paso);
+        }
+        return determinarDireccion(inicio, paso);
+    }
+    /**
+     * Dado el nodo origen "inicio" y el primer paso "paso", se determina la dirección.
+     */
+    private String determinarDireccion(Nodo a, Nodo b) {
+        int fa = a.getCelda().getFila();
+        int ca = a.getCelda().getCol();
+        int fb = b.getCelda().getFila();
+        int cb = b.getCelda().getCol();
+        if (fb == fa - 1) return "ARRIBA";
+        if (fb == fa + 1) return "ABAJO";
+        if (cb == ca - 1) return "IZQUIERDA";
+        if (cb == ca + 1) return "DERECHA";
+        return null;
+    }
 }

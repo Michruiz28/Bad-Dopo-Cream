@@ -18,9 +18,10 @@ public class Tablero {
             throw new BadDopoException(BadDopoException.INFONIVEL_VACIO);
         }
 
-        this.InfoNivel = InfoNivel;
-        Tablero.filas = InfoNivel.length;
-        Tablero.columnas = InfoNivel[0].length;
+        this.infoNivel = infoNivel;
+        Tablero.filas = infoNivel.length;
+        Tablero.columnas = infoNivel[0].length;
+        this.creador = Objects.requireNonNull(creador);
 
         // El Tablero pasa toda la información necesaria al Grafo para que este lo construya
         // El Grafo se encarga de crear Nodos, que crean Celdas, que crean Elementos.
@@ -34,8 +35,21 @@ public class Tablero {
     public int getColumnas() {
         return columnas;
     }
+    public int getFilas(){ return filas;}
 
     public boolean solicitarMovimiento(int fila, int columna, String direccion) throws BadDopoException {
         return grafo.solicitarMovimiento(fila, columna, direccion);
+    }
+    public Celda getCelda(int fila, int col){
+        Nodo n = grafo.getNodo(fila,col);
+        return n == null ? null: n.getCelda();
+    }
+
+    public boolean romperHielo(int fila, int col) throws BadDopoException{
+        Celda celda = getCelda(fila,col);
+        if (celda == null) return false;
+        if (celda.getTipoCelda() != TipoCelda.HIELO) return false;
+        celda.setTipoCelda(TipoCelda.VACIA);
+        return true;
     }
 }

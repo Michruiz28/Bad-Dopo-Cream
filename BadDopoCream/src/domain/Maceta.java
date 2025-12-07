@@ -1,41 +1,45 @@
  
 package domain;
-public class Maceta extends Enemigo implements Mover {
+import java.util.Random;
+import java.util.List;
+import java.util.Random;
 
-    public Maceta(int fila, int columna, Tablero tablero) {
-        super(fila, columna, 8, TipoComportamiento.PERSEGUIDOR, tablero);
-        this.ultimaDireccion = "ABAJO";
+public class Maceta extends Enemigo  {
+    private Random random = new Random();
+    public Maceta(int fila, int col) {
+        super(fila, col, 1, TipoComportamiento.PERSEGUIDOR);
     }
 
-    /**
-     * Persigue al helado más cercano.
-     */
     @Override
-    public void realizarMovimiento(Nivel nivel) throws BadDopoException {
-        Direccion direccion = buscarHelado(nivel);
-        this.ultimaDireccion = direccion.name();
-        mover(direccion);
-    }
-
-    /**
-     * Retorna la dirección hacia el helado más cercano.
-     */
-    private Direccion buscarHelado(Nivel nivel) {
-        if (nivel.getJugadores().isEmpty()) {
-            return Direccion.valueOf(ultimaDireccion);
+    public String decidirMovimiento(Tablero tablero, Helado jugador) throws BadDopoException {
+        Nodo nodoActual = tablero.getNodo(getFila(), getColumna());
+        if (nodoActual == null) return ultimaDireccion;
+        // Todas las direcciones posibles
+        List<String> direcciones = new ArrayList<>(List.of("ARRIBA", "ABAJO", "IZQUIERDA", "DERECHA"));
+        // Probamos direcciones hasta encontrar una válida
+        while (!direcciones.isEmpty()) {
+            int index = random.nextInt(direcciones.size());
+            String direccion = direcciones.get(index);
+            // Coordenadas candidatas
+            int nf = getFila();
+            int nc = getColumna();
+            switch (direccion) {
+                case "ARRIBA"    -> nf--;
+                case "ABAJO"     -> nf++;
+                case "IZQUIERDA" -> nc--;
+                case "DERECHA"   -> nc++;
+            }
+            Nodo nodoDestino = tablero.getNodo(nf, nc);
+            // Caso válido: el nodo existe y es transitable
+            if (nodoDestino != null && nodoDestino.getCelda().esTransitable()) {
+                ultimaDireccion = direccion;
+                return direccion;
+            }
+            // Si no sirve, la eliminamos y probamos otra
+            direcciones.remove(index);
         }
-        Jugador j = nivel.getJugadores().get(0);
-        Helado h = j.getHelado();
-        int hf = h.getFila();
-        int hc = h.getColumna();
-        if (hf < fila) return Direccion.ARRIBA;
-        if (hf > fila) return Direccion.ABAJO;
-        if (hc < columna) return Direccion.IZQUIERDA;
-        return Direccion.DERECHA;
+        // Si ninguna dirección fue válida → no se mueve
+        return ultimaDireccion;
     }
 
-    @Override
-    public void romperHielo() {
-        // Maceta NO rompe hielo
-    }
 }

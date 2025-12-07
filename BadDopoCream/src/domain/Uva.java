@@ -7,8 +7,8 @@ package domain;
 public class Uva extends FrutaEstatica {
     public static final int GANANCIA_UVA = 50;
     
-    public Uva(int fila, int col, Celda celda) throws BadDopoException {
-        super(fila, col, celda, "UVA");
+    public Uva(int fila, int columna) throws BadDopoException {
+        super(fila, columna, GANANCIA_UVA);
     }
 
 }

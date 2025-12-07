@@ -62,6 +62,7 @@ public class GrafoTablero {
     /**
      * Reconstruye el grafo por completo.
      */
+    //AUN FALTA ROBUSTECER ESTE METODO
     public void reconstruir() {
         construirGrafo();
     }
@@ -70,7 +71,7 @@ public class GrafoTablero {
     }
 
     public boolean solicitarMovimiento(int fila, int columna, String direccion) throws BadDopoException {
-        Nodo nodo = getNodo(fila, columna);
+        Nodo origenNodo = getNodo(fila, columna);
         if (direccion == null || direccion.trim().isEmpty()) {
             throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
         }
@@ -108,7 +109,6 @@ public class GrafoTablero {
         Celda celdaDestino = destino.getCelda();
         Elemento elementoAMover = celdaOrigen.getElemento();
         Elemento elementoEnDestino = celdaDestino.getElemento();
-        elementoAMover.mover(direccion);
 
         if (celdaDestino.getTipo().equals("H") || celdaDestino.getTipo().equals("B")){
             celdaOrigen.setElemento(elementoAMover, creador);
@@ -117,6 +117,7 @@ public class GrafoTablero {
             celdaDestino.setElemento(elementoAMover, creador);
             celdaOrigen.setElemento(null, creador);
         }
+        elementoAMover.mover(direccion);
     }
 
     public int[] moverArriba(int fila, int columna) throws BadDopoException {
@@ -145,6 +146,7 @@ public class GrafoTablero {
         posiciones[1] = columna - 1;
         return posiciones;
     }
+    //REVISAR SI ESTOS METODOS MOVER SE PUEDEN HACER DE FORMA MAS RAPIDA
 
 
     /**
