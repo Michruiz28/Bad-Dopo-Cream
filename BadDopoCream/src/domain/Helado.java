@@ -44,6 +44,7 @@ public class Helado extends Elemento implements Poder, RompeHielo {
         if (direccion == null ){
             throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
         }
+
         this.ultimaDireccion = direccion;
         // Pendiente imagen
     }

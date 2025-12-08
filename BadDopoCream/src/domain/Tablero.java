@@ -40,10 +40,6 @@ public class Tablero {
     }
 
     public void romperHielo(int fila, int columna, String ultimaDireccion) throws BadDopoException {
-        if (grafo.permitirRomperHielo(fila, columna, ultimaDireccion)){
-            grafo.romperHielo(fila, columna, ultimaDireccion);
-        } else {
-            throw new BadDopoException(BadDopoException.ACCION_NO_PERMITIDA);
-        }
+        grafo.realizarAccion(fila, columna, ultimaDireccion);
     }
 }
