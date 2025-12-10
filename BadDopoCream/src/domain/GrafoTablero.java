@@ -113,6 +113,10 @@ public class GrafoTablero {
         if (celdaDestino.getTipo().equals("H") || celdaDestino.getTipo().equals("B")){
             celdaOrigen.setElemento(elementoAMover, creador);
             celdaDestino.setElemento(elementoEnDestino, creador);
+        } else if (celdaDestino.getTipo().equals("BF") || celdaDestino.getTipo().equals("CF") || celdaDestino.getTipo().equals("CAF") || celdaDestino.getTipo().equals("U") || celdaDestino.getTipo().equals("P")) {
+            //celdaDestino.getElemento(elementoAMover, creador);
+            //celdaDestino.setElemento(elementoAMover, creador);
+            //celdaOrigen.setElemento(null, creador);
         } else {
             celdaDestino.setElemento(elementoAMover, creador);
             celdaOrigen.setElemento(null, creador);
@@ -126,6 +130,7 @@ public class GrafoTablero {
         posiciones[1] = columna;
         return posiciones;
     }
+
     public int[] moverAbajo(int fila, int columna) throws BadDopoException {
         int[] posiciones = new int[2];
         posiciones[0] = fila + 1;
@@ -148,14 +153,74 @@ public class GrafoTablero {
     }
     //REVISAR SI ESTOS METODOS MOVER SE PUEDEN HACER DE FORMA MAS RAPIDA
 
+    public void realizarAccion(int fila, int columna, String ultimaDireccion) throws BadDopoException {
+        Nodo nodo = getNodo(fila, columna);
+        if (ultimaDireccion.equals("DERECHA")) {
+            Nodo nodoVecino = getNodo(fila, columna + 1);
+            ejecutarAccion(nodoVecino, ultimaDireccion);
+        } else if (ultimaDireccion.equals("ARRIBA")) {
+            Nodo nodoVecino = getNodo(fila - 1, columna);
+            ejecutarAccion(nodoVecino, ultimaDireccion);
+        } else  if (ultimaDireccion.equals("ABAJO")) {
+            Nodo nodoVecino = getNodo(fila + 1, columna);
+            ejecutarAccion(nodoVecino, ultimaDireccion);
+        } else  if (ultimaDireccion.equals("IZQUIERDA")) {
+            Nodo nodoVecino = getNodo(fila, columna - 1);
+            ejecutarAccion(nodoVecino, ultimaDireccion);
+        }
+        else {
+            throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
+        }
+    }
 
-    /**
-     * Revisa movimiento según la estructura del grafo
-     */
-    //public boolean puedeMover(int f1, int c1, int f2, int c2) {
-    //    Nodo desde = getNodo(f1, c1);
-    //    Nodo hasta = getNodo(f2, c2);
-    //    if (desde == null || hasta == null) return false;
-    //    return desde.getVecinos().contains(hasta);
-    //}
+    public void ejecutarAccion(Nodo nodoVecino, String ultimaDireccion) throws BadDopoException {
+        Celda celda = nodoVecino.getCelda();
+        int fila = celda.getFila();
+        int columna = celda.getCol();
+        Elemento elemento = celda.getElemento();
+        if (elemento.esTransitable() && celda.getTipo().equals("H")) {
+            romperHielo(fila, columna, ultimaDireccion);
+        } else if (elemento.esTransitable()) {
+            crearHielo(fila, columna, ultimaDireccion);
+        }
+    }
+
+    public void romperHielo(int fila, int columna, String ultimaDireccion) throws BadDopoException {
+        Nodo nodo = getNodo(fila, columna);
+        Celda celda = nodo.getCelda();
+        while (celda.getTipo().equals("H")) {
+            Nodo nodoARomper = getNodo(fila, columna);
+            Celda celdaARomper = nodo.getCelda();
+            celdaARomper.setElementoConTipo("V", creador);
+            if (ultimaDireccion.equals("DERECHA")) {
+                columna++;
+            } else if (ultimaDireccion.equals("ARRIBA")) {
+                fila--;
+            }  else if (ultimaDireccion.equals("ABAJO")) {
+                fila++;
+            } else  if (ultimaDireccion.equals("IZQUIERDA")) {
+                columna--;
+            }
+        }
+    }
+
+    public void crearHielo(int fila, int columna, String ultimaDireccion) throws BadDopoException {
+        Nodo nodo = getNodo(fila, columna);
+        Celda celda = nodo.getCelda();
+        while (celda.getTipo().equals("H")) {
+            Nodo nodoACrear = getNodo(fila, columna);
+            Celda celdaACrear = nodo.getCelda();
+            celdaACrear.setElementoConTipo("H", creador);
+            if (ultimaDireccion.equals("DERECHA")) {
+                columna++;
+            } else if (ultimaDireccion.equals("ARRIBA")) {
+                fila--;
+            }  else if (ultimaDireccion.equals("ABAJO")) {
+                fila++;
+            } else  if (ultimaDireccion.equals("IZQUIERDA")) {
+                columna--;
+            }
+        }
+    }
+
 }

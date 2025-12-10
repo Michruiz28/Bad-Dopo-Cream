@@ -8,7 +8,7 @@ public abstract class CreadorElemento {
                 return crearEnemigo(fila, col, tipo);
             } else if (tipo.equals("H") || tipo.equals("BO") || tipo.equals("FO")) {
                 return crearObstaculo(fila, col, tipo);
-            } else if (tipo.equals("BF") || tipo.equals("CF") || tipo.equals("P") || tipo.equals("CAF")){
+            } else if (tipo.equals("BF") || tipo.equals("CF") || tipo.equals("P") || tipo.equals("CAF") || tipo.equals("U")) {
                 return crearFruta(fila, col, tipo);
             } else if (tipo.equals("CH") || tipo.equals("F") || tipo.equals("VH")){
                 return crearHelado(fila, col, tipo);
