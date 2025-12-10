@@ -1,63 +1,51 @@
 package domain;
+
 public class Narval extends Enemigo {
 
-    public Narval(int fila, int columna, Tablero tablero) {
-        super(fila, columna, 14, TipoComportamiento.EMBESTIDA, tablero);
-        this.ultimaDireccion = "IZQUIERDA";
-    }
-
-    @Override
-    public void realizarMovimiento(Nivel nivel) throws BadDopoException {
-        Direccion dir = estaAlineado(nivel);
-        if (dir != null) {
-            embestida(dir);
-            return;
-        }
-        mover(Direccion.valueOf(ultimaDireccion));
+    public Narval(int fila, int col) {
+        super(fila, col, 1, TipoComportamiento.PERSEGUIDOR);
+        // Narval no persigue directo, embiste cuando está alineado.
+        this.persigueJugador = false;
+        // Durante embestida rompe hielo en el camino
+        this.puedeRomperBloques = true;
+        this.rompeUnBloquePorVez = false;
     }
 
     /**
-     * Determina si algún helado está alineado en fila o columna.
+     * Narval embiste si está alineado horizontal o verticalmente con el jugador.
+     * En caso contrario, movimiento aleatorio.
+     * Durante embestida rompe hielo en el camino.
      */
-    private Direccion estaAlineado(Nivel nivel) {
-        if (nivel.getJugadores().isEmpty()) return null;
-        for (Jugador j : nivel.getJugadores()) {
-            Helado h = j.getHelado();
-            if (h.getFila() == this.fila) {
-                return (h.getColumna() < this.columna) ?
-                        Direccion.IZQUIERDA : Direccion.DERECHA;
-            }
-
-            if (h.getColumna() == this.columna) {
-                return (h.getFila() < this.fila) ?
-                        Direccion.ARRIBA : Direccion.ABAJO;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * La embestida avanza 3 casillas en la misma dirección,
-     * rompiendo hielo en cada paso.
-     */
-    public void embestida(Direccion direccion) throws BadDopoException {
-        this.ultimaDireccion = direccion.name();
-        for (int i = 0; i < 3; i++) {
-            romperHielo(); 
-            mover(direccion); 
-        }
-    }
-
     @Override
-    public void romperHielo() {
-        int f = fila;
-        int c = columna;
-        Direccion dir = Direccion.valueOf(ultimaDireccion);
-        switch (dir) {
-            case ARRIBA    -> tablero.romperHielo(f - 1, c);
-            case ABAJO     -> tablero.romperHielo(f + 1, c);
-            case IZQUIERDA -> tablero.romperHielo(f, c - 1);
-            case DERECHA   -> tablero.romperHielo(f, c + 1);
+    public String decidirProximaMovida(VistaTablero vista, Helado jugador) throws BadDopoException {
+        int fj = jugador.getFila();
+        int cj = jugador.getColumna();
+        int f = getFila();
+        int c = getColumna();
+
+        // ¿Alineado horizontal o verticalmente?
+        if (f == fj || c == cj) {
+            // Determinar dirección de embestida
+            String direccion = null;
+            if (f == fj) {
+                direccion = (c < cj) ? "DERECHA" : "IZQUIERDA";
+            } else {
+                direccion = (f < fj) ? "ABAJO" : "ARRIBA";
+            }
+            
+            // La embestida la ejecuta GrafoTablero detectando alineación
+            setUltimaDireccion(direccion);
+            return direccion; // marca embestida
         }
+
+        // Si no está alineado, movimiento aleatorio
+        java.util.List<String> validas = vista.obtenerDireccionesValidas(f, c);
+        if (!validas.isEmpty()) {
+            String aleatoria = validas.get(new java.util.Random().nextInt(validas.size()));
+            setUltimaDireccion(aleatoria);
+            return aleatoria;
+        }
+
+        return getUltimaDireccion();
     }
 }

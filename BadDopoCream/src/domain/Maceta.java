@@ -1,41 +1,40 @@
- 
 package domain;
-public class Maceta extends Enemigo implements Mover {
 
-    public Maceta(int fila, int columna, Tablero tablero) {
-        super(fila, columna, 8, TipoComportamiento.PERSEGUIDOR, tablero);
-        this.ultimaDireccion = "ABAJO";
+public class Maceta extends Enemigo  {
+
+    public Maceta(int fila, int col) {
+        super(fila, col, 1, TipoComportamiento.PERSEGUIDOR);
+        this.persigueJugador = true;
+        this.puedeRomperBloques = false;
+        this.rompeUnBloquePorVez = false;
     }
 
     /**
-     * Persigue al helado más cercano.
+     * Maceta persigue al jugador usando BFS.
+     * No puede romper bloques.
      */
     @Override
-    public void realizarMovimiento(Nivel nivel) throws BadDopoException {
-        Direccion direccion = buscarHelado(nivel);
-        this.ultimaDireccion = direccion.name();
-        mover(direccion);
-    }
-
-    /**
-     * Retorna la dirección hacia el helado más cercano.
-     */
-    private Direccion buscarHelado(Nivel nivel) {
-        if (nivel.getJugadores().isEmpty()) {
-            return Direccion.valueOf(ultimaDireccion);
+    public String decidirProximaMovida(VistaTablero vista, Helado jugador) throws BadDopoException {
+        String direccion = vista.calcularDireccionHaciaObjetivo(
+            getFila(), getColumna(),
+            jugador.getFila(), jugador.getColumna(),
+            false // no permite pasar por hielo
+        );
+        
+        if (direccion != null) {
+            setUltimaDireccion(direccion);
+            return direccion;
         }
-        Jugador j = nivel.getJugadores().get(0);
-        Helado h = j.getHelado();
-        int hf = h.getFila();
-        int hc = h.getColumna();
-        if (hf < fila) return Direccion.ARRIBA;
-        if (hf > fila) return Direccion.ABAJO;
-        if (hc < columna) return Direccion.IZQUIERDA;
-        return Direccion.DERECHA;
-    }
-
-    @Override
-    public void romperHielo() {
-        // Maceta NO rompe hielo
+        
+        // Si no hay camino, intenta movimiento aleatorio
+        java.util.List<String> validas = vista.obtenerDireccionesValidas(getFila(), getColumna());
+        if (!validas.isEmpty()) {
+            String aleatoria = validas.get(new java.util.Random().nextInt(validas.size()));
+            setUltimaDireccion(aleatoria);
+            return aleatoria;
+        }
+        
+        // No puede moverse
+        return getUltimaDireccion();
     }
 }

@@ -3,22 +3,23 @@ package domain;
 public abstract class CreadorElemento {
 
     public Elemento creadorElemento(int fila, int col, String tipo) throws BadDopoException{
-            if (tipo.equals("T") || tipo.equals("NE") || tipo.equals("C") || tipo.equals("M") ||) {
+            if (tipo == null) throw new BadDopoException(BadDopoException.TIPO_NO_IDENTIFICADO);
+            if (tipo.equals("T") || tipo.equals("NE") || tipo.equals("C") || tipo.equals("M")) {
                 return crearEnemigo(fila, col, tipo);
-            } else if (tipo.equals("H") || tipo.equals("BO") || tipo.equals("FO") || tipo.equals("B")) {
+            } else if (tipo.equals("H") || tipo.equals("BO") || tipo.equals("FO")) {
                 return crearObstaculo(fila, col, tipo);
             } else if (tipo.equals("BF") || tipo.equals("CF") || tipo.equals("P") || tipo.equals("CAF") || tipo.equals("U")) {
                 return crearFruta(fila, col, tipo);
             } else if (tipo.equals("CH") || tipo.equals("F") || tipo.equals("VH")){
                 return crearHelado(fila, col, tipo);
             } else if (tipo.equals("V")){
-                return creadorNieve(fila, col);
+                return crearNieve(fila, col);
             } else {
                 throw new BadDopoException(BadDopoException.TIPO_NO_IDENTIFICADO);
             }
     }
 
-    private Nieve creadorNieve(int fila, int col) throws BadDopoException {
+    private Nieve crearNieve(int fila, int col) throws BadDopoException {
         return new Nieve(fila, col);
     }
 
@@ -48,17 +49,26 @@ public abstract class CreadorElemento {
     }
 
     public Helado crearHelado(int fila, int col, String sabor) throws BadDopoException {
-        return new Helado(fila, col, sabor);
+        String saborReal = mapearCodigoASabor(sabor);
+        return new Helado(fila, col, saborReal);
+    }
+    protected String mapearCodigoASabor(String codigo) {
+        return switch (codigo) {
+            case "CH" -> "Chocolate";
+            case "F"  -> "Fresa";
+            case "VH" -> "Vainilla";
+            default   -> "Vainilla";
+        };
     }
 
     public Fruta crearFruta(int fila, int col, String tipo) throws BadDopoException {
         if (tipo.equals("BF")) {
-            return new Platano(fila, col);
+            return new Banano(fila, col);
         } else if (tipo.equals("CF")) {
             return new Cereza(fila, col);
         } else if (tipo.equals("P")) {
             return new Piña(fila, col);
-        } else if (tipo.equals("CF")) {
+        } else if (tipo.equals("CAF")) {
             return new Cactus(fila, col);
         }
         return null;
