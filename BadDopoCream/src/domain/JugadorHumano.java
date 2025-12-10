@@ -13,13 +13,4 @@ public class JugadorHumano extends Helado {
         this.ultimaDireccion = dir;
     }
 
-    @Override
-    public void realizarMovimiento(Nivel nivel) throws BadDopoException {
-       // if (ultimaDireccion == null) return;
-       // if (helado == null) {
-       //     throw new BadDopoException("El jugador humano no tiene helado asignado.");
-       // }
-       // helado.mover(ultimaDireccion);
-        this.ultimaDireccion = null;
-    }
 }

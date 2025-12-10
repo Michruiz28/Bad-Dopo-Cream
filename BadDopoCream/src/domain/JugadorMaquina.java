@@ -19,9 +19,4 @@ public class JugadorMaquina extends Helado {
         this.estrategia = estrategia;
     }
 
-    @Override
-    public void realizarMovimiento(Nivel nivel) throws BadDopoException {
-        //Direccion dir = estrategia.calcularMovimiento(helado, nivel);
-        //helado.mover(dir);
-    }
 }
