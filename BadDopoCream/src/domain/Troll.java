@@ -1,46 +1,56 @@
 package domain;
+
 public class Troll extends Enemigo  {
     
     public Troll(int fila, int col) {
         super(fila, col, 1, TipoComportamiento.LINEAL);
         this.ultimaDireccion = "ARRIBA";
+        this.persigueJugador = false;
+        this.puedeRomperBloques = false;
+        this.rompeUnBloquePorVez = false;
     }
+
     /**
-     * El Troll intenta moverse en la misma dirección.
-     * Si adelante hay algo NO transitable, invierte la dirección.
-     * No persigue a jugadores.
+     * El Troll se mueve en línea recta.
+     * Si encuentra obstáculo, invierte la dirección.
      */
     @Override
-    public String decidirMovimiento(Tablero tablero, Helado jugador) throws BadDopoException {
-        // Nodo actual
-        Nodo nodoActual = tablero.getNodo(getFila(), getColumna());
-        if (nodoActual == null) return ultimaDireccion;
-        // Determinar nodo destino según ultimaDireccion
-        int nuevaFila = getFila();
-        int nuevaCol = getColumna();
-        switch (ultimaDireccion) {
-            case "ARRIBA"    -> nuevaFila--;
-            case "ABAJO"     -> nuevaFila++;
-            case "IZQUIERDA" -> nuevaCol--;
-            case "DERECHA"   -> nuevaCol++;
+    public String decidirProximaMovida(VistaTablero vista, Helado jugador) throws BadDopoException {
+        String dir = getUltimaDireccion();
+        if (dir == null) dir = "ARRIBA";
+
+        // Intentar mover en la dirección actual
+        if (puedeMoverEn(vista, getFila(), getColumna(), dir)) {
+            setUltimaDireccion(dir);
+            return dir;
         }
-        Nodo nodoDestino = tablero.getNodo(nuevaFila, nuevaCol);
-        // Caso 1: si no existe o no es transitable → invertir dirección
-        if (nodoDestino == null || !nodoDestino.getCelda().esTransitable()) {
-            invertirDireccion();
+
+        // Si no puede, invertir dirección
+        dir = invertirDireccion(dir);
+        if (puedeMoverEn(vista, getFila(), getColumna(), dir)) {
+            setUltimaDireccion(dir);
+            return dir;
         }
-        return ultimaDireccion;
+
+        // Si tampoco puede en la invertida, mantener última dirección válida
+        return getUltimaDireccion();
     }
+
     /**
-     * Cambia la dirección actual a la opuesta.
+     * Verifica si el enemigo puede moverse en una dirección usando la vista del tablero.
      */
-    private void invertirDireccion() {
-        ultimaDireccion = switch (ultimaDireccion) {
-            case "ARRIBA"    -> "ABAJO";
-            case "ABAJO"     -> "ARRIBA";
+    private boolean puedeMoverEn(VistaTablero vista, int fila, int columna, String direccion) throws BadDopoException {
+        int[] dest = vista.calcularNuevaPosicion(fila, columna, direccion);
+        return vista.esPosicionValida(dest[0], dest[1]) && vista.esTransitable(dest[0], dest[1]);
+    }
+
+    private String invertirDireccion(String dir) {
+        return switch (dir) {
+            case "ARRIBA" -> "ABAJO";
+            case "ABAJO" -> "ARRIBA";
             case "IZQUIERDA" -> "DERECHA";
-            case "DERECHA"   -> "IZQUIERDA";
-            default -> ultimaDireccion;
+            case "DERECHA" -> "IZQUIERDA";
+            default -> dir;
         };
     }
 }

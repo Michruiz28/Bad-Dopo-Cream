@@ -1,40 +1,36 @@
- 
 package domain;
-public class Calamar extends Enemigo implements Mover {
+
+public class Calamar extends Enemigo {
 
     public Calamar(int fila, int col) {
         super(fila, col, 1, TipoComportamiento.ROMPEHIELO);
         this.ultimaDireccion = "ARRIBA";
+        this.persigueJugador = true;
+        this.puedeRomperBloques = true;
+        this.rompeUnBloquePorVez = true;
     }
+
+    /**
+     * Calamar persigue al jugador.
+     * Si el siguiente casillero es hielo, lo rompe y se detiene.
+     */
     @Override
-    public String decidirMovimiento(Tablero tablero, Helado jugador) throws BadDopoException {
-        int filaActual = getFila();
-        int colActual = getColumna();
-        String direccion = ultimaDireccion;
-        int nf = filaActual;
-        int nc = colActual;
-        // Calculamos destino según la última dirección
-        if (direccion.equals("ARRIBA")) nf--;
-        else nf++;
-        Nodo destino = tablero.getNodo(nf, nc);
-        // Si el movimiento NO es posible cambiamos dirección
-        if (destino == null || !destino.getCelda().esTransitableParaEnemigos()) {
-            // Cambiamos dirección
-            direccion = direccion.equals("ARRIBA") ? "ABAJO" : "ARRIBA";
-            // Recalculamos destino
-            nf = filaActual + (direccion.equals("ARRIBA") ? -1 : 1);
-            destino = tablero.getNodo(nf, nc);
-            // Si aún así no puede moverse, se queda en su casilla
-            if (destino == null || !destino.getCelda().esTransitableParaEnemigos()) {
-                return ultimaDireccion; // se queda con la misma que tenía
-            }
+    public String decidirProximaMovida(VistaTablero vista, Helado jugador) throws BadDopoException {
+        String direccion = vista.calcularDireccionHaciaObjetivo(
+            getFila(), getColumna(),
+            jugador.getFila(), jugador.getColumna(),
+            true
+        );
+        if (direccion == null) {
+            return getUltimaDireccion();
         }
-        Celda celdaDestino = destino.getCelda();
-        // ROMPEHIELO: si el destino tiene hielo → romper
-        if (celdaDestino.esHielo()) {
-            celdaDestino.romper();
+        // Verificar si el siguiente paso es hielo
+        int[] siguiente = vista.calcularNuevaPosicion(getFila(), getColumna(), direccion);
+        if (vista.esHielo(siguiente[0], siguiente[1])) {
+            setUltimaDireccion(direccion);
+            return direccion; 
         }
-        ultimaDireccion = direccion;
+        setUltimaDireccion(direccion);
         return direccion;
     }
 }

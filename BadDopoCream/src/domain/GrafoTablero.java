@@ -62,7 +62,7 @@ public class GrafoTablero {
     /**
      * Reconstruye el grafo por completo.
      */
-    //AUN FALTA ROBUSTECER ESTE METODO
+
     public void reconstruir() {
         construirGrafo();
     }
@@ -220,6 +220,239 @@ public class GrafoTablero {
             } else  if (ultimaDireccion.equals("IZQUIERDA")) {
                 columna--;
             }
+        }
+    }
+
+    /**
+     * Actualiza el movimiento de todos los enemigos en el grafo
+     * donde cada Enemigo decide su próxima movida con una vista de solo lectura.
+     */
+    public void actualizarEnemigos(Helado jugador) throws BadDopoException {
+        VistaTablero vista = new VistaTableroImpl();
+        java.util.List<int[]> posicionesEnemigos = new java.util.ArrayList<>();
+        for (int f = 0; f < filas; f++) {
+            for (int c = 0; c < columnas; c++) {
+                Nodo nodo = nodos[f][c];
+                if (nodo == null) continue;
+                Elemento el = nodo.getCelda().getElemento();
+                if (el instanceof Enemigo) {
+                    posicionesEnemigos.add(new int[]{f, c});
+                }
+            }
+        }
+        for (int[] pos : posicionesEnemigos) {
+            procesarEnemigo(pos[0], pos[1], vista, jugador);
+        }
+    }
+
+    /**
+     * Procesa el movimiento de un enemigo específico mediante delegación polimórfica.
+     */
+    private void procesarEnemigo(int f, int c, VistaTablero vista, Helado jugador) throws BadDopoException {
+        Nodo nodo = getNodo(f, c);
+        if (nodo == null) return;
+        Elemento elemento = nodo.getCelda().getElemento();
+        if (!(elemento instanceof Enemigo)) return;
+        Enemigo enemigo = (Enemigo) elemento;
+        String direccion = enemigo.decidirProximaMovida(vista, jugador);
+        if (direccion == null) return;
+
+        // Verificar si es un Narval en embestida
+        boolean esEmbestida = !enemigo.isPersigueJugador() && enemigo.canRomperBloques() 
+                              && (f == jugador.getFila() || c == jugador.getColumna());
+        
+        if (esEmbestida) {
+            ejecutarEmbestidaNarval(f, c, direccion, jugador.getFila(), jugador.getColumna());
+        } else if (enemigo.canRomperBloques() && enemigo.rompeUnBloquePorVez()) {
+            // Calamar: verifica si siguiente es hielo y lo rompe
+            int[] siguiente = calcularNuevaPosicion(f, c, direccion);
+            if (esHielo(siguiente[0], siguiente[1])) {
+                romperHieloEnDireccion(f, c, direccion);
+            } else {
+                solicitarMovimiento(f, c, direccion);
+            }
+        } else {
+            solicitarMovimiento(f, c, direccion);
+        }
+    }
+
+    /**
+     * Ejecuta la embestida del Narval donde avanza en línea recta rompiendo hielo.
+     */
+    private void ejecutarEmbestidaNarval(int f, int c, String direccion, int objetivoF, int objetivoC) throws BadDopoException {
+        int curF = f;
+        int curC = c;
+        
+        while (true) {
+            int[] next = calcularNuevaPosicion(curF, curC, direccion);
+            if (!esPosicionValida(next[0], next[1])) break;
+            Nodo nodoSiguiente = getNodo(next[0], next[1]);
+            if (nodoSiguiente == null) break;
+            Celda celdaSiguiente = nodoSiguiente.getCelda();
+            if (esHielo(next[0], next[1])) {
+                romperHieloEnDireccion(curF, curC, direccion);
+                if (solicitarMovimiento(curF, curC, direccion)) {
+                    curF = next[0];
+                    curC = next[1];
+                } else {
+                    break;
+                }
+            } else if (celdaSiguiente.esTransitable()) {
+                if (solicitarMovimiento(curF, curC, direccion)) {
+                    curF = next[0];
+                    curC = next[1];
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+            // Parar si alcanzó al jugador
+            if (curF == objetivoF && curC == objetivoC) break;
+        }
+    }
+
+    public int[] calcularNuevaPosicion(int f, int c, String direccion) throws BadDopoException {
+        return switch (direccion) {
+            case "ARRIBA" -> moverArriba(f, c);
+            case "ABAJO" -> moverAbajo(f, c);
+            case "DERECHA" -> moverDerecha(f, c);
+            case "IZQUIERDA" -> moverIzquierda(f, c);
+            default -> new int[]{f, c};
+        };
+    }
+
+    public boolean puedeMoverEn(int f, int c, String direccion) throws BadDopoException {
+        int[] dest = calcularNuevaPosicion(f, c, direccion);
+        if (!esPosicionValida(dest[0], dest[1])) return false;
+        Nodo nodo = getNodo(dest[0], dest[1]);
+        return nodo != null && nodo.getCelda().esTransitable();
+    }
+
+    public String calcularDireccionHaciaObjetivo(int f0, int c0, int objetivoF, int objetivoC, boolean permitirHielo) {
+        record Estado(int fila, int col, String primerPaso) {}
+
+        Queue<Estado> cola = new LinkedList<>();
+        boolean[][] visitado = new boolean[filas][columnas];
+
+        cola.add(new Estado(f0, c0, null));
+        visitado[f0][c0] = true;
+
+        int[][] dirs = { {-1,0}, {1,0}, {0,1}, {0,-1} };
+        String[] nombres = { "ARRIBA", "ABAJO", "DERECHA", "IZQUIERDA" };
+
+        while (!cola.isEmpty()) {
+            Estado actual = cola.remove();
+            if (actual.fila == objetivoF && actual.col == objetivoC) return actual.primerPaso;
+
+            for (int i = 0; i < 4; i++) {
+                int nf = actual.fila + dirs[i][0];
+                int nc = actual.col + dirs[i][1];
+                if (!esPosicionValida(nf, nc)) continue;
+                if (visitado[nf][nc]) continue;
+                Nodo vecino = getNodo(nf, nc);
+                if (vecino == null) continue;
+                Celda celda = vecino.getCelda();
+                boolean transitable = celda.esTransitable();
+                if (!transitable && permitirHielo && esHielo(nf, nc)) {
+                    transitable = true;
+                }
+                if (!transitable) continue;
+                visitado[nf][nc] = true;
+                String primer = (actual.primerPaso == null) ? nombres[i] : actual.primerPaso;
+                cola.add(new Estado(nf, nc, primer));
+            }
+        }
+        return null;
+    }
+
+    public String obtenerDireccionAleatoria(int f, int c) {
+        java.util.List<String> posibles = new java.util.ArrayList<>();
+        String[] dirs = {"ARRIBA", "ABAJO", "DERECHA", "IZQUIERDA"};
+        int[][] delta = { {-1,0}, {1,0}, {0,1}, {0,-1} };
+        for (int i = 0; i < dirs.length; i++) {
+            int nf = f + delta[i][0];
+            int nc = c + delta[i][1];
+            if (!esPosicionValida(nf, nc)) continue;
+            Nodo dest = getNodo(nf, nc);
+            if (dest != null && dest.getCelda().esTransitable()) posibles.add(dirs[i]);
+        }
+        if (posibles.isEmpty()) return null;
+        return posibles.get(new java.util.Random().nextInt(posibles.size()));
+    }
+
+    public boolean esHielo(int f, int c) {
+        if (!esPosicionValida(f, c)) return false;
+        Nodo nodo = getNodo(f, c);
+        if (nodo == null) return false;
+        try {
+            return nodo.getCelda().getTipo().equals("H");
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    public void romperHieloEnDireccion(int f, int c, String direccion) throws BadDopoException {
+        int[] dest = calcularNuevaPosicion(f, c, direccion);
+        if (esPosicionValida(dest[0], dest[1]) && esHielo(dest[0], dest[1])) {
+            romperHielo(dest[0], dest[1], direccion);
+        }
+    }
+
+    public boolean esPosicionValida(int f, int c) {
+        return f >= 0 && f < filas && c >= 0 && c < columnas;
+    }
+    /**
+     * Implementación interna de VistaTablero que proporciona acceso de solo lectura
+     * al grafo para los enemigos, sin exponerles detalles internos.
+     */
+    private class VistaTableroImpl implements VistaTablero {
+
+        @Override
+        public boolean esTransitable(int fila, int columna) {
+            if (!esPosicionValida(fila, columna)) return false;
+            Nodo nodo = getNodo(fila, columna);
+            return nodo != null && nodo.getCelda().esTransitable();
+        }
+
+        @Override
+        public boolean esHielo(int fila, int columna) {
+            return GrafoTablero.this.esHielo(fila, columna);
+        }
+
+        @Override
+        public String calcularDireccionHaciaObjetivo(int filaActual, int columnaActual, 
+                                                      int filaObjetivo, int columnaObjetivo, 
+                                                      boolean permitirHielo) {
+            return GrafoTablero.this.calcularDireccionHaciaObjetivo(filaActual, columnaActual, 
+                                                                     filaObjetivo, columnaObjetivo, 
+                                                                     permitirHielo);
+        }
+
+        @Override
+        public int[] calcularNuevaPosicion(int fila, int columna, String direccion) throws BadDopoException {
+            return GrafoTablero.this.calcularNuevaPosicion(fila, columna, direccion);
+        }
+
+        @Override
+        public java.util.List<String> obtenerDireccionesValidas(int fila, int columna) {
+            java.util.List<String> validas = new java.util.ArrayList<>();
+            String[] dirs = {"ARRIBA", "ABAJO", "DERECHA", "IZQUIERDA"};
+            try {
+                for (String dir : dirs) {
+                    int[] dest = calcularNuevaPosicion(fila, columna, dir);
+                    if (esPosicionValida(dest[0], dest[1]) && esTransitable(dest[0], dest[1])) {
+                        validas.add(dir);
+                    }
+                }
+            } catch (BadDopoException ex) {
+            }
+            return validas;
+        }
+
+        @Override
+        public boolean esPosicionValida(int fila, int columna) {
+            return GrafoTablero.this.esPosicionValida(fila, columna);
         }
     }
 

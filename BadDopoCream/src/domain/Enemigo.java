@@ -1,24 +1,29 @@
 package domain;
-import java.util.ArrayList;
 
-public abstract class Enemigo implements Elemento{
+public abstract class Enemigo extends Elemento {
 
     protected int velocidad;
     protected String ultimaDireccion;
     protected TipoComportamiento comportamiento;
-
-
+    protected boolean persigueJugador;
+    protected boolean puedeRomperBloques;
+    protected boolean rompeUnBloquePorVez;
 
     public Enemigo(int fila, int col, int velocidad, TipoComportamiento comportamiento) {
-        super(fila,col);
+        super(fila, col);
         this.velocidad = velocidad;
         this.comportamiento = comportamiento;
         this.ultimaDireccion = "ARRIBA";
+        this.persigueJugador = false;
+        this.puedeRomperBloques = false;
+        this.rompeUnBloquePorVez = false;
     }
-    public abstract String decidirMovimiento(Tablero tablero, Helado jugador) throws BadDopoException;
+    public static boolean esSolidoEstatico() {
+        return true;
+    }
 
     @Override
-    public boolean esSolido(){
+    public boolean esSolido() {
         return true;
     }
 
@@ -27,66 +32,21 @@ public abstract class Enemigo implements Elemento{
         if (direccion == null || direccion.isEmpty()) {
             throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
         }
-
         this.ultimaDireccion = direccion;
+    }
+    public boolean isPersigueJugador() { return persigueJugador; }
+    public boolean canRomperBloques() { return puedeRomperBloques; }
+    public boolean rompeUnBloquePorVez() { return rompeUnBloquePorVez; }
 
-        switch (direccion.toUpperCase()) {
-            case "ARRIBA"    -> setFila(getFila() - velocidad);
-            case "ABAJO"     -> setFila(getFila() + velocidad);
-            case "IZQUIERDA" -> setColumna(getColumna() - velocidad);
-            case "DERECHA"   -> setColumna(getColumna() + velocidad);
-            default -> throw new BadDopoException(BadDopoException.DIRECCION_DESCONOCIDA);
-        }
-    }
-    /**
-     * BFS interno para encontrar la mejor dirección hacia el objetivo.
-     *
-     * NO mueve al enemigo.
-     * SOLO calcula la DIRECCIÓN recomendada.
-     */
-    protected String calcularDireccionHacia(Tablero tablero, Helado objetivo) {
-        Nodo inicio = tablero.getNodo(getFila(), getColumna());
-        Nodo fin    = tablero.getNodo(objetivo.getFila(), objetivo.getColumna());
-        if (inicio == null || fin == null) return null;
-        Queue<Nodo> cola = new LinkedList<>();
-        Map<Nodo, Nodo> padre = new HashMap<>();
-        cola.add(inicio);
-        padre.put(inicio, null);
-        while (!cola.isEmpty()) {
-            Nodo actual = cola.poll();
-            if (actual == fin)
-                break;
-            for (Nodo vecino : actual.getVecinos()) {
-                boolean transitable = vecino.getCelda().esTransitable();
+    public int getVelocidad() { return velocidad; }
+    public String getUltimaDireccion() { return ultimaDireccion; }
+    protected void setUltimaDireccion(String dir) { this.ultimaDireccion = dir; }
 
-                if (!padre.containsKey(vecino) && transitable) {
-                    padre.put(vecino, actual);
-                    cola.add(vecino);
-                }
-            }
-        }
-        if (!padre.containsKey(fin)) {
-            return null; // no hay ruta posible
-        }
-        // Retroceder desde el objetivo hasta encontrar el primer paso
-        Nodo paso = fin;
-        while (padre.get(paso) != inicio) {
-            paso = padre.get(paso);
-        }
-        return determinarDireccion(inicio, paso);
-    }
     /**
-     * Dado el nodo origen "inicio" y el primer paso "paso", se determina la dirección.
+     * Método de delegación polimórfica: cada subclase implementa su estrategia de movimiento.
+     * GrafoTablero llama este método para orquestar el movimiento
+     * @param vista referencia a VistaTablero para acceder a información de solo lectura
+     * @param jugador referencia al jugador para cálculos de persecución/alineación
      */
-    private String determinarDireccion(Nodo a, Nodo b) {
-        int fa = a.getCelda().getFila();
-        int ca = a.getCelda().getCol();
-        int fb = b.getCelda().getFila();
-        int cb = b.getCelda().getCol();
-        if (fb == fa - 1) return "ARRIBA";
-        if (fb == fa + 1) return "ABAJO";
-        if (cb == ca - 1) return "IZQUIERDA";
-        if (cb == ca + 1) return "DERECHA";
-        return null;
-    }
+    public abstract String decidirProximaMovida(VistaTablero vista, Helado jugador) throws BadDopoException;
 }
