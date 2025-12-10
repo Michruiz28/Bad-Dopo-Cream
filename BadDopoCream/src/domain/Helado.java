@@ -1,15 +1,18 @@
 package domain;
 
-import java.util.ArrayList;
-
-public class Helado extends Elemento implements Poder, RompeHielo {
+public class Helado extends Elemento implements Poder {
     private String sabor;
     private int puntaje;
     private int fila;
     private int col;
     private int filaInicial;
     private int columnaInicial;
+    private String imagenActual;
     private String ultimaDireccion;
+    private static String imagenAbajo;
+    private static String imagenDerecha;
+    private static String imagenIzquierda;
+    private static String imagenArriba;
 
 
     public Helado(int fila, int col, String sabor) throws BadDopoException {
@@ -24,6 +27,37 @@ public class Helado extends Elemento implements Poder, RompeHielo {
         this.puntaje = 0;
         this.filaInicial = fila;
         this.columnaInicial = col;
+        definirImagenes(sabor);
+        definirImagenActual(sabor);
+    }
+
+    public void definirImagenes(String sabor) throws BadDopoException {
+        if (sabor.equals("VH")) {
+            imagenAbajo = "src/presentation/images/VainillaAbajo.png";
+            imagenDerecha = "src/presentation/images/VainillaDerecha.png";
+            imagenIzquierda = "src/presentation/images/VainillaIzquierda.png";
+            imagenArriba = "src/presentation/images/VainillaDetras.png";
+        } else if (sabor.equals("CH")) {
+            imagenAbajo = "src/presentation/images/ChocolateAbajo.png";
+            imagenDerecha = "src/presentation/images/ChocolateDerecha.png";
+            imagenIzquierda = "src/presentation/images/ChocolateIzquierda.png";
+            imagenArriba = "src/presentation/images/ChocolateDetras.png";
+        } else if (sabor.equals("F")){
+            imagenAbajo = "src/presentation/images/FresaAbajo.png";
+            imagenDerecha = "src/presentation/images/FresaDerecha.png";
+            imagenIzquierda = "src/presentation/images/FresaIzquierda.png";
+            imagenArriba = "src/presentation/images/FresaDetras.png";
+        }
+    }
+
+    public void definirImagenActual(String sabor) throws BadDopoException {
+        if (sabor.equals("VH")) {
+            imagenActual = "src/presentation/images/VainillaAbajo.png";
+        } else if (sabor.equals("CH")) {
+            imagenActual = "src/presentation/images/ChocolateAbajo.png";
+        } else if (sabor.equals("F")){
+            imagenActual = "src/presentation/images/FresaAbajo.png";
+        }
     }
 
     public void setPosicionInicial() throws BadDopoException {
@@ -46,40 +80,12 @@ public class Helado extends Elemento implements Poder, RompeHielo {
         }
 
         this.ultimaDireccion = direccion;
-        // Pendiente imagen
+        actualizarImagen(ultimaDireccion);
     }
 
     @Override
-    public void romperHielo() throws BadDopoException {
-        if (tablero == null || grafo == null) {
-            throw new BadDopoException(BadDopoException.CONFIGURACION_INCOMPLETA);
-        }
-        int fila = posicion.get(0);
-        int col = posicion.get(1);
-
-        boolean seRompioAlgo = false;
-        
-        try {
-            // Arriba
-            if (tablero.romperHielo(fila - 1, col)) seRompioAlgo = true;
-            // Abajo
-            if (tablero.romperHielo(fila + 1, col)) seRompioAlgo = true;
-            // Izquierda
-            if (tablero.romperHielo(fila, col - 1)) seRompioAlgo = true;
-            // Derecha
-            if (tablero.romperHielo(fila, col + 1)) seRompioAlgo = true;
-            
-            // Si se rompió algo, reconstruir el grafo
-            if (seRompioAlgo) {
-                grafo.reconstruir();
-            } else {
-                throw new BadDopoException(BadDopoException.NO_HAY_HIELO_PARA_ROMPER);
-            }
-        } catch (BadDopoException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BadDopoException(BadDopoException.ERROR_AL_ROMPER_HIELO);
-        }
+    public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
+        celdaARomper.setElementoConTipo("V", creador);
     }
     
     // Implementación de Poder
@@ -88,66 +94,34 @@ public class Helado extends Elemento implements Poder, RompeHielo {
         // El poder del helado es crear hielo
         crearHielo();
     }
-    
-    public void crearHielo() throws BadDopoException {
-        if (tablero == null || grafo == null) {
-            throw new BadDopoException(BadDopoException.CONFIGURACION_INCOMPLETA);
-        }
-        
-        int fila = posicion.get(0);
-        int col = posicion.get(1);
-        
-        Celda celdaActual = tablero.getCelda(fila, col);
-        if (celdaActual == null) {
-            throw new BadDopoException(BadDopoException.CELDA_INVALIDA);
-        }
-        
-        if (celdaActual.getTipo() != TipoCelda.VACIA) {
-            throw new BadDopoException(BadDopoException.NO_SE_PUEDE_CREAR_HIELO);
-        }
-        tablero.setCelda(fila, col, TipoCelda.HIELO);
-        grafo.reconstruir(); 
+
+    @Override
+    public void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException {
+        celdaACrear.setElementoConTipo("H", creador);
+    }
+
+
+    public void aumentarPuntaje(int puntaje) {
+        this.puntaje += puntaje;
     }
     
-    public void cambiarSabor(String nuevoSabor) throws BadDopoException {
-        if (nuevoSabor == null || nuevoSabor.trim().isEmpty()) {
-            throw new BadDopoException(BadDopoException.SABOR_INVALIDO);
-        }
-        this.sabor = nuevoSabor;
+    public int getGanancia(){
+        return puntaje;
     }
-    
-    public void comerFruta(Fruta fruta) throws BadDopoException {
-        if (fruta == null) {
-            throw new BadDopoException(BadDopoException.FRUTA_NULA);
-        }
-        if (fruta.getPosicion().get(0).equals(posicion.get(0)) && 
-            fruta.getPosicion().get(1).equals(posicion.get(1))) {
-            puntaje += fruta.getGANANCIA();
-        } else {
-            throw new BadDopoException(BadDopoException.FRUTA_FUERA_DE_ALCANCE);
+
+    @Override
+    public void actualizarImagen(String ultimaDireccion) {
+        if (ultimaDireccion.equals("DERECHA")) {
+            imagenActual = imagenDerecha;
+        } else if (ultimaDireccion.equals("IZQUIERDA")) {
+            imagenActual = imagenIzquierda;
+        } else if (ultimaDireccion.equals("ABAJO")) {
+            imagenActual = imagenAbajo;
+        }  else if (ultimaDireccion.equals("ARRIBA")) {
+            imagenActual = imagenArriba;
         }
     }
-    
-//    public void tomarGanancia(Ganancia ganancia) throws BadDopoException {
-//        if (ganancia == null) {
-//            throw new BadDopoException(BadDopoException.GANANCIA_NULA);
-//        }
-//        if (ganancia.getPosicion().get(0).equals(posicion.get(0)) &&
-//            ganancia.getPosicion().get(1).equals(posicion.get(1))) {
-//            puntaje += ganancia.getValor();
-//            ganancia.setRecolectada(true);
-//        } else {
-//            throw new BadDopoException(BadDopoException.GANANCIA_FUERA_DE_ALCANCE);
-//        }
-//    }
-    
-    public void escogerNivel(int nivel) throws BadDopoException {
-        if (nivel < 1) {
-            throw new BadDopoException(BadDopoException.NIVEL_INVALIDO);
-        }
-        this.puntaje = 0;
-    }
-    
+
     public String getSabor() {
         return sabor;
     }
@@ -169,38 +143,4 @@ public class Helado extends Elemento implements Poder, RompeHielo {
         }
         this.puntaje = puntaje;
     }
-    
-    public ArrayList<Integer> getPosicion() {
-        return posicion;
-    }
-    
-    public void setPosicion(int fila, int col) throws BadDopoException {
-        if (tablero == null) {
-            throw new BadDopoException(BadDopoException.TABLERO_NO_CONFIGURADO);
-        }
-        
-        if (fila < 0 || fila >= tablero.getFilas() || col < 0 || col >= tablero.getColumnas()) {
-            throw new BadDopoException(BadDopoException.POSICION_FUERA_DE_RANGO);
-        }
-        
-        this.posicion.set(0, fila);
-        this.posicion.set(1, col);
-    }
-    
-    public int getFila() {
-        return posicion.get(0);
-    }
-    
-    public int getColumna() {
-        return posicion.get(1);
-    }
-    
-    public Tablero getTablero() {
-        return tablero;
-    }
-    
-    public GrafoTablero getGrafo() {
-        return grafo;
-    }
-
 }

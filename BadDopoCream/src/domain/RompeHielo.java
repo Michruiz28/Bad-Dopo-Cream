@@ -1,5 +1,5 @@
 package domain;
 
 public interface RompeHielo{
-    void romperHielo() throws BadDopoException;
+    void romperHielo(Celda celda, CreadorElemento creador) throws BadDopoException;
 }

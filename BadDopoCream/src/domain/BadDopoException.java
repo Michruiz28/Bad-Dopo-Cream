@@ -25,6 +25,7 @@ public class BadDopoException extends Exception {
     public static final String TIPO_NO_IDENTIFICADO = "Tipo de elemento no identificado";
     public static final String NO_SE_PUEDE_REALIZAR_MOVIMIENTO = "No se puede realizar el movimiento";
     public static final String ACCION_NO_PERMITIDA = "No se permite realizar la ación";
+    public static final String INFONIVEL_VACIO = "No se encontró información del nivel";
     public BadDopoException(String message) {
         super(message);
     }

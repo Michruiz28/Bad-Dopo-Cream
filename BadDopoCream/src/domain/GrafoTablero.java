@@ -114,9 +114,9 @@ public class GrafoTablero {
             celdaOrigen.setElemento(elementoAMover, creador);
             celdaDestino.setElemento(elementoEnDestino, creador);
         } else if (celdaDestino.getTipo().equals("BF") || celdaDestino.getTipo().equals("CF") || celdaDestino.getTipo().equals("CAF") || celdaDestino.getTipo().equals("U") || celdaDestino.getTipo().equals("P")) {
-            //celdaDestino.getElemento(elementoAMover, creador);
-            //celdaDestino.setElemento(elementoAMover, creador);
-            //celdaOrigen.setElemento(null, creador);
+            Elemento elementoMovible = celdaOrigen.getElemento();
+            Elemento elementoDestino = celdaDestino.getElemento();
+            elementoDestino.aumentarPuntaje(elementoDestino.getGanancia());
         } else {
             celdaDestino.setElemento(elementoAMover, creador);
             celdaOrigen.setElemento(null, creador);
@@ -153,43 +153,46 @@ public class GrafoTablero {
 
     public void realizarAccion(int fila, int columna, String ultimaDireccion) throws BadDopoException {
         Nodo nodo = getNodo(fila, columna);
+        Celda celdaActual = nodo.getCelda();
+        Elemento elementoActual = celdaActual.getElemento();
         if (ultimaDireccion.equals("DERECHA")) {
             Nodo nodoVecino = getNodo(fila, columna + 1);
-            ejecutarAccion(nodoVecino, ultimaDireccion);
+            ejecutarAccion(nodoVecino, ultimaDireccion, elementoActual);
         } else if (ultimaDireccion.equals("ARRIBA")) {
             Nodo nodoVecino = getNodo(fila - 1, columna);
-            ejecutarAccion(nodoVecino, ultimaDireccion);
+            ejecutarAccion(nodoVecino, ultimaDireccion, elementoActual);
         } else  if (ultimaDireccion.equals("ABAJO")) {
             Nodo nodoVecino = getNodo(fila + 1, columna);
-            ejecutarAccion(nodoVecino, ultimaDireccion);
+            ejecutarAccion(nodoVecino, ultimaDireccion, elementoActual);
         } else  if (ultimaDireccion.equals("IZQUIERDA")) {
             Nodo nodoVecino = getNodo(fila, columna - 1);
-            ejecutarAccion(nodoVecino, ultimaDireccion);
+            ejecutarAccion(nodoVecino, ultimaDireccion, elementoActual);
         }
         else {
             throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
         }
     }
 
-    public void ejecutarAccion(Nodo nodoVecino, String ultimaDireccion) throws BadDopoException {
+    public void ejecutarAccion(Nodo nodoVecino, String ultimaDireccion, Elemento elementoActual) throws BadDopoException {
         Celda celda = nodoVecino.getCelda();
         int fila = celda.getFila();
         int columna = celda.getCol();
         Elemento elemento = celda.getElemento();
         if (elemento.esTransitable() && celda.getTipo().equals("H")) {
-            romperHielo(fila, columna, ultimaDireccion);
+            romperHielo(fila, columna, ultimaDireccion, elementoActual);
         } else if (elemento.esTransitable()) {
-            crearHielo(fila, columna, ultimaDireccion);
+            crearHielo(fila, columna, ultimaDireccion, elementoActual);
         }
     }
 
-    public void romperHielo(int fila, int columna, String ultimaDireccion) throws BadDopoException {
+    public void romperHielo(int fila, int columna, String ultimaDireccion, Elemento elementoActual) throws BadDopoException {
         Nodo nodo = getNodo(fila, columna);
         Celda celda = nodo.getCelda();
+
         while (celda.getTipo().equals("H")) {
             Nodo nodoARomper = getNodo(fila, columna);
             Celda celdaARomper = nodo.getCelda();
-            celdaARomper.setElementoConTipo("V", creador);
+            elementoActual.romperHielo(celdaARomper, creador);
             if (ultimaDireccion.equals("DERECHA")) {
                 columna++;
             } else if (ultimaDireccion.equals("ARRIBA")) {
@@ -202,13 +205,14 @@ public class GrafoTablero {
         }
     }
 
-    public void crearHielo(int fila, int columna, String ultimaDireccion) throws BadDopoException {
+    public void crearHielo(int fila, int columna, String ultimaDireccion, Elemento elementoActual) throws BadDopoException {
         Nodo nodo = getNodo(fila, columna);
         Celda celda = nodo.getCelda();
         while (celda.getTipo().equals("H")) {
             Nodo nodoACrear = getNodo(fila, columna);
             Celda celdaACrear = nodo.getCelda();
             celdaACrear.setElementoConTipo("H", creador);
+            elementoActual.crearHielo(celdaACrear, creador);
             if (ultimaDireccion.equals("DERECHA")) {
                 columna++;
             } else if (ultimaDireccion.equals("ARRIBA")) {

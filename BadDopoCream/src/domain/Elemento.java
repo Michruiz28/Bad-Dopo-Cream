@@ -1,6 +1,6 @@
 package domain;
 
-public abstract class Elemento implements Mover {
+public abstract class Elemento implements Mover, RompeHielo {
     private int fila;
     private int columna;
 
@@ -16,4 +16,14 @@ public abstract class Elemento implements Mover {
     public void setColumna(int columna) { this.columna = columna;}
 
     public abstract void mover(String direccion) throws BadDopoException;
+
+    public abstract void aumentarPuntaje(int puntaje);
+
+    public abstract int getGanancia();
+
+    public abstract void actualizarImagen(String ultimaDireccion);
+
+    public abstract void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException;
+
+    public abstract void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException;
 }

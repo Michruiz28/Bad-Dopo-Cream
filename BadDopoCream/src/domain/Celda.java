@@ -34,12 +34,4 @@ public class Celda {
         this.elemento = creador.creadorElemento(fila, col, tipo);
         this.tipo = tipo;
     }
-
-    //public boolean esTransitable() {
-    //    return tipo == TipoCelda.VACIA;
-    //}
-
-    //public boolean esRompible() {
-        // return tipo == TipoCelda.HIELO;
-    //}
 }
