@@ -40,7 +40,6 @@ public class Tablero {
     public boolean solicitarMovimiento(int fila, int columna, String direccion) throws BadDopoException {
         return grafo.solicitarMovimiento(fila, columna, direccion);
     }
-<<<<<<< HEAD
     public Celda getCelda(int fila, int col){
         Nodo n = grafo.getNodo(fila,col);
         return n == null ? null: n.getCelda();
@@ -52,10 +51,8 @@ public class Tablero {
         if (celda.getTipoCelda() != TipoCelda.HIELO) return false;
         celda.setTipoCelda(TipoCelda.VACIA);
         return true;
-=======
 
     public void romperHielo(int fila, int columna, String ultimaDireccion) throws BadDopoException {
         grafo.realizarAccion(fila, columna, ultimaDireccion);
->>>>>>> 7cc0b307479d28fc4b39ac4659cfce7bc110be91
     }
 }
