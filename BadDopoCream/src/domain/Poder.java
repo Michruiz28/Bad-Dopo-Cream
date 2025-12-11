@@ -1,5 +1,5 @@
 package domain;
 
 public interface Poder {
-    void poder() throws BadDopoException;
+    public void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException;
 }

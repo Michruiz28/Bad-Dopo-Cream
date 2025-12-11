@@ -87,13 +87,7 @@ public class Helado extends Elemento implements Poder {
     public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
         celdaARomper.setElementoConTipo("V", creador);
     }
-    
-    // Implementación de Poder
-    @Override
-    public void poder() throws BadDopoException {
-        // El poder del helado es crear hielo
-        crearHielo();
-    }
+
 
     @Override
     public void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException {

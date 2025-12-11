@@ -39,7 +39,7 @@ public class Tablero {
         return grafo.solicitarMovimiento(fila, columna, direccion);
     }
 
-    public void romperHielo(int fila, int columna, String ultimaDireccion) throws BadDopoException {
+    public void realizarAccion(int fila, int columna, String ultimaDireccion) throws BadDopoException {
         grafo.realizarAccion(fila, columna, ultimaDireccion);
     }
 }
