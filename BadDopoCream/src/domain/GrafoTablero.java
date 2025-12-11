@@ -1,5 +1,7 @@
 package domain;
 
+import com.sun.security.auth.NTDomainPrincipal;
+
 /**
  * Clase grafo tablero que obtiene la lógica de un grafo para la ejecución del juego con nodos y conexiones.
  * @version 06.12.2025
@@ -59,19 +61,30 @@ public class GrafoTablero {
     public void setNodo(int fila, int col, String tipo) throws BadDopoException {
         nodos[fila][col] = new Nodo(fila, col, tipo, creador);
     }
-    /**
-     * Reconstruye el grafo por completo.
-     */
 
-    public void reconstruir() {
-        construirGrafo();
+
+    public boolean solicitarMovimiento(int fila, int col) throws BadDopoException {
+        Nodo n = getNodo(fila, col);
+        Celda celda = n.getCelda();
+        Elemento elemento = celda.getElemento();
+        int[] nuevaPosicion = elemento.calcularPosicionesMovimieto(filas - 2, columnas - 2);
+        Nodo nodoDestino = getNodo(nuevaPosicion[0], nuevaPosicion[1]);
+        Celda celdaDestino = nodoDestino.getCelda();
+        while (!celdaDestino.getTipo().equals("N")) {
+            nuevaPosicion = elemento.calcularPosicionesMovimieto(filas - 2, columnas - 2);
+            nodoDestino = getNodo(nuevaPosicion[0], nuevaPosicion[1]);
+            celdaDestino = nodoDestino.getCelda();
+        }
+        return true;
     }
 
-    private void construirGrafo() {
+    public void ejecutarMovimientoAutonomo(Celda celdaActual, Celda celdaDestino, Elemento elemento) throws BadDopoException {
+        celdaActual.setElementoConTipo("N", creador);
+        celdaDestino.setElemento(elemento, creador);
     }
 
     public boolean solicitarMovimiento(int fila, int columna, String direccion) throws BadDopoException {
-        Nodo origenNodo = getNodo(fila, columna);
+        Nodo nodo = getNodo(fila, columna);
         if (direccion == null || direccion.trim().isEmpty()) {
             throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
         }
@@ -114,9 +127,7 @@ public class GrafoTablero {
             celdaOrigen.setElemento(elementoAMover, creador);
             celdaDestino.setElemento(elementoEnDestino, creador);
         } else if (celdaDestino.getTipo().equals("BF") || celdaDestino.getTipo().equals("CF") || celdaDestino.getTipo().equals("CAF") || celdaDestino.getTipo().equals("U") || celdaDestino.getTipo().equals("P")) {
-            Elemento elementoMovible = celdaOrigen.getElemento();
-            Elemento elementoDestino = celdaDestino.getElemento();
-            elementoDestino.aumentarPuntaje(elementoDestino.getGanancia());
+            elementoAMover.aumentarPuntaje(elementoEnDestino.getGanancia());
         } else {
             celdaDestino.setElemento(elementoAMover, creador);
             celdaOrigen.setElemento(null, creador);
@@ -180,7 +191,7 @@ public class GrafoTablero {
         int fila = celda.getFila();
         int columna = celda.getCol();
         Elemento elemento = celda.getElemento();
-        if (elemento.esTransitable() && celda.getTipo().equals("H")) {
+        if (!(elemento.esTransitable()) && celda.getTipo().equals("H")) {
             romperHielo(fila, columna, ultimaDireccion, elementoActual);
         } else if (elemento.esTransitable()) {
             crearHielo(fila, columna, ultimaDireccion, elementoActual);

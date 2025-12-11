@@ -42,5 +42,9 @@ public abstract class Elemento implements Mover, RompeHielo {
     public abstract void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException;
 
     public abstract void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException;
+
+    public abstract int[] calcularPosicionesMovimieto(int limiteInferior, int limiteSuperior);
+
+    public abstract boolean esTransitable();
 }
 

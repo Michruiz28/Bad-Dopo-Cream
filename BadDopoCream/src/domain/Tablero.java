@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 // Tablero.java
 public class Tablero {
-    private String[][] InfoNivel;
+    private String[][] infoNivel;
     private static int filas;
     private static int columnas;
     private CreadorElemento creador;
@@ -21,7 +21,6 @@ public class Tablero {
         this.infoNivel = infoNivel;
         Tablero.filas = infoNivel.length;
         Tablero.columnas = infoNivel[0].length;
-        this.creador = Objects.requireNonNull(creador);
 
         // El Tablero pasa toda la información necesaria al Grafo para que este lo construya
         // El Grafo se encarga de crear Nodos, que crean Celdas, que crean Elementos.
@@ -40,22 +39,8 @@ public class Tablero {
     public boolean solicitarMovimiento(int fila, int columna, String direccion) throws BadDopoException {
         return grafo.solicitarMovimiento(fila, columna, direccion);
     }
-<<<<<<< HEAD
-    public Celda getCelda(int fila, int col){
-        Nodo n = grafo.getNodo(fila,col);
-        return n == null ? null: n.getCelda();
-    }
 
-    public boolean romperHielo(int fila, int col) throws BadDopoException{
-        Celda celda = getCelda(fila,col);
-        if (celda == null) return false;
-        if (celda.getTipoCelda() != TipoCelda.HIELO) return false;
-        celda.setTipoCelda(TipoCelda.VACIA);
-        return true;
-=======
-
-    public void romperHielo(int fila, int columna, String ultimaDireccion) throws BadDopoException {
+    public void realizarAccion(int fila, int columna, String ultimaDireccion) throws BadDopoException {
         grafo.realizarAccion(fila, columna, ultimaDireccion);
->>>>>>> 7cc0b307479d28fc4b39ac4659cfce7bc110be91
     }
 }

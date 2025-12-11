@@ -10,6 +10,36 @@ public class Troll extends Enemigo  {
         this.rompeUnBloquePorVez = false;
     }
 
+    @Override
+    public void aumentarPuntaje(int puntaje) {
+
+    }
+
+    @Override
+    public int getGanancia() {
+        return 0;
+    }
+
+    @Override
+    public void actualizarImagen(String ultimaDireccion) {
+
+    }
+
+    @Override
+    public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
+
+    }
+
+    @Override
+    public void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException {
+
+    }
+
+    @Override
+    public int[] calcularPosicionesMovimieto(int limiteInferior, int limiteSuperior) {
+        return new int[0];
+    }
+
     /**
      * El Troll se mueve en línea recta.
      * Si encuentra obstáculo, invierte la dirección.

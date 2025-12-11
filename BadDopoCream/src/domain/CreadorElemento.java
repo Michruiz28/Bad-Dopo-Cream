@@ -43,6 +43,8 @@ public abstract class CreadorElemento {
             return new BaldosaCaliente(fila, col);
         } else if (tipo.equals("FO")) {
             return new Fogata(fila, col);
+        } else if (tipo.equals("BO0")) {
+            return new Borde(fila, col);
         } else {
             return null;
         }
@@ -70,6 +72,8 @@ public abstract class CreadorElemento {
             return new Piña(fila, col);
         } else if (tipo.equals("CAF")) {
             return new Cactus(fila, col);
+        } else if (tipo.equals("U")) {
+            return new Uva(fila, col);
         }
         return null;
     }

@@ -4,8 +4,8 @@ package domain;
  * Las frutas estáticas permanecen en una posición fija durante todo el nivel
  */
 public abstract class FrutaEstatica extends Fruta {
-    public FrutaEstatica(int fila, int columna, int ganancia) throws BadDopoException {
-        super(fila, columna, ganancia);
+    public FrutaEstatica(int fila, int columna) throws BadDopoException {
+        super(fila, columna);
     }
 
 
