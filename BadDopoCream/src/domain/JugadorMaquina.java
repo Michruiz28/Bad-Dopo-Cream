@@ -2,7 +2,7 @@ package domain;
 
 public class JugadorMaquina extends Helado {
 
-    private EstrategiaMovimiento estrategia;
+    private String estrategia;
 
     public JugadorMaquina(int fila, int col, String sabor, String estrategia)
             throws BadDopoException {
@@ -15,7 +15,7 @@ public class JugadorMaquina extends Helado {
         this.estrategia = estrategia;
     }
 
-    public void setEstrategia(EstrategiaMovimiento estrategia) {
+    public void setEstrategia(String estrategia) {
         this.estrategia = estrategia;
     }
 

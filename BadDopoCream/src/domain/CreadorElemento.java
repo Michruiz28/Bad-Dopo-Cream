@@ -77,4 +77,6 @@ public abstract class CreadorElemento {
         }
         return null;
     }
+
+    public abstract Helado crearHelado2(int fila, int col, String sabor) throws BadDopoException;
 }

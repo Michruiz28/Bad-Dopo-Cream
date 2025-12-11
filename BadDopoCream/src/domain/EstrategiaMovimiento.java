@@ -8,5 +8,5 @@ public interface EstrategiaMovimiento {
      * @return Dirección que debe tomar
      * @throws BadDopoException Si la estrategia falla o no tiene suficientes datos
      */
-    Direccion calcularMovimiento(Helado helado, Nivel nivel) throws BadDopoException;
+    Direccion calcularMovimiento(Helado helado, int nivel) throws BadDopoException;
 }

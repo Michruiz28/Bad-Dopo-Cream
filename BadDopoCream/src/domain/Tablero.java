@@ -43,4 +43,54 @@ public class Tablero {
     public void realizarAccion(int fila, int columna, String ultimaDireccion) throws BadDopoException {
         grafo.realizarAccion(fila, columna, ultimaDireccion);
     }
+
+    public ArrayList<Fruta> getFrutas(){
+        return grafo.getFrutas();
+    }
+
+    public ArrayList<Enemigo> getEnemigos(){
+        return grafo.getEnemigos();
+    }
+
+    public ArrayList<Obstaculo> getObstaculos(){
+        return grafo.getObstaculos();
+    }
+
+    public void agregarHelado(Helado helado) throws BadDopoException {
+        grafo.agregarHelado(helado);
+    }
+
+    public int[] getPosicionHelado(Helado helado){
+        int[] posicionHelado = new int[2];
+        posicionHelado[0] = helado.getFila();
+        posicionHelado[1] = helado.getColumna();
+        return posicionHelado;
+    }
+
+    public int[] getPosicionEnemigo(Enemigo enemigo)  {
+        int[] posicionEnemigo = new int[2];
+        posicionEnemigo[0] = enemigo.getFila();
+        posicionEnemigo[1] = enemigo.getColumna();
+        return posicionEnemigo;
+    }
+
+    public int[] getPosicionObstaculo(Obstaculo obstaculo)  {
+        int[] posicionObstaculo = new int[2];
+        posicionObstaculo[0] = obstaculo.getFila();
+        posicionObstaculo[1] = obstaculo.getColumna();
+        return posicionObstaculo;
+    }
+
+    public int[] getPosicionFruta(Fruta fruta) {
+        int[] posicionFruta = new int[2];
+        posicionFruta[0] = fruta.getFila();
+        posicionFruta[1] = fruta.getColumna();
+        return posicionFruta;
+    }
+
+    public void removerFruta(Fruta fruta){
+        int fila =  fruta.getFila();
+        int columna = fruta.getColumna();
+        grafo.removeElemento(fila, columna);
+    }
 }

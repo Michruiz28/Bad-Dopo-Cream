@@ -1,6 +1,6 @@
 package domain;
 
-import com.sun.security.auth.NTDomainPrincipal;
+import java.util.*;
 
 /**
  * Clase grafo tablero que obtiene la lógica de un grafo para la ejecución del juego con nodos y conexiones.
@@ -244,7 +244,7 @@ public class GrafoTablero {
      */
     public void actualizarEnemigos(Helado jugador) throws BadDopoException {
         VistaTablero vista = new VistaTableroImpl();
-        java.util.List<int[]> posicionesEnemigos = new java.util.ArrayList<>();
+        List<int[]> posicionesEnemigos = new ArrayList<>();
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
                 Nodo nodo = nodos[f][c];
@@ -382,7 +382,7 @@ public class GrafoTablero {
     }
 
     public String obtenerDireccionAleatoria(int f, int c) {
-        java.util.List<String> posibles = new java.util.ArrayList<>();
+        List<String> posibles = new ArrayList<>();
         String[] dirs = {"ARRIBA", "ABAJO", "DERECHA", "IZQUIERDA"};
         int[][] delta = { {-1,0}, {1,0}, {0,1}, {0,-1} };
         for (int i = 0; i < dirs.length; i++) {
@@ -393,7 +393,7 @@ public class GrafoTablero {
             if (dest != null && dest.getCelda().esTransitable()) posibles.add(dirs[i]);
         }
         if (posibles.isEmpty()) return null;
-        return posibles.get(new java.util.Random().nextInt(posibles.size()));
+        return posibles.get(new Random().nextInt(posibles.size()));
     }
 
     public boolean esHielo(int f, int c) {
@@ -450,8 +450,8 @@ public class GrafoTablero {
         }
 
         @Override
-        public java.util.List<String> obtenerDireccionesValidas(int fila, int columna) {
-            java.util.List<String> validas = new java.util.ArrayList<>();
+        public List<String> obtenerDireccionesValidas(int fila, int columna) {
+            List<String> validas = new ArrayList<>();
             String[] dirs = {"ARRIBA", "ABAJO", "DERECHA", "IZQUIERDA"};
             try {
                 for (String dir : dirs) {
@@ -469,6 +469,59 @@ public class GrafoTablero {
         public boolean esPosicionValida(int fila, int columna) {
             return GrafoTablero.this.esPosicionValida(fila, columna);
         }
+    }
+
+    public ArrayList<Fruta> getFrutas(){
+        ArrayList<Fruta> frutas = new ArrayList<>();
+        for(int i = 0; i < nodos.length; i++){
+            for(int j = 0; j < nodos.length; j++){
+                Nodo nodo = nodos[i][j];
+                Celda celda  = nodo.getCelda();
+                if (celda.getTipo().equals("U") || celda.getTipo().equals("BF") || celda.getTipo().equals("CF") || celda.getTipo().equals("P") || celda.getTipo().equals("CAF")) {
+                    Fruta elemento = (Fruta) celda.getElemento();
+                    frutas.add(elemento);
+                }
+            }
+        }
+        return frutas;
+    }
+
+    public ArrayList<Enemigo> getEnemigos(){
+        ArrayList<Enemigo> enemigos = new ArrayList<>();
+        for(int i = 0; i < nodos.length; i++){
+            for(int j = 0; j < nodos.length; j++){
+                Nodo nodo = nodos[i][j];
+                Celda celda  = nodo.getCelda();
+                if (celda.getTipo().equals("U") || celda.getTipo().equals("BF") || celda.getTipo().equals("CF") || celda.getTipo().equals("P") || celda.getTipo().equals("CAF")) {
+                    Enemigo elemento = (Enemigo) celda.getElemento();
+                    enemigos.add(elemento);
+                }
+            }
+        }
+        return enemigos;
+    }
+
+    public ArrayList<Obstaculo> getObstaculos(){
+        ArrayList<Obstaculo> obstaculos = new ArrayList<>();
+        for(int i = 0; i < nodos.length; i++){
+            for(int j = 0; j < nodos.length; j++){
+                Nodo nodo = nodos[i][j];
+                Celda celda  = nodo.getCelda();
+                if (celda.getTipo().equals("B") || celda.getTipo().equals("H") || celda.getTipo().equals("BO") || celda.getTipo().equals("FO")){
+                    Obstaculo elemento = (Obstaculo) celda.getElemento();
+                    obstaculos.add(elemento);
+                }
+            }
+        }
+        return obstaculos;
+    }
+
+    public void agregarHelado(Helado helado) throws BadDopoException {
+        setNodo(helado.getFila(), helado.getColumna(), helado.getSabor());
+    }
+
+    public void removeElemento(int fila, int col){
+        nodos[fila][col] = null;
     }
 
 }

@@ -8,7 +8,7 @@ package domain;
 public class Pina extends FrutaEnMovimiento {
     public static final int GANANCIA_PINA = 200;
     public Pina(int fila, int columna) throws BadDopoException {
-        super(fila, columna, GANANCIA_PINA);
+        super(fila, columna);
     }
 
      @Override
@@ -59,4 +59,6 @@ public class Pina extends FrutaEnMovimiento {
             mover("DERECHA");
     }
 
-}
+     public void mover() {
+     }
+ }
