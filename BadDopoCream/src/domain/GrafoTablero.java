@@ -1,5 +1,7 @@
 package domain;
 
+import com.sun.security.auth.NTDomainPrincipal;
+
 /**
  * Clase grafo tablero que obtiene la lógica de un grafo para la ejecución del juego con nodos y conexiones.
  * @version 06.12.2025
@@ -65,6 +67,26 @@ public class GrafoTablero {
   //  public void reconstruir() {
   //      construirGrafo();
   //  }
+
+    public boolean solicitarMovimiento(int fila, int col) throws BadDopoException {
+        Nodo n = getNodo(fila, col);
+        Celda celda = n.getCelda();
+        Elemento elemento = celda.getElemento();
+        int[] nuevaPosicion = elemento.calcularPosicionesMovimieto(filas - 2, columnas - 2);
+        Nodo nodoDestino = getNodo(nuevaPosicion[0], nuevaPosicion[1]);
+        Celda celdaDestino = nodoDestino.getCelda();
+        while (!celdaDestino.getTipo().equals("N")) {
+            nuevaPosicion = elemento.calcularPosicionesMovimieto(filas - 2, columnas - 2);
+            nodoDestino = getNodo(nuevaPosicion[0], nuevaPosicion[1]);
+            celdaDestino = nodoDestino.getCelda();
+        }
+        return true;
+    }
+
+    public void ejecutarMovimientoAutonomo(Celda celdaActual, Celda celdaDestino, Elemento elemento) throws BadDopoException {
+        celdaActual.setElementoConTipo("N", creador);
+        celdaDestino.setElemento(elemento, creador);
+    }
 
     public boolean solicitarMovimiento(int fila, int columna, String direccion) throws BadDopoException {
         Nodo nodo = getNodo(fila, columna);

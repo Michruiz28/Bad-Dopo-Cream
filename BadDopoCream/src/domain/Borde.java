@@ -1,12 +1,9 @@
 package domain;
 
-/**
- * Hielo: puede ser roto por ciertos enemigos
- */
-public class Hielo extends Obstaculo {
-    private static final String imagen = "src/presentation/images/BloqueDeHielo.png";
+public class Borde extends Obstaculo{
+    private static final String imagen = "src/presentation/images/Borde.png";
 
-    public Hielo(int fila, int col) throws BadDopoException {
+    public Borde(int fila, int col) throws BadDopoException {
         super(fila, col);
 
     }
@@ -39,15 +36,5 @@ public class Hielo extends Obstaculo {
     @Override
     public void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException {
         //
-    }
-
-    @Override
-    public int[] calcularPosicionesMovimieto(int limiteInferior, int limiteSuperior) {
-        return new int[0];
-    }
-
-    @Override
-    public int[] calcularPosicionesMovimieto() {
-        return new int[0];
     }
 }

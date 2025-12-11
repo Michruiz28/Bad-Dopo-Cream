@@ -22,4 +22,5 @@ public abstract class Obstaculo extends Elemento {
         return columna;
     }
 
+    public abstract int[] calcularPosicionesMovimieto();
 }

@@ -6,45 +6,65 @@ public class Cereza extends FrutaEnMovimiento {
     public static final int GANANCIA_CEREZA = 150;
     private long ultimoTeletransporte;
     private Random random = new Random();
+    private int fila;
+    private int columna;
+    private static final String imagen = "src/presentation/images/Cereza.png";
 
-    public Cereza(int fila, int col, Celda celda) throws BadDopoException {
-        super(fila, col, GANANCIA_CEREZA, celda);
+
+    public Cereza(int fila, int col) throws BadDopoException {
+        super(fila, col);
         this.ultimoTeletransporte = System.currentTimeMillis();
     }
+
     @Override
-    public void mover(Nivel nivel) throws BadDopoException {}
-
-    /**
-     * Verifica si ya pasaron 20 segundos y teletransporta la cereza.
-     */
-    public void actualizar(Nivel nivel) throws BadDopoException {
-        long ahora = System.currentTimeMillis();
-        if (ahora - ultimoTeletransporte < 20_000) return;
-        Tablero tablero = nivel.getTablero();
-        int nuevaFila, nuevaCol;
-        do {
-            nuevaFila = random.nextInt(tablero.getFilas());
-            nuevaCol = random.nextInt(tablero.getColumnas());
-        } while (!celdaValida(tablero, nuevaFila, nuevaCol));
-        setPosicion(nuevaFila, nuevaCol);
-        this.ultimoTeletransporte = ahora;
+    public void aumentarPuntaje(int puntaje) {
+        //
     }
 
-    private boolean celdaValida(Tablero tablero, int fila, int col) {
-        Celda celda = tablero.getCelda(fila, col);
-        return celda != null && celda.esTransitable();
-    }
-    
-    public void actualizarTeleportacion(long ahora, Nivel nivel) throws BadDopoException {
-        if (ahora - ultimoTeletransporte < 20_000) return;
-        Tablero tablero = nivel.getTablero();
-        int nuevaFila, nuevaCol;
-        do {
-            nuevaFila = random.nextInt(tablero.getFilas());
-            nuevaCol = random.nextInt(tablero.getColumnas());
-        } while (!celdaValida(tablero, nuevaFila, nuevaCol));
-        setPosicion(nuevaFila, nuevaCol);
-        ultimoTeletransporte = ahora;
+    @Override
+    public int getGanancia() {
+        return GANANCIA_CEREZA;
     }
 
+    @Override
+    public void actualizarImagen(String ultimaDireccion) {
+        //
+    }
+
+    @Override
+    public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
+        //
+    }
+
+    @Override
+    public void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException {
+        //
+    }
+
+    @Override
+    public int[] calcularPosicionesMovimieto(int limiteinferior, int limitesuperior) {
+        int[] nuevaPosicion = new int[2];
+        Random random = new Random();
+        int min = limiteinferior;
+        int max = limitesuperior;
+
+        int NuevaFila = random.nextInt(max - min + 1) + min;
+        int NuevaColumna = random.nextInt(max - min + 1) + min;
+        nuevaPosicion[0] = NuevaFila;
+        nuevaPosicion[1] = NuevaColumna;
+
+        moverConPosicion(nuevaPosicion[0], nuevaPosicion[1]);
+        return nuevaPosicion;
+    }
+
+    @Override
+    public void mover(String direccion) throws BadDopoException {
+       //
+    }
+
+    @Override
+    public void moverConPosicion(int filaNueva, int columnaNueva){
+        this.fila = filaNueva;
+        this.columna = columnaNueva;
+    }
 }
