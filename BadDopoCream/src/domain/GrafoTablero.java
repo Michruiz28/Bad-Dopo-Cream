@@ -261,19 +261,16 @@ public class GrafoTablero {
 
     /**
      * Procesa un movimiento realizado por el jugador (Helado).
-     * Ejecuta el movimiento en el grafo y luego hace que las `Pina` reaccionen
+     * Ejecuta el movimiento en el grafo y luego hace que las  Piñas reaccionen
      * moviéndose una casilla (preferentemente alejándose del jugador).
      *
      * Este método permite que la capa de presentación delegue en el grafo el
-     * efecto secundario que las frutas (p. ej. Piña) deben tener cuando el
+     * efecto secundario que las frutas deben tener cuando el
      * jugador se mueve.
      */
     public void procesarMovimientoHelado(int filaOrigen, int columnaOrigen, String direccion, Helado jugador) throws BadDopoException {
-        // Ejecutar el movimiento del helado en el grafo
         boolean moved = solicitarMovimiento(filaOrigen, columnaOrigen, direccion);
         if (!moved) return;
-
-        // Después de mover al helado, determinar posiciones actuales de todas las Piñas
         java.util.List<int[]> posicionesPinas = new java.util.ArrayList<>();
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {

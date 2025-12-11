@@ -9,17 +9,10 @@ public class Banano extends FrutaEstatica {
     public Banano (int fila, int columna) throws BadDopoException {
         super(fila,columna,GANANCIA_BANANO);
     }
-
-    // Constructor auxiliar usado en tests o creación desde Celda
     public Banano(int fila, int columna, int ganancia, Celda celda) throws BadDopoException {
         super(fila, columna, ganancia);
         if (celda != null) {
             setCelda(celda);
         }
-    }
-    
-    /** Devuelve la ruta de la imagen asociada al Banano */
-    public static String getImagen() {
-        return imagen;
     }
 }

@@ -12,15 +12,6 @@ public class Pina extends FrutaEnMovimiento {
         super(fila, columna, GANANCIA_PINA);
     }
 
-   // Imagenes para la Piña (opcionalmente por dirección)
-   protected String imagenActual;
-   protected String imagenAbajo = "src/presentation/images/PinaAbajo.png";
-   protected String imagenArriba = "src/presentation/images/PinaArriba.png";
-   protected String imagenIzq = "src/presentation/images/PinaIzquierda.png";
-   protected String imagenDer = "src/presentation/images/PinaDerecha.png";
-
-   public String getImagenActual() { return imagenActual != null ? imagenActual : imagenAbajo; }
-
      @Override
      public void mover(String direccion) throws BadDopoException {
         if (direccion == null) throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
@@ -77,10 +68,5 @@ public class Pina extends FrutaEnMovimiento {
         // Por defecto no se mueve automáticamente; el movimiento debe ser disparado por
         // la lógica que detecta movimiento del Helado (GrafoTablero/Controlador).
     }
-
-   /** Devuelve la ruta de la imagen asociada a la Piña */
-   public static String getImagen() {
-      return imagen;
-   }
 
 }
