@@ -8,6 +8,12 @@ public class Troll extends Enemigo  {
         this.persigueJugador = false;
         this.puedeRomperBloques = false;
         this.rompeUnBloquePorVez = false;
+        // Rutas de imagen (usar las mismas convenciones que Helado)
+        this.imagenAbajo = "src/presentation/images/TrollAbajo.png";
+        this.imagenDerecha = "src/presentation/images/TrollDerecha.png";
+        this.imagenIzquierda = "src/presentation/images/TrollIzquierda.png";
+        this.imagenArriba = "src/presentation/images/TrollArriba.png";
+        this.imagenActual = this.imagenAbajo;
     }
 
     @Override
@@ -22,7 +28,7 @@ public class Troll extends Enemigo  {
 
     @Override
     public void actualizarImagen(String ultimaDireccion) {
-
+        super.actualizarImagen(ultimaDireccion);
     }
 
     @Override

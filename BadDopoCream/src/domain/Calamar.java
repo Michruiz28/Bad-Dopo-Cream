@@ -8,6 +8,12 @@ public class Calamar extends Enemigo {
         this.persigueJugador = true;
         this.puedeRomperBloques = true;
         this.rompeUnBloquePorVez = true;
+        // Imagenes para Calamar
+        this.imagenAbajo = "src/presentation/images/CalamarAbajo.png";
+        this.imagenDerecha = "src/presentation/images/CalamarDerecha.png";
+        this.imagenIzquierda = "src/presentation/images/CalamarIzquierda.png";
+        this.imagenArriba = "src/presentation/images/CalamarArriba.png";
+        this.imagenActual = this.imagenAbajo;
     }
 
     /**

@@ -7,6 +7,12 @@ public class Maceta extends Enemigo  {
         this.persigueJugador = true;
         this.puedeRomperBloques = false;
         this.rompeUnBloquePorVez = false;
+        // Imagenes para Maceta
+        this.imagenAbajo = "src/presentation/images/MacetaAbajo.png";
+        this.imagenDerecha = "src/presentation/images/MacetaDerecha.png";
+        this.imagenIzquierda = "src/presentation/images/MacetaIzquierda.png";
+        this.imagenArriba = "src/presentation/images/MacetaArriba.png";
+        this.imagenActual = this.imagenAbajo;
     }
 
     /**

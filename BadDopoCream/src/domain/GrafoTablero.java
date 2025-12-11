@@ -162,7 +162,6 @@ public class GrafoTablero {
         posiciones[1] = columna - 1;
         return posiciones;
     }
-    //REVISAR SI ESTOS METODOS MOVER SE PUEDEN HACER DE FORMA MAS RAPIDA
 
     public void realizarAccion(int fila, int columna, String ultimaDireccion) throws BadDopoException {
         Nodo nodo = getNodo(fila, columna);
@@ -257,6 +256,61 @@ public class GrafoTablero {
         }
         for (int[] pos : posicionesEnemigos) {
             procesarEnemigo(pos[0], pos[1], vista, jugador);
+        }
+    }
+
+    /**
+     * Procesa un movimiento realizado por el jugador (Helado).
+     * Ejecuta el movimiento en el grafo y luego hace que las `Pina` reaccionen
+     * moviéndose una casilla (preferentemente alejándose del jugador).
+     *
+     * Este método permite que la capa de presentación delegue en el grafo el
+     * efecto secundario que las frutas (p. ej. Piña) deben tener cuando el
+     * jugador se mueve.
+     */
+    public void procesarMovimientoHelado(int filaOrigen, int columnaOrigen, String direccion, Helado jugador) throws BadDopoException {
+        // Ejecutar el movimiento del helado en el grafo
+        boolean moved = solicitarMovimiento(filaOrigen, columnaOrigen, direccion);
+        if (!moved) return;
+
+        // Después de mover al helado, determinar posiciones actuales de todas las Piñas
+        java.util.List<int[]> posicionesPinas = new java.util.ArrayList<>();
+        for (int f = 0; f < filas; f++) {
+            for (int c = 0; c < columnas; c++) {
+                Nodo nodo = nodos[f][c];
+                if (nodo == null) continue;
+                Elemento el = nodo.getCelda().getElemento();
+                if (el instanceof Pina) posicionesPinas.add(new int[]{f, c});
+            }
+        }
+        for (int[] pos : posicionesPinas) {
+            int f = pos[0], c = pos[1];
+            try {
+                String mejor = null;
+                int distanciaActual = Math.abs(f - jugador.getFila()) + Math.abs(c - jugador.getColumna());
+                String[] dirs = {"ARRIBA", "ABAJO", "DERECHA", "IZQUIERDA"};
+                for (String d : dirs) {
+                    int[] dest = calcularNuevaPosicion(f, c, d);
+                    if (!esPosicionValida(dest[0], dest[1])) continue;
+                    Nodo nodoDestino = getNodo(dest[0], dest[1]);
+                    if (nodoDestino == null) continue;
+                    if (!nodoDestino.getCelda().esTransitable()) continue;
+                    int dist = Math.abs(dest[0] - jugador.getFila()) + Math.abs(dest[1] - jugador.getColumna());
+                    if (dist > distanciaActual) {
+                        distanciaActual = dist;
+                        mejor = d;
+                    }
+                }
+                if (mejor == null) {
+                    // Si no hay dirección que aumente la distancia, intentar cualquier dirección válida
+                    mejor = obtenerDireccionAleatoria(f, c);
+                }
+                if (mejor != null) {
+                    solicitarMovimiento(f, c, mejor);
+                }
+            } catch (BadDopoException ex) {
+                // Ignorar errores de movimiento de una Piña individual para no interrumpir el resto
+            }
         }
     }
 
