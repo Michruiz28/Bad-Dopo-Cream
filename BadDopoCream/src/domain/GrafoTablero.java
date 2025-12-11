@@ -333,7 +333,7 @@ public class GrafoTablero {
             // Calamar: verifica si siguiente es hielo y lo rompe
             int[] siguiente = calcularNuevaPosicion(f, c, direccion);
             if (esHielo(siguiente[0], siguiente[1])) {
-                romperHieloEnDireccion(f, c, direccion);
+                romperHieloEnDireccion(f, c, direccion, elemento);
             } else {
                 solicitarMovimiento(f, c, direccion);
             }
@@ -356,7 +356,8 @@ public class GrafoTablero {
             if (nodoSiguiente == null) break;
             Celda celdaSiguiente = nodoSiguiente.getCelda();
             if (esHielo(next[0], next[1])) {
-                romperHieloEnDireccion(curF, curC, direccion);
+                Elemento elem = getNodo(curF, curC).getCelda().getElemento();
+                romperHieloEnDireccion(curF, curC, direccion, elem);
                 if (solicitarMovimiento(curF, curC, direccion)) {
                     curF = next[0];
                     curC = next[1];
@@ -458,10 +459,10 @@ public class GrafoTablero {
         }
     }
 
-    public void romperHieloEnDireccion(int f, int c, String direccion) throws BadDopoException {
+    public void romperHieloEnDireccion(int f, int c, String direccion, Elemento elementoActual) throws BadDopoException {
         int[] dest = calcularNuevaPosicion(f, c, direccion);
         if (esPosicionValida(dest[0], dest[1]) && esHielo(dest[0], dest[1])) {
-            romperHielo(dest[0], dest[1], direccion);
+            romperHielo(dest[0], dest[1], direccion, elementoActual);
         }
     }
 
