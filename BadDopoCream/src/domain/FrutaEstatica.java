@@ -8,6 +8,10 @@ public abstract class FrutaEstatica extends Fruta {
         super(fila, columna);
     }
 
+    public FrutaEstatica(int fila, int columna, int ganancia) throws BadDopoException {
+        super(fila, columna, ganancia);
+    }
+
 
     @Override
     public void actualizar(long timpoActual) throws BadDopoException {

@@ -23,7 +23,7 @@ public class Narval extends Enemigo {
         int f = getFila();
         int c = getColumna();
 
-        // ¿Alineado horizontal o verticalmente?
+        // Alineado horizontal o verticalmente
         if (f == fj || c == cj) {
             // Determinar dirección de embestida
             String direccion = null;

@@ -10,6 +10,11 @@ public abstract class FrutaEnMovimiento extends Fruta {
         this.direccionActual = Direccion.ABAJO;
     }
 
+    public FrutaEnMovimiento(int fila, int col, int ganancia) throws BadDopoException {
+        super(fila, col, ganancia);
+        this.direccionActual = Direccion.ABAJO;
+    }
+
 
     public abstract void moverConPosicion(int filaNueva, int columnaNueva);
 }

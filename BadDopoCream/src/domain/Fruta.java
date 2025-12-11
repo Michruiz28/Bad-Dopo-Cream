@@ -8,30 +8,38 @@ import java.util.ArrayList;
  */
 public abstract class Fruta extends Elemento {
 
-    private int fila;
-    private int col;
+    protected int ganancia;
     private boolean reinicio;
 
     public Fruta(int fila, int col) throws BadDopoException {
+        this(fila, col, 0);
+    }
+
+    public Fruta(int fila, int col, int ganancia) throws BadDopoException {
         super(fila, col);
         if (fila < 0 || col < 0) {
             throw new BadDopoException(BadDopoException.POSICION_FUERA_DE_RANGO);
         }
-
+        this.ganancia = ganancia;
         this.reinicio = false;
     }
 
     public int getFila() {
-        return fila;
+        return super.getFila();
     }
 
     public int getColumna() {
-        return col;
+        return super.getColumna();
     }
 
     @Override
     public boolean esTransitable() {
         return true;
+    }
+
+    @Override
+    public int getGanancia() {
+        return ganancia;
     }
 
     public abstract void actualizar(long timpoActual) throws BadDopoException;
