@@ -124,13 +124,29 @@ public class GrafoTablero {
         Elemento elementoEnDestino = celdaDestino.getElemento();
 
         if (celdaDestino.getTipo().equals("H") || celdaDestino.getTipo().equals("B")){
+            // No transitable: keep in place (could implement push or block)
             celdaOrigen.setElemento(elementoAMover, creador);
             celdaDestino.setElemento(elementoEnDestino, creador);
         } else if (celdaDestino.getTipo().equals("BF") || celdaDestino.getTipo().equals("CF") || celdaDestino.getTipo().equals("CAF") || celdaDestino.getTipo().equals("U") || celdaDestino.getTipo().equals("P")) {
-            elementoAMover.aumentarPuntaje(elementoEnDestino.getGanancia());
-        } else {
+            // Collect fruit: increase score, move elemento to destination and clear origin
+            if (elementoEnDestino != null) {
+                elementoAMover.aumentarPuntaje(elementoEnDestino.getGanancia());
+            }
             celdaDestino.setElemento(elementoAMover, creador);
             celdaOrigen.setElemento(null, creador);
+
+            // actualizar coordenadas del elemento movido
+            elementoAMover.setFila(celdaDestino.getFila());
+            elementoAMover.setColumna(celdaDestino.getCol());
+            elementoAMover.setCelda(celdaDestino);
+        } else {
+            // Espacio vacío u otro: mover normalmente
+            celdaDestino.setElemento(elementoAMover, creador);
+            celdaOrigen.setElemento(null, creador);
+
+            elementoAMover.setFila(celdaDestino.getFila());
+            elementoAMover.setColumna(celdaDestino.getCol());
+            elementoAMover.setCelda(celdaDestino);
         }
         elementoAMover.mover(direccion);
     }
@@ -525,13 +541,26 @@ public class GrafoTablero {
     public HashMap<String, Fruta> getPosicionesFrutas(){
         HashMap<String, Fruta> posicionesFrutas = new HashMap<>();
         for(int i = 0; i < nodos.length; i++){
-            for(int j = 0; j < nodos.length; j++){
+            for(int j = 0; j < nodos[0].length; j++){
                 Nodo nodo = nodos[i][j];
+                if (nodo == null) continue;
                 Celda celda  = nodo.getCelda();
-                if (celda.getTipo().equals("U") || celda.getTipo().equals("BF") || celda.getTipo().equals("CF") || celda.getTipo().equals("P") || celda.getTipo().equals("CAF")) {
-                    String tipo = celda.getTipo();
+                if (celda == null) continue;
+                String codigo = celda.getTipo();
+                if (codigo == null) continue;
+                if (codigo.equals("U") || codigo.equals("BF") || codigo.equals("CF") || codigo.equals("P") || codigo.equals("CAF")) {
                     Fruta fruta = (Fruta) celda.getElemento();
-                    posicionesFrutas.put(tipo, fruta);
+                    String clave;
+                    switch (codigo) {
+                        case "U": clave = "UVA"; break;
+                        case "BF": clave = "BANANA"; break;
+                        case "CF": clave = "CEREZA"; break;
+                        case "P": clave = "PINA"; break;
+                        case "CAF": clave = "CACTUS"; break;
+                        default: clave = codigo; break;
+                    }
+                    String key = clave + "_" + i + "_" + j;
+                    posicionesFrutas.put(key, fruta);
                 }
             }
         }
@@ -541,7 +570,7 @@ public class GrafoTablero {
     public HashMap<String, Obstaculo> getPosicionesObstaculos(){
         HashMap<String, Obstaculo> posicionesObstaculos = new HashMap<>();
         for(int i = 0; i < nodos.length; i++){
-            for(int j = 0; j < nodos.length; j++){
+            for(int j = 0; j < nodos[0].length; j++){
                 Nodo nodo = nodos[i][j];
                 Celda celda  = nodo.getCelda();
                 if(celda.getTipo().equals("B") || celda.getTipo().equals("H") || celda.getTipo().equals("BO") || celda.getTipo().equals("FO")){
@@ -557,13 +586,25 @@ public class GrafoTablero {
     public HashMap<String, Enemigo> getPosicionesEnemigos(){
         HashMap<String, Enemigo> posicionesEnemigos = new HashMap<>();
         for(int i = 0; i < nodos.length; i++){
-            for(int j = 0; j < nodos.length; j++){
+            for(int j = 0; j < nodos[0].length; j++){
                 Nodo nodo = nodos[i][j];
+                if (nodo == null) continue;
                 Celda celda  = nodo.getCelda();
-                if (celda.getTipo().equals("U") || celda.getTipo().equals("BF") || celda.getTipo().equals("CF") || celda.getTipo().equals("P") || celda.getTipo().equals("CAF")){
-                    String  tipo = celda.getTipo();
+                if (celda == null) continue;
+                String codigo = celda.getTipo();
+                if (codigo == null) continue;
+                if (codigo.equals("T") || codigo.equals("C") || codigo.equals("M") || codigo.equals("NE")){
                     Enemigo enemigo = (Enemigo) celda.getElemento();
-                    posicionesEnemigos.put(tipo, enemigo);
+                    String clave;
+                    switch (codigo) {
+                        case "T": clave = "TROLL"; break;
+                        case "C": clave = "CALAMAR"; break;
+                        case "M": clave = "MACETA"; break;
+                        case "NE": clave = "NARVAL"; break;
+                        default: clave = codigo; break;
+                    }
+                    String key = clave + "_" + i + "_" + j;
+                    posicionesEnemigos.put(key, enemigo);
                 }
             }
         }
@@ -573,7 +614,7 @@ public class GrafoTablero {
     public ArrayList<Fruta> getFrutas(){
         ArrayList<Fruta> frutas = new ArrayList<>();
         for(int i = 0; i < nodos.length; i++){
-            for(int j = 0; j < nodos.length; j++){
+            for(int j = 0; j < nodos[0].length; j++){
                 Nodo nodo = nodos[i][j];
                 Celda celda  = nodo.getCelda();
                 if (celda.getTipo().equals("U") || celda.getTipo().equals("BF") || celda.getTipo().equals("CF") || celda.getTipo().equals("P") || celda.getTipo().equals("CAF")) {
@@ -588,10 +629,10 @@ public class GrafoTablero {
     public ArrayList<Enemigo> getEnemigos(){
         ArrayList<Enemigo> enemigos = new ArrayList<>();
         for(int i = 0; i < nodos.length; i++){
-            for(int j = 0; j < nodos.length; j++){
+            for(int j = 0; j < nodos[0].length; j++){
                 Nodo nodo = nodos[i][j];
                 Celda celda  = nodo.getCelda();
-                if (celda.getTipo().equals("U") || celda.getTipo().equals("BF") || celda.getTipo().equals("CF") || celda.getTipo().equals("P") || celda.getTipo().equals("CAF")) {
+                if (celda.getTipo().equals("T") || celda.getTipo().equals("C") || celda.getTipo().equals("M") || celda.getTipo().equals("NE")) {
                     Enemigo elemento = (Enemigo) celda.getElemento();
                     enemigos.add(elemento);
                 }

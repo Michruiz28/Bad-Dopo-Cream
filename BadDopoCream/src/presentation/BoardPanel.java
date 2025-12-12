@@ -255,7 +255,9 @@ public class BoardPanel extends JPanel {
     private void dibujarFrutas(Graphics2D g2d) {
         HashMap<String, Fruta> posicionesFrutas = juego.getPosicionesFrutas();
         for (Map.Entry<String, Fruta> entry : posicionesFrutas.entrySet()) {
-            String tipo = (String) entry.getKey();
+            String tipoKey = entry.getKey();
+            // tipoKey: e.g. "BANANA_4_5" -> tipo = "BANANA"
+            String tipo = tipoKey.contains("_") ? tipoKey.split("_")[0] : tipoKey;
             Fruta fruta = entry.getValue();
             int fila = fruta.getFila();
             int col = fruta.getColumna();
@@ -298,7 +300,8 @@ public class BoardPanel extends JPanel {
     private void dibujarEnemigos(Graphics2D g2d) {
         HashMap<String, Enemigo> posicionesEnemigos = juego.getPosicionesEnemigos();
         for (Map.Entry<String, Enemigo> entry : posicionesEnemigos.entrySet()) {
-            String tipo = (String) entry.getKey();
+            String tipoKey = entry.getKey();
+            String tipo = tipoKey.contains("_") ? tipoKey.split("_")[0] : tipoKey;
             Enemigo enemigo = entry.getValue();
             int fila = enemigo.getFila();
             int col = enemigo.getColumna();

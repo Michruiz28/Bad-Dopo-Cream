@@ -43,6 +43,7 @@ public class MovementController extends KeyAdapter {
         }
 
         int keyCode = e.getKeyCode();
+        System.out.println("[DEBUG] keyPressed code=" + keyCode + " modo=" + modo + " juegoIniciado=" + juego.isJuegoIniciado());
 
         try {
             // Controles del Jugador 1 (siempre activos si es humano)
@@ -116,9 +117,9 @@ public class MovementController extends KeyAdapter {
      * Verifica si el jugador 1 es humano
      */
     private boolean esJugadorHumano1() {
-        return modo.equals("Un jugador") ||
-                modo.equals("Jugador vs Jugador") ||
-                modo.equals("Jugador vs Máquina");
+        return modo.equals("Un jugador") || modo.equals("Un solo jugador") ||
+            modo.equals("Jugador vs Jugador") ||
+            modo.equals("Jugador vs Máquina");
     }
 
     /**

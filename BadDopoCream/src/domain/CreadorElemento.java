@@ -8,7 +8,7 @@ public abstract class CreadorElemento {
             if (tipo == null) throw new BadDopoException(BadDopoException.TIPO_NO_IDENTIFICADO);
             if (tipo.equals("T") || tipo.equals("NE") || tipo.equals("C") || tipo.equals("M")) {
                 return crearEnemigo(fila, col, tipo);
-            } else if (tipo.equals("H") || tipo.equals("BO") || tipo.equals("FO")) {
+            } else if (tipo.equals("H") || tipo.equals("BO") || tipo.equals("FO") || tipo.equals("B")) {
                 return crearObstaculo(fila, col, tipo);
             } else if (tipo.equals("BF") || tipo.equals("CF") || tipo.equals("P") || tipo.equals("CAF") || tipo.equals("U")) {
                 return crearFruta(fila, col, tipo);
@@ -45,7 +45,7 @@ public abstract class CreadorElemento {
             return new BaldosaCaliente(fila, col);
         } else if (tipo.equals("FO")) {
             return new Fogata(fila, col);
-        } else if (tipo.equals("BO0")) {
+        } else if (tipo.equals("BO0") || tipo.equals("B")) {
             return new Borde(fila, col);
         } else {
             return null;

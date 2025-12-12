@@ -119,7 +119,11 @@ public class BadDopoCreamGUI extends JFrame {
         gameLoop = new GameLoop(boardPanel, this);
 
         // Configurar listeners
+        // Listen on both the frame and the board panel to ensure keystrokes are captured
         addKeyListener(movementController);
+        boardPanel.addKeyListener(movementController);
+        boardPanel.setFocusable(true);
+        boardPanel.requestFocusInWindow();
         setFocusable(true);
         requestFocusInWindow();
 

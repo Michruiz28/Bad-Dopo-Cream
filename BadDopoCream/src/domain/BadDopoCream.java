@@ -116,6 +116,7 @@ public class BadDopoCream implements Serializable {
     private CreadorElemento crearFactory(String modo, String perfil1, String perfil2) {
         switch (modo) {
             case "Un jugador":
+            case "Un solo jugador":
                 return new UnJugador();
             case "Jugador vs Jugador":
                 return new JugadorVsJugador();
@@ -184,8 +185,8 @@ public class BadDopoCream implements Serializable {
         int[] posicionHelado2 = new int[2];
         posicionHelado2[0] = pos[1][0];
         posicionHelado2[1] = pos[1][1];
-        posicionesHelados.put("helado1", null);
-        posicionesHelados.put("helado2", null);
+        posicionesHelados.put("helado1", posicionHelado1);
+        posicionesHelados.put("helado2", posicionHelado2);
         return posicionesHelados;
     }
 
@@ -238,7 +239,9 @@ public class BadDopoCream implements Serializable {
             throw new BadDopoException("Helado no encontrado en el tablero");
         }
 
-        tablero.solicitarMovimiento(posActual[0], posActual[1], direccion);
+        System.out.println("[DEBUG] Intentando mover helado desde (" + posActual[0] + "," + posActual[1] + ") direccion=" + direccion);
+        boolean moved = tablero.solicitarMovimiento(posActual[0], posActual[1], direccion);
+        System.out.println("[DEBUG] Resultado solicitarMovimiento=" + moved + " nuevaPos=(" + helado.getFila() + "," + helado.getColumna() + ")");
 
         verificarRecoleccionFruta(posActual[0], posActual[1], helado);
 
@@ -247,7 +250,9 @@ public class BadDopoCream implements Serializable {
 
 
     public void moverHelado1(String direccion) throws BadDopoException {
-
+        if (helado1 != null) {
+            moverHelado(helado1, direccion);
+        }
     }
 
 
@@ -441,9 +446,9 @@ public class BadDopoCream implements Serializable {
     }
 
     private boolean esJugadorHumano1() {
-        return modo.equals("Un jugador") ||
-                modo.equals("Jugador vs Jugador") ||
-                modo.equals("Jugador vs Máquina");
+        return modo.equals("Un jugador") || modo.equals("Un solo jugador") ||
+            modo.equals("Jugador vs Jugador") ||
+            modo.equals("Jugador vs Máquina");
     }
 
 
