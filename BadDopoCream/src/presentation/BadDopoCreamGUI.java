@@ -4,8 +4,8 @@ import domain.BadDopoCream;
 import domain.BadDopoException;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 
 public class BadDopoCreamGUI extends JFrame {
@@ -91,6 +91,12 @@ public class BadDopoCreamGUI extends JFrame {
         this.nivel = config.getNivel();
         this.nombre1 = "Jugador 1";
         this.nombre2 = "Jugador 2";
+
+        System.out.println("[GUI] Configuración inicial:");
+        System.out.println("  Modo: " + modo);
+        System.out.println("  Sabor1: " + sabor1);
+        System.out.println("  Sabor2: " + sabor2);
+        System.out.println("  Nivel: " + nivel);
     }
 
     /**
@@ -107,6 +113,7 @@ public class BadDopoCreamGUI extends JFrame {
     }
 
     private void iniciarJuego() {
+        System.out.println("[GUI] Iniciando juego...");
         prepareElements();
         prepareActions();
 
@@ -118,14 +125,8 @@ public class BadDopoCreamGUI extends JFrame {
         movementController = new MovementController(boardPanel, modo);
         gameLoop = new GameLoop(boardPanel, this);
 
-        // Configurar listeners
-        // Listen on both the frame and the board panel to ensure keystrokes are captured
-        addKeyListener(movementController);
-        boardPanel.addKeyListener(movementController);
-        boardPanel.setFocusable(true);
-        boardPanel.requestFocusInWindow();
-        setFocusable(true);
-        requestFocusInWindow();
+        // CONFIGURACIÓN MEJORADA DE LISTENERS Y FOCO
+        configurarListeners();
 
         // Iniciar el game loop
         gameLoop.start();
@@ -133,6 +134,45 @@ public class BadDopoCreamGUI extends JFrame {
         add(panel);
         revalidate();
         repaint();
+
+        System.out.println("[GUI] Juego iniciado correctamente");
+    }
+
+    /**
+     * Configura los listeners de teclado y mouse para asegurar el foco correcto
+     */
+    private void configurarListeners() {
+        // Agregar el KeyListener al frame Y al boardPanel
+        addKeyListener(movementController);
+        boardPanel.addKeyListener(movementController);
+
+        // Hacer focusable ambos componentes
+        setFocusable(true);
+        boardPanel.setFocusable(true);
+
+        // Agregar MouseListener para recuperar el foco al hacer clic
+        boardPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                boardPanel.requestFocusInWindow();
+                System.out.println("[GUI] Foco devuelto al boardPanel por clic de mouse");
+            }
+        });
+
+        // Agregar MouseListener al frame completo
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                boardPanel.requestFocusInWindow();
+                System.out.println("[GUI] Foco devuelto al boardPanel por clic en frame");
+            }
+        });
+
+        // Solicitar foco inicial
+        SwingUtilities.invokeLater(() -> {
+            boardPanel.requestFocusInWindow();
+            System.out.println("[GUI] Foco inicial solicitado para boardPanel");
+        });
     }
 
     private void prepareElements() {
@@ -177,7 +217,7 @@ public class BadDopoCreamGUI extends JFrame {
         oeste.add(cambiarSabor);
         oeste.add(cambiarNivel);
 
-        // Panel del Este (vacío por ahora, puedes agregar info adicional)
+        // Panel del Este (vacío por ahora)
         este = new JPanel();
         este.setPreferredSize(new Dimension(160, 0));
 
@@ -226,6 +266,7 @@ public class BadDopoCreamGUI extends JFrame {
                     "Cambia el modo desde 'Nuevo Juego'",
                     "Información",
                     JOptionPane.INFORMATION_MESSAGE);
+            boardPanel.requestFocusInWindow();
         });
 
         cambiarSabor.addActionListener(e -> {
@@ -233,6 +274,7 @@ public class BadDopoCreamGUI extends JFrame {
                     "Cambia el sabor desde 'Nuevo Juego'",
                     "Información",
                     JOptionPane.INFORMATION_MESSAGE);
+            boardPanel.requestFocusInWindow();
         });
 
         cambiarNivel.addActionListener(e -> cambiarNivelAccion());
@@ -266,7 +308,7 @@ public class BadDopoCreamGUI extends JFrame {
             gameLoop.reanudar();
         }
 
-        requestFocusInWindow();
+        boardPanel.requestFocusInWindow();
     }
 
     private void puntajeAccion() {
@@ -285,7 +327,7 @@ public class BadDopoCreamGUI extends JFrame {
         }
 
         JOptionPane.showMessageDialog(this, info.toString(), "Información", JOptionPane.INFORMATION_MESSAGE);
-        requestFocusInWindow();
+        boardPanel.requestFocusInWindow();
     }
 
     private void pausaAccion() {
@@ -293,14 +335,14 @@ public class BadDopoCreamGUI extends JFrame {
             gameLoop.pausar();
             JOptionPane.showMessageDialog(this, "Juego pausado", "Pausa", JOptionPane.INFORMATION_MESSAGE);
         }
-        requestFocusInWindow();
+        boardPanel.requestFocusInWindow();
     }
 
     private void continuarAccion() {
         if (gameLoop != null && gameLoop.isPausado()) {
             gameLoop.reanudar();
         }
-        requestFocusInWindow();
+        boardPanel.requestFocusInWindow();
     }
 
     private void nuevoJuegoAccion() {
@@ -318,6 +360,8 @@ public class BadDopoCreamGUI extends JFrame {
         if (confirmacion == JOptionPane.YES_OPTION) {
             getContentPane().removeAll();
             mostrarVentanaInicial();
+        } else {
+            boardPanel.requestFocusInWindow();
         }
     }
 
@@ -333,7 +377,7 @@ public class BadDopoCreamGUI extends JFrame {
         if (result == JFileChooser.APPROVE_OPTION) {
             try {
                 File file = fileChooser.getSelectedFile();
-                BadDopoCream juegoC  = BadDopoCream.cargar(file.getAbsolutePath());
+                BadDopoCream juegoC = BadDopoCream.cargar(file.getAbsolutePath());
 
                 boardPanel.inicializarJuego(
                         juegoC.getNivelActual(),
@@ -353,7 +397,7 @@ public class BadDopoCreamGUI extends JFrame {
             }
         }
 
-        requestFocusInWindow();
+        boardPanel.requestFocusInWindow();
     }
 
     private void guardarAccion() {
@@ -383,7 +427,7 @@ public class BadDopoCreamGUI extends JFrame {
         if (gameLoop != null) {
             gameLoop.reanudar();
         }
-        requestFocusInWindow();
+        boardPanel.requestFocusInWindow();
     }
 
     private void mostrarInstrucciones() {
@@ -399,7 +443,7 @@ public class BadDopoCreamGUI extends JFrame {
         if (gameLoop != null) {
             gameLoop.reanudar();
         }
-        requestFocusInWindow();
+        boardPanel.requestFocusInWindow();
     }
 
     private void salirAccion() {
@@ -428,7 +472,7 @@ public class BadDopoCreamGUI extends JFrame {
         if (gameLoop != null) {
             gameLoop.detener();
             try {
-                Thread.sleep(100); // Esperar a que termine el hilo
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -441,6 +485,13 @@ public class BadDopoCreamGUI extends JFrame {
     }
 
     public static void main(String[] args) {
+        // Configurar look and feel del sistema
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         SwingUtilities.invokeLater(() -> new BadDopoCreamGUI());
     }
 }

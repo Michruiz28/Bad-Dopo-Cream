@@ -178,15 +178,14 @@ public class BadDopoCream implements Serializable {
 
     public HashMap<String, int[]> getPosicionesHelados() throws BadDopoException {
         HashMap<String, int[]> posicionesHelados = new HashMap<>();
-        int[][] pos = InfoNivel.getPosicionesHelados(nivelActual);
-        int[] posicionHelado1 = new int[2];
-        posicionHelado1[0] = pos[0][0];
-        posicionHelado1[1] = pos[0][1];
-        int[] posicionHelado2 = new int[2];
-        posicionHelado2[0] = pos[1][0];
-        posicionHelado2[1] = pos[1][1];
-        posicionesHelados.put("helado1", posicionHelado1);
-        posicionesHelados.put("helado2", posicionHelado2);
+        if (helado1 != null) {
+            int[] p1 = tablero.getPosicionHelado(helado1);
+            posicionesHelados.put("helado1", p1);
+        }
+        if (helado2 != null) {
+            int[] p2 = tablero.getPosicionHelado(helado2);
+            posicionesHelados.put("helado2", p2);
+        }
         return posicionesHelados;
     }
 
@@ -230,35 +229,60 @@ public class BadDopoCream implements Serializable {
 
 
     public void moverHelado(Helado helado, String direccion) throws BadDopoException {
+        System.out.println("\n[BADDOPO] ==================== INICIO MOVIMIENTO ====================");
+        System.out.println("[BADDOPO] Estado del juego:");
+        System.out.println("  - juegoIniciado: " + juegoIniciado);
+        System.out.println("  - pausado: " + pausado);
+        System.out.println("  - juegoTerminado: " + juegoTerminado);
+
         if (!juegoIniciado || pausado || juegoTerminado) {
+            System.out.println("[BADDOPO] ERROR: No se puede mover - estado del juego inválido");
             throw new BadDopoException(BadDopoException.JUEGO_NO_INICIADO);
         }
 
-        int[] posActual = tablero.getPosicionHelado(helado);
-        if (posActual == null) {
-            throw new BadDopoException("Helado no encontrado en el tablero");
+        System.out.println("[BADDOPO] Helado antes del movimiento:");
+        System.out.println("  - Posición actual en objeto: (" + helado.getFila() + "," + helado.getColumna() + ")");
+        System.out.println("  - Dirección solicitada: " + direccion);
+        System.out.println("  - Sabor: " + helado.getSabor());
+
+        int filaActual = helado.getFila();
+        int colActual = helado.getColumna();
+
+        System.out.println("[BADDOPO] Llamando a tablero.solicitarMovimiento(" + filaActual + ", " + colActual + ", " + direccion + ")");
+
+        boolean moved = tablero.solicitarMovimiento(filaActual, colActual, direccion);
+
+        System.out.println("[BADDOPO] Resultado del movimiento:");
+        System.out.println("  - moved: " + moved);
+        System.out.println("  - Nueva posición en objeto: (" + helado.getFila() + "," + helado.getColumna() + ")");
+
+        if (moved) {
+            verificarRecoleccionFruta(helado.getFila(), helado.getColumna(), helado);
+            moverPinas();
+            System.out.println("[BADDOPO] Movimiento completado exitosamente");
+        } else {
+            System.out.println("[BADDOPO] Movimiento bloqueado - no se pudo ejecutar");
         }
 
-        System.out.println("[DEBUG] Intentando mover helado desde (" + posActual[0] + "," + posActual[1] + ") direccion=" + direccion);
-        boolean moved = tablero.solicitarMovimiento(posActual[0], posActual[1], direccion);
-        System.out.println("[DEBUG] Resultado solicitarMovimiento=" + moved + " nuevaPos=(" + helado.getFila() + "," + helado.getColumna() + ")");
-
-        verificarRecoleccionFruta(posActual[0], posActual[1], helado);
-
-        moverPinas();
+        System.out.println("[BADDOPO] ==================== FIN MOVIMIENTO ====================\n");
     }
-
-
     public void moverHelado1(String direccion) throws BadDopoException {
+        System.out.println("[BADDOPO] moverHelado1 llamado con dirección: " + direccion);
         if (helado1 != null) {
+            System.out.println("[BADDOPO] Helado1 existe, moviendo...");
             moverHelado(helado1, direccion);
+        } else {
+            System.out.println("[BADDOPO] ERROR: Helado1 es null!");
         }
     }
-
 
     public void moverHelado2(String direccion) throws BadDopoException {
+        System.out.println("[BADDOPO] moverHelado2 llamado con dirección: " + direccion);
         if (helado2 != null) {
+            System.out.println("[BADDOPO] Helado2 existe, moviendo...");
             moverHelado(helado2, direccion);
+        } else {
+            System.out.println("[BADDOPO] ERROR: Helado2 es null!");
         }
     }
 

@@ -91,7 +91,8 @@ public class Tablero {
     public void removerFruta(Fruta fruta){
         int fila =  fruta.getFila();
         int columna = fruta.getColumna();
-        grafo.removeElemento(fila, columna);
+        // Remover la fruta solo si la celda aún contiene esa instancia (evita sobrescribir un helado que ya se movió allí)
+        grafo.removeElementoIfMatches(fila, columna, fruta);
     }
 
     public int[] getDimensiones(){
