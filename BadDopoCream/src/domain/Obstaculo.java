@@ -22,6 +22,8 @@ public abstract class Obstaculo extends Elemento {
         return columna;
     }
 
+    public abstract boolean esPeligroso();
+
     public abstract int[] calcularPosicionesMovimieto();
 
     public abstract boolean esRompible();

@@ -333,7 +333,7 @@ public class GrafoTablero {
             // Calamar: verifica si siguiente es hielo y lo rompe
             int[] siguiente = calcularNuevaPosicion(f, c, direccion);
             if (esHielo(siguiente[0], siguiente[1])) {
-                romperHieloEnDireccion(f, c, direccion);
+                romperHieloEnDireccion(f, c, direccion, elemento);
             } else {
                 solicitarMovimiento(f, c, direccion);
             }
@@ -356,7 +356,7 @@ public class GrafoTablero {
             if (nodoSiguiente == null) break;
             Celda celdaSiguiente = nodoSiguiente.getCelda();
             if (esHielo(next[0], next[1])) {
-                romperHieloEnDireccion(curF, curC, direccion);
+                romperHieloEnDireccion(curF, curC, direccion, celdaSiguiente.getElemento());
                 if (solicitarMovimiento(curF, curC, direccion)) {
                     curF = next[0];
                     curC = next[1];
@@ -458,10 +458,10 @@ public class GrafoTablero {
         }
     }
 
-    public void romperHieloEnDireccion(int f, int c, String direccion) throws BadDopoException {
+    public void romperHieloEnDireccion(int f, int c, String direccion, Elemento elementoActual) throws BadDopoException {
         int[] dest = calcularNuevaPosicion(f, c, direccion);
         if (esPosicionValida(dest[0], dest[1]) && esHielo(dest[0], dest[1])) {
-            romperHielo(dest[0], dest[1], direccion);
+            romperHielo(dest[0], dest[1], direccion, elementoActual);
         }
     }
 
@@ -520,6 +520,54 @@ public class GrafoTablero {
         public boolean esPosicionValida(int fila, int columna) {
             return GrafoTablero.this.esPosicionValida(fila, columna);
         }
+    }
+
+    public HashMap<String, Fruta> getPosicionesFrutas(){
+        HashMap<String, Fruta> posicionesFrutas = new HashMap<>();
+        for(int i = 0; i < nodos.length; i++){
+            for(int j = 0; j < nodos.length; j++){
+                Nodo nodo = nodos[i][j];
+                Celda celda  = nodo.getCelda();
+                if (celda.getTipo().equals("U") || celda.getTipo().equals("BF") || celda.getTipo().equals("CF") || celda.getTipo().equals("P") || celda.getTipo().equals("CAF")) {
+                    String tipo = celda.getTipo();
+                    Fruta fruta = (Fruta) celda.getElemento();
+                    posicionesFrutas.put(tipo, fruta);
+                }
+            }
+        }
+        return  posicionesFrutas;
+    }
+
+    public HashMap<String, Obstaculo> getPosicionesObstaculos(){
+        HashMap<String, Obstaculo> posicionesObstaculos = new HashMap<>();
+        for(int i = 0; i < nodos.length; i++){
+            for(int j = 0; j < nodos.length; j++){
+                Nodo nodo = nodos[i][j];
+                Celda celda  = nodo.getCelda();
+                if(celda.getTipo().equals("B") || celda.getTipo().equals("H") || celda.getTipo().equals("BO") || celda.getTipo().equals("FO")){
+                    String  tipo = celda.getTipo();
+                    Obstaculo obstaculo = (Obstaculo) celda.getElemento();
+                    posicionesObstaculos.put(tipo, obstaculo);
+                }
+            }
+        }
+        return  posicionesObstaculos;
+    }
+
+    public HashMap<String, Enemigo> getPosicionesEnemigos(){
+        HashMap<String, Enemigo> posicionesEnemigos = new HashMap<>();
+        for(int i = 0; i < nodos.length; i++){
+            for(int j = 0; j < nodos.length; j++){
+                Nodo nodo = nodos[i][j];
+                Celda celda  = nodo.getCelda();
+                if (celda.getTipo().equals("U") || celda.getTipo().equals("BF") || celda.getTipo().equals("CF") || celda.getTipo().equals("P") || celda.getTipo().equals("CAF")){
+                    String  tipo = celda.getTipo();
+                    Enemigo enemigo = (Enemigo) celda.getElemento();
+                    posicionesEnemigos.put(tipo, enemigo);
+                }
+            }
+        }
+        return  posicionesEnemigos;
     }
 
     public ArrayList<Fruta> getFrutas(){

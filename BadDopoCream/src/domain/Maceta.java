@@ -1,7 +1,11 @@
 package domain;
 
 public class Maceta extends Enemigo  {
-
+    private String imagenAbajo;
+    private String imagenDerecha;
+    private String imagenIzquierda;
+    private String imagenArriba;
+    private String imagenActual;
     public Maceta(int fila, int col) {
         super(fila, col, 1, TipoComportamiento.PERSEGUIDOR);
         this.persigueJugador = true;
@@ -13,6 +17,41 @@ public class Maceta extends Enemigo  {
         this.imagenIzquierda = "src/presentation/images/MacetaIzquierda.png";
         this.imagenArriba = "src/presentation/images/MacetaArriba.png";
         this.imagenActual = this.imagenAbajo;
+    }
+
+    @Override
+    public void aumentarPuntaje(int puntaje) {
+
+    }
+
+    @Override
+    public int getGanancia() {
+        return 0;
+    }
+
+    @Override
+    public void actualizarImagen(String ultimaDireccion) {
+
+    }
+
+    @Override
+    public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
+
+    }
+
+    @Override
+    public void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException {
+
+    }
+
+    @Override
+    public int[] calcularPosicionesMovimieto(int limiteInferior, int limiteSuperior) {
+        return new int[0];
+    }
+
+    @Override
+    public boolean esTransitable() {
+        return false;
     }
 
     /**

@@ -1,7 +1,12 @@
 package domain;
 
 public class Troll extends Enemigo  {
-    
+    private String imagenAbajo;
+    private String imagenDerecha;
+    private String imagenIzquierda;
+    private String imagenArriba;
+    private String imagenActual;
+
     public Troll(int fila, int col) {
         super(fila, col, 1, TipoComportamiento.LINEAL);
         this.ultimaDireccion = "ARRIBA";
@@ -28,7 +33,6 @@ public class Troll extends Enemigo  {
 
     @Override
     public void actualizarImagen(String ultimaDireccion) {
-        super.actualizarImagen(ultimaDireccion);
     }
 
     @Override
@@ -44,6 +48,11 @@ public class Troll extends Enemigo  {
     @Override
     public int[] calcularPosicionesMovimieto(int limiteInferior, int limiteSuperior) {
         return new int[0];
+    }
+
+    @Override
+    public boolean esTransitable() {
+        return false;
     }
 
     /**

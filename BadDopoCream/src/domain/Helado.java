@@ -72,6 +72,9 @@ public class Helado extends Elemento implements Poder {
     public void setColumna(int columna) {
         this.col = columna;
     }
+    public String getUltimaDireccion() {
+        return ultimaDireccion;
+    }
 
     @Override
     public void mover(String direccion) throws BadDopoException {

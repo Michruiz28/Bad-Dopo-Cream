@@ -174,6 +174,20 @@ public class BadDopoCream implements Serializable {
 
     }
 
+    public HashMap<String, int[]> getPosicionesHelados() throws BadDopoException {
+        HashMap<String, int[]> posicionesHelados = new HashMap<>();
+        int[][] pos = InfoNivel.getPosicionesHelados(nivelActual);
+        int[] posicionHelado1 = new int[2];
+        posicionHelado1[0] = pos[0][0];
+        posicionHelado1[1] = pos[0][1];
+        int[] posicionHelado2 = new int[2];
+        posicionHelado2[0] = pos[1][0];
+        posicionHelado2[1] = pos[1][1];
+        posicionesHelados.put("helado1", null);
+        posicionesHelados.put("helado2", null);
+        return posicionesHelados;
+    }
+
     private void inicializarHelados() throws BadDopoException {
         int[][] pos = InfoNivel.getPosicionesHelados(nivelActual);
 
@@ -232,9 +246,7 @@ public class BadDopoCream implements Serializable {
 
 
     public void moverHelado1(String direccion) throws BadDopoException {
-        if (helado1 != null) {
-            moverHelado(helado1, direccion);
-        }
+
     }
 
 
@@ -563,5 +575,66 @@ public class BadDopoCream implements Serializable {
         stats.put("frutasRecolectadas", new HashMap<>(frutasRecolectadas));
         stats.put("ganador", getGanador());
         return stats;
+    }
+
+    public int[] getDimensionesTablero(){
+        int[] dimensiones =  tablero.getDimensiones();
+        return dimensiones;
+    }
+
+    public String[][] getRepresentacionTablero(){
+        return this.infoNivel;
+    }
+
+    public HashMap<String, Fruta> getPosicionesFrutas() {
+        return tablero.getPosicionesFrutas();
+    }
+
+    public HashMap<String, Enemigo> getPosicionesEnemigos() {
+        return tablero.getPosicionesEnemigos();
+    }
+
+    public HashMap<String, Obstaculo> getPosicionesObstaculos() {
+        return tablero.getPosicionesObstaculos();
+    }
+
+    public void actualizar() throws BadDopoException {
+        if (!juegoIniciado || pausado || juegoTerminado) {
+            return;
+        }
+
+        long tiempoActual = System.currentTimeMillis();
+
+        // Actualizar frutas y elementos que dependan del tiempo
+        // Iteramos sobre una copia para evitar ConcurrentModification
+        ArrayList<Fruta> copiaFrutas = new ArrayList<>(frutasEnJuego);
+        for (Fruta f : copiaFrutas) {
+            f.actualizar(tiempoActual);
+        }
+
+        // Mover pinas y otras actualizaciones periódicas
+        moverPinas();
+
+        // Verificar colisiones entre helados y enemigos
+        verificarColisiones();
+
+        // Verificar si se agotó el tiempo
+        if (tiempoExcedido()) {
+            juegoTerminado = true;
+            mensajeEstado = "Tiempo agotado";
+        }
+
+        // Si todas las frutas fueron recolectadas, completar el nivel
+        if (todasLasFrutasRecolectadas()) {
+            completarNivel();
+        }
+    }
+
+    public String getSabor2() {
+        return sabor2;
+    }
+
+    public String getSabor1() {
+        return sabor1;
     }
 }

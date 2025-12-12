@@ -1,6 +1,11 @@
 package domain;
 
 public class Calamar extends Enemigo {
+    private String imagenAbajo;
+    private String imagenDerecha;
+    private String imagenIzquierda;
+    private String imagenArriba;
+    private String imagenActual;
 
     public Calamar(int fila, int col) {
         super(fila, col, 1, TipoComportamiento.ROMPEHIELO);
@@ -14,6 +19,41 @@ public class Calamar extends Enemigo {
         this.imagenIzquierda = "src/presentation/images/CalamarIzquierda.png";
         this.imagenArriba = "src/presentation/images/CalamarArriba.png";
         this.imagenActual = this.imagenAbajo;
+    }
+
+    @Override
+    public void aumentarPuntaje(int puntaje) {
+
+    }
+
+    @Override
+    public int getGanancia() {
+        return 0;
+    }
+
+    @Override
+    public void actualizarImagen(String ultimaDireccion) {
+
+    }
+
+    @Override
+    public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
+
+    }
+
+    @Override
+    public void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException {
+
+    }
+
+    @Override
+    public int[] calcularPosicionesMovimieto(int limiteInferior, int limiteSuperior) {
+        return new int[0];
+    }
+
+    @Override
+    public boolean esTransitable() {
+        return false;
     }
 
     /**

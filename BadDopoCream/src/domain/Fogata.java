@@ -6,6 +6,12 @@ public class Fogata extends Obstaculo {
         super(fila, col);
         this.encendida = true;
     }
+
+    @Override
+    public boolean esPeligroso() {
+        return false;
+    }
+
     public void encender() { encendida = true; }
     public void apagar() { encendida = false; }
     public boolean estaEncendida() { return encendida; }

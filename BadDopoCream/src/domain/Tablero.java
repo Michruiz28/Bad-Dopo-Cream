@@ -1,6 +1,7 @@
 package domain;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 // Tablero.java
 public class Tablero {
@@ -91,5 +92,24 @@ public class Tablero {
         int fila =  fruta.getFila();
         int columna = fruta.getColumna();
         grafo.removeElemento(fila, columna);
+    }
+
+    public int[] getDimensiones(){
+        int[] dimensiones = new int[2];
+        dimensiones[0] = filas;
+        dimensiones[1] = columnas;
+        return dimensiones;
+    }
+
+    public HashMap<String, Fruta> getPosicionesFrutas(){
+        return grafo.getPosicionesFrutas();
+    }
+
+    public HashMap<String, Enemigo> getPosicionesEnemigos(){
+        return grafo.getPosicionesEnemigos();
+    }
+
+    public HashMap<String, Obstaculo> getPosicionesObstaculos(){
+        return grafo.getPosicionesObstaculos();
     }
 }
