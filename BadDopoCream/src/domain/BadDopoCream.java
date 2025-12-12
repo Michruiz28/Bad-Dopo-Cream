@@ -110,6 +110,7 @@ public class BadDopoCream implements Serializable {
         this.puntajeJugador2 = 0;
 
         this.modoJuego = crearFactory(modo, perfil1, perfil2);
+        this.creador = this.modoJuego;
     }
 
     private CreadorElemento crearFactory(String modo, String perfil1, String perfil2) {
