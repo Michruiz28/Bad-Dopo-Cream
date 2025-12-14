@@ -12,6 +12,8 @@ public abstract class FrutaEstatica extends Fruta {
         super(fila, columna, ganancia);
     }
 
+    @Override
+    public abstract String getCodigo();
 
     @Override
     public void actualizar(long timpoActual) throws BadDopoException {

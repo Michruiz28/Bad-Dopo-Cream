@@ -1,7 +1,5 @@
 package domain;
 
-import java.util.ArrayList;
-
 /**
  * Clase que representa una fruta en el juego Bad Dopo Cream
  * Las frutas deben ser recolectadas por el helado para ganar puntos
@@ -14,6 +12,8 @@ public abstract class Fruta extends Elemento {
     public Fruta(int fila, int col) throws BadDopoException {
         this(fila, col, 0);
     }
+
+    public abstract String getCodigo();
 
     public Fruta(int fila, int col, int ganancia) throws BadDopoException {
         super(fila, col);

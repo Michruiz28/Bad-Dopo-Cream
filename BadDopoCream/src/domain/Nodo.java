@@ -11,6 +11,14 @@ public class Nodo {
         this.celda = new Celda(fila, columna, tipo, creador);
     }
 
+    public int getFila(){
+        return this.celda.getFila();
+    }
+
+    public int getColumna(){
+        return this.celda.getCol();
+    }
+
     public Celda getCelda() { return celda; }
 
     public List<Nodo> getVecinos() { return vecinos; }

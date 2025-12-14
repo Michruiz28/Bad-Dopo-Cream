@@ -6,9 +6,16 @@ package domain;
  */
 public class Uva extends FrutaEstatica {
     public static final int GANANCIA_UVA = 50;
+    private static final String imagen = "src/presentation/images/Uva.png";
+    private static final String codigo = "U";
     
     public Uva(int fila, int col) throws BadDopoException {
         super(fila, col);
+    }
+
+    @Override
+    public String getCodigo(){
+        return codigo;
     }
 
     @Override

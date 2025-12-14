@@ -8,9 +8,16 @@ package domain;
 public class Pina extends FrutaEnMovimiento {
     public static final int GANANCIA_PINA = 200;
    private static final String imagen = "src/presentation/images/Piña.png";
+   private static final String codigo = "P";
+
     public Pina(int fila, int columna) throws BadDopoException {
         super(fila, columna);
     }
+
+   @Override
+   public String getCodigo(){
+      return codigo;
+   }
 
      @Override
      public void mover(String direccion) throws BadDopoException {

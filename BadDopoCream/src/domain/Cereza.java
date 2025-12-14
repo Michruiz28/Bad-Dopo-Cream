@@ -9,11 +9,16 @@ public class Cereza extends FrutaEnMovimiento {
     private int fila;
     private int columna;
     private static final String imagen = "src/presentation/images/Cereza.png";
-
+    private static final String codigo = "CF";
 
     public Cereza(int fila, int col) throws BadDopoException {
         super(fila, col);
         this.ultimoTeletransporte = System.currentTimeMillis();
+    }
+
+    @Override
+    public String getCodigo(){
+        return codigo;
     }
 
     @Override
