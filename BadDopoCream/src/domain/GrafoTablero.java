@@ -8,7 +8,7 @@ import java.util.*;
  * @author Maria Katalina Leyva Díaz y Michelle Dayana Ruíz Carranza.
  */
 public class GrafoTablero {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private Nodo[][] nodos;
     private int filas;
     private int columnas;
@@ -99,9 +99,15 @@ public class GrafoTablero {
     public void setNodo(int fila, int col, String tipo) throws BadDopoException {
         Nodo nodo = getNodo(fila, col);
         if (nodo != null) {
-            // Solo cambiar el tipo de la celda, NO reemplazar el nodo
-            nodo.getCelda().setTipo(tipo);
-            nodos[fila][col] = new Nodo (fila,col,tipo,creador);
+            // Actualizar el tipo/elemento de la celda existente en lugar de reemplazar el Nodo
+            // Reemplazar el Nodo rompe las referencias de vecinos (vecinos referencian instancias antiguas)
+            try {
+                nodo.getCelda().setElementoConTipo(tipo, creador);
+                nodo.getCelda().setTipo(tipo);
+            } catch (BadDopoException ex) {
+                // Si falla la creación del elemento, al menos actualizamos el tipo
+                nodo.getCelda().setTipo(tipo);
+            }
         }
     }
 
@@ -450,7 +456,12 @@ public class GrafoTablero {
     }
 
     public String calcularDireccionHaciaObjetivo(int f0, int c0, int objetivoF, int objetivoC, boolean permitirHielo) {
-        record Estado(int fila, int col, String primerPaso) {}
+        class Estado {
+            int fila;
+            int col;
+            String primerPaso;
+            Estado(int fila, int col, String primerPaso) { this.fila = fila; this.col = col; this.primerPaso = primerPaso; }
+        }
 
         Queue<Estado> cola = new LinkedList<>();
         boolean[][] visitado = new boolean[filas][columnas];

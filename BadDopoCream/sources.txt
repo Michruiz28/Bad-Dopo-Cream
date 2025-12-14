@@ -11,7 +11,6 @@ C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\CreadorElemento.jav
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Direccion.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Elemento.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Enemigo.java
-C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\EstrategiaLineal.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\EstrategiaMovimiento.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\EstrategiaPerseguidor.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\EstrategiaRompeHielo.java
