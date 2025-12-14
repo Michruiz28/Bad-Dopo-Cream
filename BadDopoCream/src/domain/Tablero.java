@@ -37,8 +37,8 @@ public class Tablero {
     }
     public int getFilas(){ return filas;}
 
-    public boolean solicitarMovimiento(int fila, int columna, String direccion) throws BadDopoException {
-        return grafo.solicitarMovimiento(fila, columna, direccion);
+    public boolean solicitarMovimientoHacia(int fila, int columna, String direccion) throws BadDopoException {
+        return grafo.solicitarMovimientoHacia(fila, columna, direccion);
     }
     public void realizarAccion(int fila, int columna, String ultimaDireccion) throws BadDopoException {
         grafo.realizarAccion(fila, columna, ultimaDireccion);

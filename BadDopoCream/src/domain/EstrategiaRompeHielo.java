@@ -28,14 +28,14 @@ public class EstrategiaRompeHielo implements MovimientoEnemigoStrategy {
                 Celda celdaSiguiente = nodoSiguiente.getCelda();
                 if (grafo.esHielo(next[0], next[1])) {
                     grafo.romperHielo(next[0], next[1], direccion, enemigo);
-                    if (grafo.solicitarMovimiento(curF, curC, direccion)) {
+                    if (grafo.solicitarMovimientoHacia(curF, curC, direccion)) {
                         curF = next[0];
                         curC = next[1];
                     } else {
                         break;
                     }
                 } else if (celdaSiguiente.esTransitable()) {
-                    if (grafo.solicitarMovimiento(curF, curC, direccion)) {
+                    if (grafo.solicitarMovimientoHacia(curF, curC, direccion)) {
                         curF = next[0];
                         curC = next[1];
                     } else {
@@ -55,6 +55,6 @@ public class EstrategiaRompeHielo implements MovimientoEnemigoStrategy {
                 return;
             }
         }
-        grafo.solicitarMovimiento(f, c, direccion);
+        grafo.solicitarMovimientoHacia(f, c, direccion);
     }
 }

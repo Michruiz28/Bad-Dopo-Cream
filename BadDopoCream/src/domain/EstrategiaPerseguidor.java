@@ -13,7 +13,7 @@ public class EstrategiaPerseguidor implements MovimientoEnemigoStrategy {
 
         if (direccion != null) {
             enemigo.setUltimaDireccion(direccion);
-            grafo.solicitarMovimiento(enemigo.getFila(), enemigo.getColumna(), direccion);
+            grafo.solicitarMovimientoHacia(enemigo.getFila(), enemigo.getColumna(), direccion);
             return;
         }
 
@@ -21,7 +21,7 @@ public class EstrategiaPerseguidor implements MovimientoEnemigoStrategy {
         if (!validas.isEmpty()) {
             String aleatoria = validas.get(new java.util.Random().nextInt(validas.size()));
             enemigo.setUltimaDireccion(aleatoria);
-            grafo.solicitarMovimiento(enemigo.getFila(), enemigo.getColumna(), aleatoria);
+            grafo.solicitarMovimientoHacia(enemigo.getFila(), enemigo.getColumna(), aleatoria);
         }
     }
 }

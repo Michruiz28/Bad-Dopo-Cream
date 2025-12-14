@@ -86,7 +86,7 @@ public class GrafoTablero {
         celdaDestino.setElemento(elemento, creador);
     }
 
-    public boolean solicitarMovimiento(int fila, int columna, String direccion) throws BadDopoException {
+    public boolean solicitarMovimientoHacia(int fila, int columna, String direccion) throws BadDopoException {
         Nodo nodo = getNodo(fila, columna);
         if (nodo == null) {
             if (DEBUG) System.out.println("[GRAFO] ERROR: Nodo en posición (" + fila + "," + columna + ") es null");
@@ -351,7 +351,7 @@ public class GrafoTablero {
     }
 
     public void procesarMovimientoHelado(int filaOrigen, int columnaOrigen, String direccion, Helado jugador) throws BadDopoException {
-        boolean moved = solicitarMovimiento(filaOrigen, columnaOrigen, direccion);
+        boolean moved = solicitarMovimientoHacia(filaOrigen, columnaOrigen, direccion);
         if (!moved) return;
 
         java.util.List<int[]> posicionesPinas = new java.util.ArrayList<>();
@@ -386,7 +386,7 @@ public class GrafoTablero {
                     mejor = obtenerDireccionAleatoria(f, c);
                 }
                 if (mejor != null) {
-                    solicitarMovimiento(f, c, mejor);
+                    solicitarMovimientoHacia(f, c, mejor);
                 }
             } catch (BadDopoException ex) {
                 // Ignorar errores de movimiento individuales

@@ -24,7 +24,7 @@ public class EstrategiaTroll implements MovimientoEnemigoStrategy {
         // Si al frente no hay hielo y la casilla es transitable, seguir recto
         if (!aheadIsIce && grafo.puedeMoverEn(enemigo.getFila(), enemigo.getColumna(), dir)) {
             enemigo.setUltimaDireccion(dir);
-            grafo.solicitarMovimiento(enemigo.getFila(), enemigo.getColumna(), dir);
+            grafo.solicitarMovimientoHacia(enemigo.getFila(), enemigo.getColumna(), dir);
             return;
         }
 
@@ -33,24 +33,24 @@ public class EstrategiaTroll implements MovimientoEnemigoStrategy {
             // estaba yendo vertical -> probar izquierda, luego derecha
             if (grafo.puedeMoverEn(enemigo.getFila(), enemigo.getColumna(), "IZQUIERDA")) {
                 enemigo.setUltimaDireccion("IZQUIERDA");
-                grafo.solicitarMovimiento(enemigo.getFila(), enemigo.getColumna(), "IZQUIERDA");
+                grafo.solicitarMovimientoHacia(enemigo.getFila(), enemigo.getColumna(), "IZQUIERDA");
                 return;
             }
             if (grafo.puedeMoverEn(enemigo.getFila(), enemigo.getColumna(), "DERECHA")) {
                 enemigo.setUltimaDireccion("DERECHA");
-                grafo.solicitarMovimiento(enemigo.getFila(), enemigo.getColumna(), "DERECHA");
+                grafo.solicitarMovimientoHacia(enemigo.getFila(), enemigo.getColumna(), "DERECHA");
                 return;
             }
         } else {
             // estaba yendo horizontal -> probar arriba, luego abajo
             if (grafo.puedeMoverEn(enemigo.getFila(), enemigo.getColumna(), "ARRIBA")) {
                 enemigo.setUltimaDireccion("ARRIBA");
-                grafo.solicitarMovimiento(enemigo.getFila(), enemigo.getColumna(), "ARRIBA");
+                grafo.solicitarMovimientoHacia(enemigo.getFila(), enemigo.getColumna(), "ARRIBA");
                 return;
             }
             if (grafo.puedeMoverEn(enemigo.getFila(), enemigo.getColumna(), "ABAJO")) {
                 enemigo.setUltimaDireccion("ABAJO");
-                grafo.solicitarMovimiento(enemigo.getFila(), enemigo.getColumna(), "ABAJO");
+                grafo.solicitarMovimientoHacia(enemigo.getFila(), enemigo.getColumna(), "ABAJO");
                 return;
             }
         }
@@ -64,7 +64,7 @@ public class EstrategiaTroll implements MovimientoEnemigoStrategy {
 
         if (invert != null && grafo.puedeMoverEn(enemigo.getFila(), enemigo.getColumna(), invert)) {
             enemigo.setUltimaDireccion(invert);
-            grafo.solicitarMovimiento(enemigo.getFila(), enemigo.getColumna(), invert);
+            grafo.solicitarMovimientoHacia(enemigo.getFila(), enemigo.getColumna(), invert);
         }
         // Si no puede invertir, queda en su lugar este turno.
     }

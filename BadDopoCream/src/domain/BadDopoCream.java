@@ -248,9 +248,9 @@ public class BadDopoCream implements Serializable {
         int filaActual = helado.getFila();
         int colActual = helado.getColumna();
 
-        System.out.println("[BADDOPO] Llamando a tablero.solicitarMovimiento(" + filaActual + ", " + colActual + ", " + direccion + ")");
+        System.out.println("[BADDOPO] Llamando a tablero.solicitarMovimientoHacia(" + filaActual + ", " + colActual + ", " + direccion + ")");
 
-        boolean moved = tablero.solicitarMovimiento(filaActual, colActual, direccion);
+        boolean moved = tablero.solicitarMovimientoHacia(filaActual, colActual, direccion);
 
         System.out.println("[BADDOPO] Resultado del movimiento:");
         System.out.println("  - moved: " + moved);
