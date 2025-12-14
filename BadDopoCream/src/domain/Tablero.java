@@ -110,6 +110,13 @@ public class Tablero {
         return grafo.getPosicionesEnemigos();
     }
 
+    /**
+     * Ejecuta la actualización/autómata de los enemigos delegando al grafo.
+     */
+    public void actualizarEnemigos(Helado jugador) throws BadDopoException {
+        grafo.actualizarEnemigos(jugador);
+    }
+
     public HashMap<String, Obstaculo> getPosicionesObstaculos(){
         return grafo.getPosicionesObstaculos();
     }

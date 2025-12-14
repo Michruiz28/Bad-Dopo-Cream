@@ -645,6 +645,15 @@ public class BadDopoCream implements Serializable {
         // Mover pinas y otras actualizaciones periódicas
         moverPinas();
 
+        // Actualizar enemigos: cada turno los enemigos ejecutan su estrategia
+        try {
+            if (tablero != null && helado1 != null) tablero.actualizarEnemigos(helado1);
+            // Si hay segundo helado (multijugador), también lo consideramos como referencia
+            if (tablero != null && helado2 != null) tablero.actualizarEnemigos(helado2);
+        } catch (BadDopoException ex) {
+            // Ignorar errores puntuales de movimiento de enemigos para no detener el juego
+        }
+
         // Verificar colisiones entre helados y enemigos
         verificarColisiones();
 

@@ -86,9 +86,20 @@ public class BoardPanel extends JPanel {
             cargarImagenSiExiste("PINA", "src/presentation/images/Piña.png");
 
             // Cargar imágenes de enemigos
-            cargarImagenSiExiste("TROLL", "src/presentation/images/TrollAbajo.png");
-            cargarImagenSiExiste("MACETA", "src/presentation/images/MacetaAbajo.png");
-            cargarImagenSiExiste("CALAMAR", "src/presentation/images/CalamarAbajo.png");
+            cargarImagenSiExiste("TROLL_ABAJO", "src/presentation/images/TrollAbajo.png");
+            cargarImagenSiExiste("TROLL_ARRIBA", "src/presentation/images/TrollDetras.png");
+            cargarImagenSiExiste("TROLL_IZQUIERDA", "src/presentation/images/TrolIzquierda.png");
+            cargarImagenSiExiste("TROLL_DERECHA", "src/presentation/images/TrollDerecha.png");
+
+            cargarImagenSiExiste("MACETA_ABAJO", "src/presentation/images/MacetaAbajo.png");
+            cargarImagenSiExiste("MACETA_ARRIBA", "src/presentation/images/MacetaDetras.png");
+            cargarImagenSiExiste("MACETA_IZQUIERDA", "src/presentation/images/MacetaIzquierda.png");
+            cargarImagenSiExiste("MACETA_DERECHA", "src/presentation/images/MacetaDerecha.png");
+
+            cargarImagenSiExiste("CALAMAR_ABAJO", "src/presentation/images/CalamarAbajo.png");
+            cargarImagenSiExiste("CALAMAR_ARRIBA", "src/presentation/images/CalamarDetras.png");
+            cargarImagenSiExiste("CALAMAR_IZQUIERDA", "src/presentation/images/CalamarIzquierda.png");
+            cargarImagenSiExiste("CALAMAR_DERECHA", "src/presentation/images/CalamarDerecha.png");
 
             // Cargar imágenes de obstáculos
             cargarImagenSiExiste("HIELO", "src/presentation/images/BloqueDeHielo.png");
@@ -311,19 +322,12 @@ public class BoardPanel extends JPanel {
 
             Image img = null;
 
-            switch (tipo.toUpperCase()) {
-                case "TROLL":
-                    img = imageCache.get("TROLL");
-                    break;
-                case "MACETA":
-                    img = imageCache.get("MACETA");
-                    break;
-                case "CALAMAR":
-                    img = imageCache.get("CALAMAR");
-                    break;
-                case "NARVAL":
-                    img = imageCache.get("NARVAL");
-                    break;
+            String direccion = enemigo.getUltimaDireccion() != null ? enemigo.getUltimaDireccion() : "ABAJO";
+            String key = tipo.toUpperCase() + "_" + direccion;
+            img = imageCache.get(key);
+            if (img == null) {
+                // Fallback a la imagen genérica por tipo
+                img = imageCache.get(tipo.toUpperCase());
             }
 
             if (img != null) {

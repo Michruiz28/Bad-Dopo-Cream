@@ -169,6 +169,15 @@ public class GrafoTablero {
         } else {
             // Espacio vacío u otro: mover normalmente
             celdaDestino.setElemento(elementoAMover, creador);
+            // Si el elemento que se mueve es un enemigo, asegurarnos de marcar el tipo de la celda
+            if (elementoAMover instanceof Enemigo) {
+                String codigo = "V";
+                if (elementoAMover instanceof Troll) codigo = "T";
+                else if (elementoAMover instanceof Calamar) codigo = "C";
+                else if (elementoAMover instanceof Maceta) codigo = "M";
+                // agregar otros tipos si existen
+                celdaDestino.setTipo(codigo);
+            }
             celdaOrigen.setElementoConTipo("V", creador);
 
             elementoAMover.setFila(celdaDestino.getFila());
@@ -290,19 +299,18 @@ public class GrafoTablero {
 
     public void actualizarEnemigos(Helado jugador) throws BadDopoException {
         VistaTablero vista = new VistaTableroImpl();
-        List<int[]> posicionesEnemigos = new ArrayList<>();
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
                 Nodo nodo = nodos[f][c];
                 if (nodo == null) continue;
                 Elemento el = nodo.getCelda().getElemento();
                 if (el instanceof Enemigo) {
-                    posicionesEnemigos.add(new int[]{f, c});
+                    Enemigo enemigo = (Enemigo) el;
+                    System.out.println("[GRAFO] Actualizando enemigo " + enemigo.getClass().getSimpleName() +
+                            " en (" + f + "," + c + ") ultimaDir=" + enemigo.getUltimaDireccion());
+                    enemigo.ejecutarComportamiento(this, vista, jugador);
                 }
             }
-        }
-        for (int[] pos : posicionesEnemigos) {
-            procesarEnemigo(pos[0], pos[1], vista, jugador);
         }
     }
 
@@ -350,64 +358,7 @@ public class GrafoTablero {
         }
     }
 
-    private void procesarEnemigo(int f, int c, VistaTablero vista, Helado jugador) throws BadDopoException {
-        Nodo nodo = getNodo(f, c);
-        if (nodo == null) return;
-        Elemento elemento = nodo.getCelda().getElemento();
-        if (!(elemento instanceof Enemigo)) return;
-
-        Enemigo enemigo = (Enemigo) elemento;
-        String direccion = enemigo.decidirProximaMovida(vista, jugador);
-        if (direccion == null) return;
-
-        boolean esEmbestida = !enemigo.isPersigueJugador() && enemigo.canRomperBloques()
-                && (f == jugador.getFila() || c == jugador.getColumna());
-
-        if (esEmbestida) {
-            ejecutarEmbestidaNarval(f, c, direccion, jugador.getFila(), jugador.getColumna());
-        } else if (enemigo.canRomperBloques() && enemigo.rompeUnBloquePorVez()) {
-            int[] siguiente = calcularNuevaPosicion(f, c, direccion);
-            if (esHielo(siguiente[0], siguiente[1])) {
-                romperHieloEnDireccion(f, c, direccion, elemento);
-            } else {
-                solicitarMovimiento(f, c, direccion);
-            }
-        } else {
-            solicitarMovimiento(f, c, direccion);
-        }
-    }
-
-    private void ejecutarEmbestidaNarval(int f, int c, String direccion, int objetivoF, int objetivoC) throws BadDopoException {
-        int curF = f;
-        int curC = c;
-
-        while (true) {
-            int[] next = calcularNuevaPosicion(curF, curC, direccion);
-            if (!esPosicionValida(next[0], next[1])) break;
-            Nodo nodoSiguiente = getNodo(next[0], next[1]);
-            if (nodoSiguiente == null) break;
-            Celda celdaSiguiente = nodoSiguiente.getCelda();
-            if (esHielo(next[0], next[1])) {
-                romperHieloEnDireccion(curF, curC, direccion, celdaSiguiente.getElemento());
-                if (solicitarMovimiento(curF, curC, direccion)) {
-                    curF = next[0];
-                    curC = next[1];
-                } else {
-                    break;
-                }
-            } else if (celdaSiguiente.esTransitable()) {
-                if (solicitarMovimiento(curF, curC, direccion)) {
-                    curF = next[0];
-                    curC = next[1];
-                } else {
-                    break;
-                }
-            } else {
-                break;
-            }
-            if (curF == objetivoF && curC == objetivoC) break;
-        }
-    }
+    
 
     public int[] calcularNuevaPosicion(int f, int c, String direccion) throws BadDopoException {
         return switch (direccion) {
@@ -486,13 +437,6 @@ public class GrafoTablero {
             return nodo.getCelda().getTipo().equals("H");
         } catch (Exception ex) {
             return false;
-        }
-    }
-
-    public void romperHieloEnDireccion(int f, int c, String direccion, Elemento elementoActual) throws BadDopoException {
-        int[] dest = calcularNuevaPosicion(f, c, direccion);
-        if (esPosicionValida(dest[0], dest[1]) && esHielo(dest[0], dest[1])) {
-            romperHielo(dest[0], dest[1], direccion, elementoActual);
         }
     }
 

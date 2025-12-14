@@ -7,7 +7,7 @@ public class Maceta extends Enemigo  {
     private String imagenArriba;
     private String imagenActual;
     public Maceta(int fila, int col) {
-        super(fila, col, 1, TipoComportamiento.PERSEGUIDOR);
+        super(fila, col, 1);
         this.persigueJugador = true;
         this.puedeRomperBloques = false;
         this.rompeUnBloquePorVez = false;
@@ -15,8 +15,9 @@ public class Maceta extends Enemigo  {
         this.imagenAbajo = "src/presentation/images/MacetaAbajo.png";
         this.imagenDerecha = "src/presentation/images/MacetaDerecha.png";
         this.imagenIzquierda = "src/presentation/images/MacetaIzquierda.png";
-        this.imagenArriba = "src/presentation/images/MacetaArriba.png";
+        this.imagenArriba = "src/presentation/images/MacetaDetras.png";
         this.imagenActual = this.imagenAbajo;
+        setMovimientoStrategy(new EstrategiaPerseguidor());
     }
 
     @Override
@@ -31,7 +32,14 @@ public class Maceta extends Enemigo  {
 
     @Override
     public void actualizarImagen(String ultimaDireccion) {
-
+        if (ultimaDireccion == null) return;
+        switch (ultimaDireccion) {
+            case "DERECHA": imagenActual = imagenDerecha; break;
+            case "IZQUIERDA": imagenActual = imagenIzquierda; break;
+            case "ABAJO": imagenActual = imagenAbajo; break;
+            case "ARRIBA": imagenActual = imagenArriba; break;
+            default: break;
+        }
     }
 
     @Override
@@ -54,32 +62,5 @@ public class Maceta extends Enemigo  {
         return false;
     }
 
-    /**
-     * Maceta persigue al jugador usando BFS.
-     * No puede romper bloques.
-     */
-    @Override
-    public String decidirProximaMovida(VistaTablero vista, Helado jugador) throws BadDopoException {
-        String direccion = vista.calcularDireccionHaciaObjetivo(
-            getFila(), getColumna(),
-            jugador.getFila(), jugador.getColumna(),
-            false // no permite pasar por hielo
-        );
-        
-        if (direccion != null) {
-            setUltimaDireccion(direccion);
-            return direccion;
-        }
-        
-        // Si no hay camino, intenta movimiento aleatorio
-        java.util.List<String> validas = vista.obtenerDireccionesValidas(getFila(), getColumna());
-        if (!validas.isEmpty()) {
-            String aleatoria = validas.get(new java.util.Random().nextInt(validas.size()));
-            setUltimaDireccion(aleatoria);
-            return aleatoria;
-        }
-        
-        // No puede moverse
-        return getUltimaDireccion();
-    }
+    // El comportamiento queda delegado a la estrategia (EstrategiaPerseguidor)
 }
