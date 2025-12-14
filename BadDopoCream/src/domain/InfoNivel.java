@@ -160,8 +160,8 @@ public class InfoNivel {
     private static String[][] getNivel1Base() {
         String[][] nivel1 = {
                 {"B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B"},
-                {"B", "V", "V", "V", "V", "V", "V", "B", "V", "V", "V", "V", "V", "M", "B"},
                 {"B", "V", "V", "V", "V", "V", "V", "B", "V", "V", "V", "V", "V", "V", "B"},
+                {"B", "V", "M", "V", "V", "V", "V", "B", "V", "V", "V", "V", "V", "V", "B"},
                 {"B", "V", "V", "V", "V", "V", "V", "B", "V", "V", "V", "V", "V", "V", "B"},
                 {"B", "V", "V", "V", "H", "H", "H", "H", "H", "H", "H", "V", "V", "V", "B"},
                 {"B", "V", "V", "V", "H", "H", "H", "H", "H", "H", "H", "V", "V", "V", "B"},
@@ -194,16 +194,14 @@ public class InfoNivel {
         fase1.agregarFruta("CF", 2, 12);
         fase1.agregarFruta("CF", 3, 9);
         fase1.agregarFruta("CF", 3, 11);
-        fase1.agregarFruta("CF", 4, 11);
+        fase1.agregarFruta("CF", 3, 13);
         fase1.agregarFruta("CF", 4, 12);
         fase1.agregarFruta("CF", 5, 11);
+        fase1.agregarFruta("CF", 5, 13);
         fase1.agregarFruta("CF", 8, 2);
-        fase1.agregarFruta("CF", 8, 11);
         fase1.agregarFruta("CF", 9, 1);
         fase1.agregarFruta("CF", 9, 3);
-        fase1.agregarFruta("CF", 9, 11);
         fase1.agregarFruta("CF", 10, 2);
-        fase1.agregarFruta("CF", 10, 11);
         fase1.agregarFruta("CF", 11, 1);
         fase1.agregarFruta("CF", 11, 3);
         fase1.agregarFruta("CF", 11, 5);
@@ -261,8 +259,8 @@ public class InfoNivel {
             };
         } else if (nivel == 1) {
             return new int[][] {
-                    {7, 7},
-                    {7, 8}
+                    {12, 12},
+                    {12, 10}
             };
         }
         return null;
