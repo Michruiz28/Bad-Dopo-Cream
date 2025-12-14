@@ -44,8 +44,8 @@ public class Tablero {
         return filas;
     }
 
-    public boolean solicitarMovimiento(int fila, int columna, String direccion) throws BadDopoException {
-        return grafo.solicitarMovimiento(fila, columna, direccion);
+    public boolean solicitarMovimientoHacia(int fila, int columna, String direccion) throws BadDopoException {
+        return grafo.solicitarMovimientoHacia(fila, columna, direccion);
     }
 
     public void realizarAccion(int fila, int columna, String ultimaDireccion) throws BadDopoException {
@@ -138,6 +138,13 @@ public class Tablero {
 
     public HashMap<String, Enemigo> getPosicionesEnemigos(){
         return grafo.getPosicionesEnemigos();
+    }
+
+    /**
+     * Ejecuta la actualización/autómata de los enemigos delegando al grafo.
+     */
+    public void actualizarEnemigos(Helado jugador) throws BadDopoException {
+        grafo.actualizarEnemigos(jugador);
     }
 
     public HashMap<String, Obstaculo> getPosicionesObstaculos(){

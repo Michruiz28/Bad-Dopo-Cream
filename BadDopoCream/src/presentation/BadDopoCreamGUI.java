@@ -526,7 +526,6 @@ public class BadDopoCreamGUI extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         SwingUtilities.invokeLater(() -> new BadDopoCreamGUI());
     }
 }

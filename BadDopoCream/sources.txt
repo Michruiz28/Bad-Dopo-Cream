@@ -11,7 +11,11 @@ C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\CreadorElemento.jav
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Direccion.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Elemento.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Enemigo.java
+C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\EstrategiaLineal.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\EstrategiaMovimiento.java
+C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\EstrategiaPerseguidor.java
+C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\EstrategiaRompeHielo.java
+C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\EstrategiaTroll.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\ExpertIA.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Fearful.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Fogata.java
@@ -31,6 +35,7 @@ C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Maceta.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\MaquinaVsMaquina.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Mover.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\MoverConPosicion.java
+C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\MovimientoEnemigoStrategy.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Nieve.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Nodo.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Obstaculo.java
@@ -39,7 +44,6 @@ C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Poder.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\RompeHielo.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Tablero.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\TipoCelda.java
-C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\TipoComportamiento.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Troll.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\UnJugador.java
 C:\DOPO\ProyectoFinal\Bad-Dopo-Cream\BadDopoCream\src\domain\Uva.java
