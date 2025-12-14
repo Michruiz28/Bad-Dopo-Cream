@@ -30,6 +30,7 @@ public class BoardPanel extends JPanel {
     private static final long DURACION_MENSAJE_FASE = 3000; // 3 segundos
 
     private MovementController movementController;
+    private boolean cambiandoNivel = false; 
 
     private static final Color COLOR_FONDO = new Color(230, 240, 255);
     private static final Color COLOR_BORDE = new Color(100, 149, 237);
@@ -147,34 +148,6 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    private void cargarSiguienteNivel() {
-        try {
-            juego.avanzarNivel();
-
-            int[] dimensiones = juego.getDimensionesTablero();
-            this.filas = dimensiones[0];
-            this.columnas = dimensiones[1];
-
-            // Reset visual
-            this.ultimaFaseRenderizada = juego.getFaseActual();
-            this.mensajeFaseCambiada = "¡NUEVO NIVEL!";
-            this.tiempoMensajeFase = System.currentTimeMillis();
-
-            setPreferredSize(new Dimension(columnas * CELL_SIZE, filas * CELL_SIZE + 60));
-            revalidate();
-            repaint();
-
-            System.out.println("[BOARD] Nivel " + juego.getNivelActual() + " cargado visualmente");
-
-        } catch (BadDopoException e) {
-            JOptionPane.showMessageDialog(this,
-                    e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-
     private Image crearPlaceholder(String texto) {
         BufferedImage img = new BufferedImage(CELL_SIZE, CELL_SIZE, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = img.createGraphics();
@@ -208,10 +181,14 @@ public class BoardPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if (juego == null || !juego.isJuegoIniciado()) {
-            dibujarMensajeEspera(g);
-            return;
-        }
+    if (juego == null ||
+        cambiandoNivel ||
+        juego.getTablero() == null ||
+        juego.getRepresentacionTablero() == null) {
+
+        dibujarMensajeEspera(g);
+        return;
+    }
 
         // ===== NUEVO: Detectar cambio de fase =====
         verificarCambioDeFase();
@@ -544,14 +521,7 @@ public class BoardPanel extends JPanel {
      */
 
     public void actualizar() {
-
         if (juego == null) return;
-
-        if (juego.isNivelCompletado()) {
-            cargarSiguienteNivel();
-            return; // importantísimo
-        }
-
         repaint();
     }
 

@@ -40,7 +40,6 @@ public class BadDopoCream implements Serializable {
     private String[][] mapaBase; 
     private HashMap<String, Integer> frutasRequeridas;
     private HashMap<String, Integer> frutasRecolectadas;
-    
 
     // Factory
     private CreadorElemento modoJuego;
@@ -53,6 +52,7 @@ public class BadDopoCream implements Serializable {
     private boolean nivelCompletado;
     private boolean victoria;
     private String mensajeEstado;
+    private boolean esperandoDecisionNivel;
 
     // Puntuación
     private int puntajeJugador1;
@@ -111,6 +111,7 @@ public class BadDopoCream implements Serializable {
         this.pausado = false;
         this.nivelCompletado = false;
         this.victoria = false;
+        this.esperandoDecisionNivel = false;
 
         this.puntajeJugador1 = 0;
         this.puntajeJugador2 = 0;
@@ -465,6 +466,8 @@ public class BadDopoCream implements Serializable {
      * Verifica si se completó la fase actual y avanza a la siguiente
      */
     private void verificarProgresoFase() throws BadDopoException {
+        if (nivelCompletado) return;
+
         if (todasLasFrutasFaseRecolectadas()) {
             faseCompletada = true;
             
@@ -498,10 +501,13 @@ public class BadDopoCream implements Serializable {
     }
 
     private void completarNivel() throws BadDopoException {
+         if (nivelCompletado) return;
+        
         nivelesCompletados.add(nivelActual);
         nivelCompletado = true;
-
-        if (nivelActual >= MAX_NIVELES) {
+        esperandoDecisionNivel = true;
+        
+        if (nivelActual >= MAX_NIVELES - 1) {
             juegoTerminado = true;
             victoria = true;
             mensajeEstado = "¡Felicidades! Has completado todos los niveles.";
@@ -511,10 +517,9 @@ public class BadDopoCream implements Serializable {
     }
 
     public void avanzarNivel() throws BadDopoException {
-        if (!nivelCompletado) {
-            throw new BadDopoException("No puedes avanzar sin completar el nivel actual");
-        }
-
+        esperandoDecisionNivel = false;
+        nivelCompletado = false;
+        
         nivelActual++;
         if (nivelActual > MAX_NIVELES) {
             juegoTerminado = true;
@@ -717,7 +722,7 @@ public class BadDopoCream implements Serializable {
      * Método principal de actualización - IMPORTANTE: llamar desde GUI
      */
     public void actualizar() throws BadDopoException {
-        if (!juegoIniciado || pausado || juegoTerminado) {
+        if (!juegoIniciado || pausado || juegoTerminado || esperandoDecisionNivel) {
             return;
         }
 
@@ -734,11 +739,8 @@ public class BadDopoCream implements Serializable {
         if (tiempoExcedido()) {
             juegoTerminado = true;
             mensajeEstado = "Tiempo agotado";
-            return;
         }
 
-        // ===== CRUCIAL: Verificar si se completó la fase =====
-        verificarProgresoFase();
     }
 
     public String getSabor1() { return sabor1; }

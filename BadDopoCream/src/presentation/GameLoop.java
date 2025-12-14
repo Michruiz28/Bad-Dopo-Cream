@@ -112,7 +112,8 @@ public class GameLoop extends Thread {
         if (opcion == JOptionPane.YES_OPTION) {
             try {
                 juego.avanzarNivel();
-                gui.nivelCompletado(nivelActual);
+                //gui.nivelCompletado(nivelActual);
+                juego.setNivelCompletado(false);
                 reanudar();
             } catch (BadDopoException e) {
                 JOptionPane.showMessageDialog(
@@ -127,9 +128,7 @@ public class GameLoop extends Thread {
             detener();
         }
 
-        // 🔑 LIBERA EL EVENTO
         mostrandoDialogoFinNivel = false;
-        juego.setNivelCompletado(false);
     }
 
 
