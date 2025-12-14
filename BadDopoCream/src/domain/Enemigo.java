@@ -7,7 +7,7 @@ public abstract class Enemigo extends Elemento {
     protected boolean persigueJugador;
     protected boolean puedeRomperBloques;
     protected boolean rompeUnBloquePorVez;
-    protected MovimientoEnemigoStrategy movimientoStrategy;
+    protected MovimientoEnemigoStrategy estrategiaMovimiento;
 
     public Enemigo(int fila, int col, int velocidad) {
         super(fila, col);
@@ -19,7 +19,7 @@ public abstract class Enemigo extends Elemento {
     }
 
     protected void setMovimientoStrategy(MovimientoEnemigoStrategy estrategia) {
-        this.movimientoStrategy = estrategia;
+        this.estrategiaMovimiento = estrategia;
     }
     public static boolean esSolidoEstatico() {
         return true;
@@ -36,11 +36,9 @@ public abstract class Enemigo extends Elemento {
             throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
         }
         this.ultimaDireccion = direccion;
-        // Actualizar la imagen según la dirección tras el movimiento
         try {
             actualizarImagen(direccion);
         } catch (Exception e) {
-            // Si la subclase no implementa la actualización correctamente, ignorar
         }
     }
     public boolean isPersigueJugador() { return persigueJugador; }
@@ -52,12 +50,17 @@ public abstract class Enemigo extends Elemento {
     protected void setUltimaDireccion(String dir) { this.ultimaDireccion = dir; }
 
     /**
-     * Ejecuta el comportamiento/turno del enemigo delegando a la estrategia.
-     * {@link GrafoTablero} invoca este método para que el enemigo realice su acción.
+     * Ejecuta el comportamiento/turno del enemigo delegando a la estrategia
      */
     public void ejecutarComportamiento(GrafoTablero grafo, VistaTablero vista, Helado jugador) throws BadDopoException {
-        if (movimientoStrategy != null) {
-            movimientoStrategy.ejecutarTurno(this, vista, jugador, grafo);
+        if (estrategiaMovimiento != null) {
+            estrategiaMovimiento.ejecutarTurno(this, vista, jugador, grafo);
         }
     }
+
+    @Override
+    public boolean esEnemigo() { return true; }
+
+    @Override
+    public String codigoTipo() { return "V"; }
 }

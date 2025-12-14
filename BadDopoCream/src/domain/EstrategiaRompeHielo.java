@@ -27,7 +27,6 @@ public class EstrategiaRompeHielo implements MovimientoEnemigoStrategy {
                 if (nodoSiguiente == null) break;
                 Celda celdaSiguiente = nodoSiguiente.getCelda();
                 if (grafo.esHielo(next[0], next[1])) {
-                    // Romper hielo en esa posición
                     grafo.romperHielo(next[0], next[1], direccion, enemigo);
                     if (grafo.solicitarMovimiento(curF, curC, direccion)) {
                         curF = next[0];
@@ -49,8 +48,6 @@ public class EstrategiaRompeHielo implements MovimientoEnemigoStrategy {
             }
             return;
         }
-
-        // Si rompe un bloque por vez, romper solo el bloque siguiente si es hielo
         int[] siguiente = grafo.calcularNuevaPosicion(f, c, direccion);
         if (grafo.esPosicionValida(siguiente[0], siguiente[1]) && grafo.esHielo(siguiente[0], siguiente[1])) {
             if (enemigo.rompeUnBloquePorVez()) {
@@ -58,8 +55,6 @@ public class EstrategiaRompeHielo implements MovimientoEnemigoStrategy {
                 return;
             }
         }
-
-        // Si puede moverse normalmente, solicitar movimiento
         grafo.solicitarMovimiento(f, c, direccion);
     }
 }

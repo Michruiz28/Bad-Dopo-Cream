@@ -7,6 +7,7 @@ public class Helado extends Elemento implements Poder {
     private int columnaInicial;
     private String imagenActual;
     private String ultimaDireccion;
+    private long ultimoMovimientoTime = 0; // timestamp ms del último movimiento
     private static String imagenAbajo;
     private static String imagenDerecha;
     private static String imagenIzquierda;
@@ -73,7 +74,12 @@ public class Helado extends Elemento implements Poder {
         }
 
         this.ultimaDireccion = direccion;
+        this.ultimoMovimientoTime = System.currentTimeMillis();
         actualizarImagen(ultimaDireccion);
+    }
+
+    public long getUltimoMovimientoTime() {
+        return ultimoMovimientoTime;
     }
 
     @Override
@@ -122,6 +128,9 @@ public class Helado extends Elemento implements Poder {
     public String getSabor() {
         return sabor;
     }
+
+    @Override
+    public boolean esHelado() { return true; }
     
     public void setSabor(String sabor) throws BadDopoException {
         if (sabor == null || sabor.trim().isEmpty()) {

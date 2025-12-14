@@ -43,6 +43,9 @@ public class Maceta extends Enemigo  {
     }
 
     @Override
+    public String codigoTipo() { return "M"; }
+
+    @Override
     public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
 
     }

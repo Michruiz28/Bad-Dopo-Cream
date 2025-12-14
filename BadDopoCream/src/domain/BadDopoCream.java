@@ -299,7 +299,7 @@ public class BadDopoCream implements Serializable {
         }
 
         for (Fruta fruta : frutasEnJuego) {
-            if (fruta instanceof Pina) {
+            if (fruta != null && fruta.getCelda() != null && "P".equals(fruta.getCelda().getTipo())) {
                 ((Pina) fruta).mover();
             }
         }

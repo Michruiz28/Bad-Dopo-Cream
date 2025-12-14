@@ -57,12 +57,11 @@ public abstract class CreadorElemento {
         return new Helado(fila, col, saborReal);
     }
     protected String mapearCodigoASabor(String codigo) {
-        return switch (codigo) {
-            case "CH" -> "Chocolate";
-            case "F"  -> "Fresa";
-            case "VH" -> "Vainilla";
-            default   -> "Vainilla";
-        };
+        if (codigo == null) return "Vainilla";
+        if (codigo.equals("CH")) return "Chocolate";
+        if (codigo.equals("F")) return "Fresa";
+        if (codigo.equals("VH")) return "Vainilla";
+        return "Vainilla";
     }
 
     public Fruta crearFruta(int fila, int col, String tipo) throws BadDopoException {

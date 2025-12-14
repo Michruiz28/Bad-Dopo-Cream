@@ -44,6 +44,9 @@ public class Calamar extends Enemigo {
     }
 
     @Override
+    public String codigoTipo() { return "C"; }
+
+    @Override
     public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
 
     }
