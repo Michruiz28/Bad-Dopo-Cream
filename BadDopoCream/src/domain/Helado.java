@@ -30,6 +30,14 @@ public class Helado extends Elemento implements Poder {
         definirImagenActual(sabor);
     }
 
+    public void setFila(int fila){
+        super.setFila(fila);
+    }
+
+    public void setColumna(int col){
+        super.setColumna(col);
+    }
+
     public void definirImagenes(String sabor) throws BadDopoException {
         if (sabor.equals("VH")) {
             imagenAbajo = "src/presentation/images/VainillaAbajo.png";

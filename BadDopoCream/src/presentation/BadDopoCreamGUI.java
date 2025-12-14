@@ -1,12 +1,13 @@
 package presentation;
 
 import domain.BadDopoCream;
-import domain.BadDopoException;
-import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import javax.swing.*;
 
 public class BadDopoCreamGUI extends JFrame {
     private String modo;
@@ -41,7 +42,7 @@ public class BadDopoCreamGUI extends JFrame {
     private void mostrarVentanaInicial() {
         setTitle("Bad DOPO Cream");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(950, 850);
+        setSize(975, 710);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
@@ -121,7 +122,6 @@ public class BadDopoCreamGUI extends JFrame {
         boardPanel.inicializarJuego(nivel, modo, sabor1, sabor2,
                 nombre1, nombre2, perfilMaq1, perfilMaq2);
 
-        // Inicializar controladores
         movementController = new MovementController(boardPanel, modo);
         gameLoop = new GameLoop(boardPanel, this);
 
@@ -136,44 +136,73 @@ public class BadDopoCreamGUI extends JFrame {
         repaint();
 
         System.out.println("[GUI] Juego iniciado correctamente");
+
+        testTeclado();
     }
 
-    /**
-     * Configura los listeners de teclado y mouse para asegurar el foco correcto
-     */
+    private void testTeclado() {
+        System.out.println("\n=== TEST DE CONFIGURACIÓN TECLADO ===");
+        System.out.println("1. BoardPanel focusable: " + boardPanel.isFocusable());
+        System.out.println("2. BoardPanel tiene foco: " + boardPanel.hasFocus());
+        System.out.println("3. Frame focusable: " + this.isFocusable());
+
+        // Simular tecla W después de 2 segundos
+        Timer timer = new Timer(2000, e -> {
+            System.out.println("\n[TEST] Simulando tecla W...");
+            KeyEvent testEvent = new KeyEvent(
+                    boardPanel,
+                    KeyEvent.KEY_PRESSED,
+                    System.currentTimeMillis(),
+                    0,
+                    KeyEvent.VK_W,
+                    'W'
+            );
+
+            // Despachar evento a todos los listeners del boardPanel
+            for (KeyListener listener : boardPanel.getKeyListeners()) {
+                System.out.println("[TEST] Enviando a: " + listener.getClass().getName());
+                listener.keyPressed(testEvent);
+            }
+        });
+        timer.setRepeats(false);
+        timer.start();
+    }
+
     private void configurarListeners() {
-        // Agregar el KeyListener al frame Y al boardPanel
         addKeyListener(movementController);
         boardPanel.addKeyListener(movementController);
 
-        // Hacer focusable ambos componentes
-        setFocusable(true);
+        System.out.println("[GUI] MovementController creado para modo: " + modo);
+
+        // Hacer focusable solo el boardPanel
         boardPanel.setFocusable(true);
+
 
         // Agregar MouseListener para recuperar el foco al hacer clic
         boardPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 boardPanel.requestFocusInWindow();
-                System.out.println("[GUI] Foco devuelto al boardPanel por clic de mouse");
+                System.out.println("[GUI] Foco devuelto al boardPanel por clic");
             }
         });
 
-        // Agregar MouseListener al frame completo
-        addMouseListener(new MouseAdapter() {
+        // También agregar mouse listener al panel principal
+        panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 boardPanel.requestFocusInWindow();
-                System.out.println("[GUI] Foco devuelto al boardPanel por clic en frame");
             }
         });
 
         // Solicitar foco inicial
         SwingUtilities.invokeLater(() -> {
             boardPanel.requestFocusInWindow();
-            System.out.println("[GUI] Foco inicial solicitado para boardPanel");
+            System.out.println("[GUI] Foco inicial solicitado");
+            System.out.println("[GUI] ¿BoardPanel tiene foco? " + boardPanel.hasFocus());
         });
     }
+
 
     private void prepareElements() {
         panel = new JPanel(new BorderLayout());
@@ -315,7 +344,7 @@ public class BadDopoCreamGUI extends JFrame {
         if (boardPanel.getJuego() == null) return;
 
         StringBuilder info = new StringBuilder();
-        info.append("=== INFORMACIÓN DEL JUEGO ===\n\n");
+        info.append("INFORMACIÓN DEL JUEGO\n\n");
         info.append("Modo: ").append(modo).append("\n");
         info.append("Nivel: ").append(nivel).append(" / 3\n");
         info.append("Niveles desbloqueados: ").append(nivelMaximoAlcanzado).append("\n\n");

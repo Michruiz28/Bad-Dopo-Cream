@@ -10,6 +10,8 @@ public class Tablero {
     private static int columnas;
     private CreadorElemento creador;
     private GrafoTablero grafo;
+    private ArrayList<Fruta> frutas;
+    private HashMap<String, Fruta> posicionesFrutas;
 
     /**
      * Constructor
@@ -22,30 +24,40 @@ public class Tablero {
         this.infoNivel = infoNivel;
         Tablero.filas = infoNivel.length;
         Tablero.columnas = infoNivel[0].length;
+        this.frutas = new ArrayList<>();
+        this.posicionesFrutas = new HashMap<>();
 
         // El Tablero pasa toda la información necesaria al Grafo para que este lo construya
         // El Grafo se encarga de crear Nodos, que crean Celdas, que crean Elementos.
         this.grafo = new GrafoTablero(filas, columnas, infoNivel, creador);
     }
 
-    public void setElementoEnGrafo(int fila, int col, String tipo) throws BadDopoException{
+    public void setElementoEnGrafo(int fila, int col, String tipo) throws BadDopoException {
         grafo.setNodo(fila, col, tipo);
     }
 
     public int getColumnas() {
         return columnas;
     }
-    public int getFilas(){ return filas;}
+
+    public int getFilas() {
+        return filas;
+    }
 
     public boolean solicitarMovimientoHacia(int fila, int columna, String direccion) throws BadDopoException {
         return grafo.solicitarMovimientoHacia(fila, columna, direccion);
     }
+
     public void realizarAccion(int fila, int columna, String ultimaDireccion) throws BadDopoException {
         grafo.realizarAccion(fila, columna, ultimaDireccion);
     }
 
-    public ArrayList<Fruta> getFrutas(){
+    public ArrayList<Fruta> getListaFrutas() {
         return grafo.getFrutas();
+    }
+
+    public ArrayList<Fruta> getFrutas(){
+        return frutas = grafo.getFrutas();
     }
 
     public ArrayList<Enemigo> getEnemigos(){
@@ -102,7 +114,25 @@ public class Tablero {
         return dimensiones;
     }
 
-    public HashMap<String, Fruta> getPosicionesFrutas(){
+
+    public void limpiarFrutas() {
+        // Hacer copia para evitar ConcurrentModificationException
+        ArrayList<Fruta> copiaFrutas = new ArrayList<>(frutas);
+
+        for (Fruta f : copiaFrutas) {
+            removerFruta(f);
+        }
+
+        frutas.clear();
+        posicionesFrutas.clear();
+
+        System.out.println("[TABLERO] Todas las frutas limpiadas");
+    }
+
+    public void getPosicionesFrutas(){
+        this.posicionesFrutas = grafo.getPosicionesFrutas();
+    }
+    public HashMap<String, Fruta> getListaPosicionesFrutas(){
         return grafo.getPosicionesFrutas();
     }
 
@@ -120,4 +150,26 @@ public class Tablero {
     public HashMap<String, Obstaculo> getPosicionesObstaculos(){
         return grafo.getPosicionesObstaculos();
     }
+
+    // Agregar este método a tu clase Tablero.java
+
+    /**
+     * Agrega una fruta en una posición específica del tablero
+     * @param fruta La fruta a agregar
+     * @param fila Fila donde colocar la fruta
+     * @param col Columna donde colocar la fruta
+     * @throws BadDopoException si la posición es inválida
+     */
+    public void agregarFrutaEnPosicion(Fruta fruta, int fila, int col) throws BadDopoException {
+        if (fila < 0 || fila >= filas || col < 0 || col >= columnas) {
+            throw new BadDopoException(BadDopoException.POSICION_FUERA_DE_RANGO);
+        }
+        grafo.agregarElementoEnPosicion(fruta, fila, col);
+        frutas.add(fruta);
+    }
+
+    public void verificarGrafo() {
+        grafo.verificarGrafo();
+    }
+
 }

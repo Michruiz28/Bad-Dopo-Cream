@@ -1,35 +1,55 @@
 package presentation;
 
 import domain.*;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 
 /**
  * Panel central que renderiza el tablero del juego Bad DOPO Cream
+ * Ahora con soporte para múltiples fases por nivel
  */
 public class BoardPanel extends JPanel {
 
     private BadDopoCream juego;
     private HashMap<String, Image> imageCache;
-    private static final int CELL_SIZE = 40; // Tamaño de cada celda en píxeles
+    private static final int CELL_SIZE = 35;
 
     private int filas;
     private int columnas;
 
-    // Colores del tablero
+    // ===== NUEVO: Control de fases =====
+    private int ultimaFaseRenderizada = -1;
+    private String mensajeFaseCambiada = null;
+    private long tiempoMensajeFase = 0;
+    private static final long DURACION_MENSAJE_FASE = 3000; // 3 segundos
+
+    private MovementController movementController;
+    private boolean cambiandoNivel = false; 
+
     private static final Color COLOR_FONDO = new Color(230, 240, 255);
     private static final Color COLOR_BORDE = new Color(100, 149, 237);
 
     public BoardPanel() {
         this.imageCache = new HashMap<>();
         setBackground(COLOR_FONDO);
-        setPreferredSize(new Dimension(800, 600));
+        setPreferredSize(new Dimension(650, 950));
         cargarImagenes();
+    }
+
+    public void setMovementController(MovementController controller) {
+        if (this.movementController != null) {
+            this.removeKeyListener(this.movementController);
+        }
+        this.movementController = controller;
+        this.addKeyListener(controller);
+        this.setFocusable(true);
+        System.out.println("[BOARD] MovementController configurado");
     }
 
     /**
@@ -46,9 +66,15 @@ public class BoardPanel extends JPanel {
             this.filas = dimensiones[0];
             this.columnas = dimensiones[1];
 
-            setPreferredSize(new Dimension(columnas * CELL_SIZE, filas * CELL_SIZE));
+            // Resetear control de fases
+            this.ultimaFaseRenderizada = juego.getFaseActual();
+            this.mensajeFaseCambiada = null;
+
+            setPreferredSize(new Dimension(columnas * CELL_SIZE, filas * CELL_SIZE + 60));
             revalidate();
             repaint();
+
+            System.out.println("[BOARD] Juego inicializado - Fase: " + juego.getFaseActual());
 
         } catch (BadDopoException e) {
             JOptionPane.showMessageDialog(this,
@@ -56,6 +82,13 @@ public class BoardPanel extends JPanel {
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    /**
+     * Sobrecarga del método para compatibilidad
+     */
+    public void inicializarJuego(int nivel, String modo, String sabor1, String sabor2) {
+        inicializarJuego(nivel, modo, sabor1, sabor2, "Jugador 1", "Jugador 2", null, null);
     }
 
     /**
@@ -81,7 +114,9 @@ public class BoardPanel extends JPanel {
 
             // Cargar imágenes de frutas
             cargarImagenSiExiste("UVA", "src/presentation/images/Uva.png");
+            cargarImagenSiExiste("BANANO", "src/presentation/images/platano.png");
             cargarImagenSiExiste("BANANA", "src/presentation/images/platano.png");
+            cargarImagenSiExiste("PLATANO", "src/presentation/images/platano.png");
             cargarImagenSiExiste("CEREZA", "src/presentation/images/Cereza.png");
             cargarImagenSiExiste("PINA", "src/presentation/images/Piña.png");
 
@@ -110,9 +145,6 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    /**
-     * Carga una imagen si existe, si no, crea un placeholder
-     */
     private void cargarImagenSiExiste(String key, String path) {
         try {
             File file = new File(path);
@@ -120,7 +152,6 @@ public class BoardPanel extends JPanel {
                 BufferedImage img = ImageIO.read(file);
                 imageCache.put(key, img.getScaledInstance(CELL_SIZE, CELL_SIZE, Image.SCALE_SMOOTH));
             } else {
-                // Crear placeholder si la imagen no existe
                 imageCache.put(key, crearPlaceholder(key));
             }
         } catch (Exception e) {
@@ -128,17 +159,13 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    /**
-     * Crea una imagen placeholder cuando no existe la imagen real
-     */
     private Image crearPlaceholder(String texto) {
         BufferedImage img = new BufferedImage(CELL_SIZE, CELL_SIZE, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = img.createGraphics();
 
-        // Fondo según el tipo
         if (texto.contains("HELADO") || texto.contains("VH") || texto.contains("CH") || texto.contains("F")) {
             g2d.setColor(new Color(255, 200, 200));
-        } else if (texto.contains("FRUTA") || texto.contains("UVA") || texto.contains("BANANA")) {
+        } else if (texto.contains("FRUTA") || texto.contains("UVA") || texto.contains("BANANA") || texto.contains("BANANO")) {
             g2d.setColor(new Color(200, 255, 200));
         } else if (texto.contains("ENEMIGO") || texto.contains("TROLL") || texto.contains("MACETA")) {
             g2d.setColor(new Color(255, 150, 150));
@@ -150,7 +177,6 @@ public class BoardPanel extends JPanel {
         g2d.setColor(Color.BLACK);
         g2d.drawRect(0, 0, CELL_SIZE - 1, CELL_SIZE - 1);
 
-        // Texto
         g2d.setFont(new Font("Arial", Font.BOLD, 8));
         FontMetrics fm = g2d.getFontMetrics();
         String label = texto.length() > 3 ? texto.substring(0, 3) : texto;
@@ -166,34 +192,111 @@ public class BoardPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if (juego == null || !juego.isJuegoIniciado()) {
-            dibujarMensajeEspera(g);
-            return;
-        }
+    if (juego == null ||
+        cambiandoNivel ||
+        juego.getTablero() == null ||
+        juego.getRepresentacionTablero() == null) {
+
+        dibujarMensajeEspera(g);
+        return;
+    }
+
+        // ===== NUEVO: Detectar cambio de fase =====
+        verificarCambioDeFase();
 
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Dibujar tablero base
         dibujarTablero(g2d);
-
-        // Dibujar elementos del juego
         dibujarObstaculos(g2d);
         dibujarFrutas(g2d);
         dibujarEnemigos(g2d);
+
         try {
             dibujarHelados(g2d);
         } catch (BadDopoException e) {
-            throw new RuntimeException(e);
+            System.err.println("Error dibujando helados: " + e.getMessage());
         }
 
-        // Dibujar información del juego
         dibujarHUD(g2d);
+
+        // ===== NUEVO: Mostrar mensaje de cambio de fase =====
+        dibujarMensajeFase(g2d);
     }
 
     /**
-     * Dibuja el mensaje de espera inicial
+     * NUEVO: Detecta si cambió la fase y muestra mensaje
      */
+    private void verificarCambioDeFase() {
+        if (juego == null) return;
+
+        int faseActual = juego.getFaseActual();
+
+        if (faseActual != ultimaFaseRenderizada) {
+            System.out.println("[BOARD] ¡Cambio de fase detectado! " + ultimaFaseRenderizada + " -> " + faseActual);
+
+            // Configurar mensaje
+            if (faseActual > 0) { // No mostrar mensaje en la fase inicial
+                mensajeFaseCambiada = "¡NUEVA FASE! (" + (faseActual + 1) + "/" + juego.getTotalFases() + ")";
+                tiempoMensajeFase = System.currentTimeMillis();
+            }
+
+            ultimaFaseRenderizada = faseActual;
+
+            // Forzar actualización visual
+            revalidate();
+            repaint();
+        }
+    }
+
+    /**
+     * NUEVO: Dibuja mensaje de cambio de fase (temporal)
+     */
+    private void dibujarMensajeFase(Graphics2D g2d) {
+        if (mensajeFaseCambiada == null) return;
+
+        long tiempoTranscurrido = System.currentTimeMillis() - tiempoMensajeFase;
+
+        if (tiempoTranscurrido > DURACION_MENSAJE_FASE) {
+            mensajeFaseCambiada = null;
+            return;
+        }
+
+        // Calcular opacidad (fade out)
+        float opacidad = 1.0f;
+        if (tiempoTranscurrido > DURACION_MENSAJE_FASE - 1000) {
+            opacidad = (DURACION_MENSAJE_FASE - tiempoTranscurrido) / 1000.0f;
+        }
+
+        // Configurar composite para transparencia
+        Composite originalComposite = g2d.getComposite();
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacidad));
+
+        // Dibujar fondo del mensaje
+        int mensajeWidth = 300;
+        int mensajeHeight = 60;
+        int mensajeX = (columnas * CELL_SIZE - mensajeWidth) / 2;
+        int mensajeY = (filas * CELL_SIZE - mensajeHeight) / 2;
+
+        g2d.setColor(new Color(0, 0, 0, 180));
+        g2d.fillRoundRect(mensajeX, mensajeY, mensajeWidth, mensajeHeight, 20, 20);
+
+        g2d.setColor(new Color(255, 215, 0)); // Dorado
+        g2d.setStroke(new BasicStroke(3));
+        g2d.drawRoundRect(mensajeX, mensajeY, mensajeWidth, mensajeHeight, 20, 20);
+
+        // Dibujar texto
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Arial", Font.BOLD, 20));
+        FontMetrics fm = g2d.getFontMetrics();
+        int textX = mensajeX + (mensajeWidth - fm.stringWidth(mensajeFaseCambiada)) / 2;
+        int textY = mensajeY + (mensajeHeight + fm.getAscent()) / 2;
+        g2d.drawString(mensajeFaseCambiada, textX, textY);
+
+        // Restaurar composite original
+        g2d.setComposite(originalComposite);
+    }
+
     private void dibujarMensajeEspera(Graphics g) {
         g.setColor(Color.DARK_GRAY);
         g.setFont(new Font("Arial", Font.BOLD, 20));
@@ -204,36 +307,30 @@ public class BoardPanel extends JPanel {
         g.drawString(mensaje, x, y);
     }
 
-    /**
-     * Dibuja la cuadrícula del tablero
-     */
     private void dibujarTablero(Graphics2D g2d) {
         String[][] representacion = juego.getRepresentacionTablero();
-
+        int filas = representacion.length;
+        int columnas = representacion[0].length;
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
                 int x = j * CELL_SIZE;
                 int y = i * CELL_SIZE;
 
-                // Fondo de celda
                 g2d.setColor(Color.WHITE);
                 g2d.fillRect(x, y, CELL_SIZE, CELL_SIZE);
 
-                // Borde de celda
                 g2d.setColor(COLOR_BORDE);
                 g2d.drawRect(x, y, CELL_SIZE, CELL_SIZE);
             }
         }
     }
 
-    /**
-     * Dibuja los obstáculos (hielo, fogatas, baldosas calientes, bordes)
-     */
     private void dibujarObstaculos(Graphics2D g2d) {
         if (juego.getTablero() == null) return;
 
         String[][] representacion = juego.getRepresentacionTablero();
-
+        int filas = representacion.length;
+        int columnas = representacion[0].length;
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
                 String tipo = representacion[i][j];
@@ -243,14 +340,14 @@ public class BoardPanel extends JPanel {
                 Image img = null;
 
                 switch (tipo) {
-                    case "H": // Hielo
+                    case "H":
                         img = imageCache.get("HIELO");
                         break;
-                    case "B": // Borde
+                    case "B":
                         img = imageCache.get("BORDE");
                         break;
-                    case "V": // Vacío
-                        continue; //Se dibuja fondo blanco
+                    case "V":
+                        continue;
                 }
 
                 if (img != null) {
@@ -261,53 +358,58 @@ public class BoardPanel extends JPanel {
     }
 
     /**
-     * Dibuja las frutas en el tablero
+     * Dibuja las frutas usando las claves precargadas en imageCache
      */
     private void dibujarFrutas(Graphics2D g2d) {
-        HashMap<String, Fruta> posicionesFrutas = juego.getPosicionesFrutas();
-        for (Map.Entry<String, Fruta> entry : posicionesFrutas.entrySet()) {
-            String tipoKey = entry.getKey();
-            // tipoKey: e.g. "BANANA_4_5" -> tipo = "BANANA"
-            String tipo = tipoKey.contains("_") ? tipoKey.split("_")[0] : tipoKey;
-            Fruta fruta = entry.getValue();
+        ArrayList<Fruta> frutas = juego.getFrutasEnJuego();
+        
+        if (frutas.size() > 0 && frutas.size() <= 5) {
+            System.out.println("[BOARD] Dibujando " + frutas.size() + " frutas");
+        }
+
+        for (Fruta fruta : frutas) {
             int fila = fruta.getFila();
             int col = fruta.getColumna();
 
             int x = col * CELL_SIZE;
             int y = fila * CELL_SIZE;
 
-            Image img = null;
-
-            switch (tipo.toUpperCase()) {
-                case "UVA":
-                    img = imageCache.get("UVA");
-                    break;
-                case "BANANA":
-                case "PLATANO":
-                    img = imageCache.get("BANANA");
-                    break;
-                case "CEREZA":
-                    img = imageCache.get("CEREZA");
-                    break;
-                case "PINA":
-                case "PIÑA":
-                    img = imageCache.get("PINA");
-                    break;
-            }
+            // Obtener el nombre de la clase y convertir a mayúsculas para buscar en imageCache
+            String nombreClase = fruta.getClass().getSimpleName();
+            String clave = nombreClase.toUpperCase(); // "UVA", "BANANO", "CEREZA", "PINA"
+            Image img = imageCache.get(clave);
 
             if (img != null) {
                 g2d.drawImage(img, x, y, this);
             } else {
-                // Dibujar placeholder si no hay imagen
-                g2d.setColor(Color.GREEN);
-                g2d.fillOval(x + 10, y + 10, CELL_SIZE - 20, CELL_SIZE - 20);
+                // Placeholder si no se encuentra imagen
+                Color colorFruta = Color.GREEN;
+                String inicial = nombreClase.substring(0, 1);
+
+                if (nombreClase.equals("Uva")) {
+                    colorFruta = new Color(128, 0, 128); // Púrpura
+                } else if (nombreClase.equals("Banano")) {
+                    colorFruta = new Color(255, 255, 0); // Amarillo
+                } else if (nombreClase.equals("Cereza")) {
+                    colorFruta = new Color(220, 20, 60); // Rojo
+                } else if (nombreClase.equals("Pina")) {
+                    colorFruta = new Color(255, 165, 0); // Naranja
+                }
+
+                g2d.setColor(colorFruta);
+                g2d.fillOval(x + 8, y + 8, CELL_SIZE - 16, CELL_SIZE - 16);
+
+                // Dibujar inicial de la fruta
+                g2d.setColor(Color.WHITE);
+                g2d.setFont(new Font("Arial", Font.BOLD, 12));
+                FontMetrics fm = g2d.getFontMetrics();
+                int textX = x + (CELL_SIZE - fm.stringWidth(inicial)) / 2;
+                int textY = y + (CELL_SIZE + fm.getAscent()) / 2 - 2;
+                g2d.drawString(inicial, textX, textY);
             }
         }
     }
 
-    /**
-     * Dibuja los enemigos en el tablero
-     */
     private void dibujarEnemigos(Graphics2D g2d) {
         HashMap<String, Enemigo> posicionesEnemigos = juego.getPosicionesEnemigos();
         for (Map.Entry<String, Enemigo> entry : posicionesEnemigos.entrySet()) {
@@ -320,7 +422,7 @@ public class BoardPanel extends JPanel {
             int x = col * CELL_SIZE;
             int y = fila * CELL_SIZE;
 
-            Image img = null;
+            Image img = imageCache.get(tipo.toUpperCase());
 
             String direccion = enemigo.getUltimaDireccion() != null ? enemigo.getUltimaDireccion() : "ABAJO";
             String key = tipo.toUpperCase() + "_" + direccion;
@@ -333,27 +435,21 @@ public class BoardPanel extends JPanel {
             if (img != null) {
                 g2d.drawImage(img, x, y, this);
             } else {
-                // Dibujar placeholder si no hay imagen
                 g2d.setColor(Color.RED);
                 g2d.fillRect(x + 5, y + 5, CELL_SIZE - 10, CELL_SIZE - 10);
             }
         }
     }
 
-    /**
-     * Dibuja los helados en el tablero
-     */
     private void dibujarHelados(Graphics2D g2d) throws BadDopoException {
         HashMap<String, int[]> posicionesHelados = juego.getPosicionesHelados();
 
-        // Dibujar helado 1
         if (posicionesHelados.containsKey("helado1")) {
             int[] pos1 = posicionesHelados.get("helado1");
             Helado helado1 = juego.getHelado1();
             dibujarHelado(g2d, helado1, pos1[0], pos1[1]);
         }
 
-        // Dibujar helado 2
         if (posicionesHelados.containsKey("helado2")) {
             int[] pos2 = posicionesHelados.get("helado2");
             Helado helado2 = juego.getHelado2();
@@ -361,9 +457,6 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    /**
-     * Dibuja un helado específico
-     */
     private void dibujarHelado(Graphics2D g2d, Helado helado, int fila, int col) {
         if (helado == null) return;
 
@@ -380,7 +473,6 @@ public class BoardPanel extends JPanel {
         if (img != null) {
             g2d.drawImage(img, x, y, this);
         } else {
-            // Placeholder para helado
             Color color = sabor.equals("VH") ? new Color(255, 255, 200) :
                     sabor.equals("CH") ? new Color(139, 69, 19) :
                             new Color(255, 182, 193);
@@ -390,19 +482,18 @@ public class BoardPanel extends JPanel {
     }
 
     /**
-     * Dibuja el HUD (información del juego)
+     * Dibuja el HUD - MEJORADO con información de fase
      */
     private void dibujarHUD(Graphics2D g2d) {
-        int hudY = filas * CELL_SIZE + 10;
+        int hudY = filas * CELL_SIZE + 15;
 
         g2d.setColor(Color.BLACK);
         g2d.setFont(new Font("Arial", Font.BOLD, 14));
 
-        // Tiempo
+        // Línea 1: Tiempo y Puntajes
         String tiempo = "Tiempo: " + juego.getTiempoRestanteFormato();
         g2d.drawString(tiempo, 10, hudY);
 
-        // Puntajes
         String puntaje1 = "P1: " + juego.getPuntajeJugador1();
         g2d.drawString(puntaje1, 150, hudY);
 
@@ -411,32 +502,46 @@ public class BoardPanel extends JPanel {
             g2d.drawString(puntaje2, 250, hudY);
         }
 
-        // Mensaje de estado
+        // ===== NUEVO: Información de fase =====
+        String infoFase = "Fase: " + (juego.getFaseActual() + 1) + "/" + juego.getTotalFases();
+        g2d.setColor(new Color(0, 100, 200));
+        g2d.drawString(infoFase, 350, hudY);
+
+        // Línea 2: Mensaje de estado y progreso de frutas
+        hudY += 20;
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(new Font("Arial", Font.ITALIC, 12));
+
         if (juego.getMensajeEstado() != null) {
-            g2d.setFont(new Font("Arial", Font.ITALIC, 12));
-            g2d.drawString(juego.getMensajeEstado(), 350, hudY);
+            g2d.drawString(juego.getMensajeEstado(), 10, hudY);
         }
 
-        // Progreso de frutas
-        g2d.setFont(new Font("Arial", Font.PLAIN, 11));
-        int progressY = hudY + 20;
+        // Mostrar progreso de frutas de la fase actual
+        HashMap<String, Integer> frutasRequeridas = juego.getFrutasRequeridas();
+        HashMap<String, Integer> frutasRecolectadas = juego.getFrutasRecolectadas();
+
+        if (!frutasRequeridas.isEmpty()) {
+            StringBuilder progreso = new StringBuilder("Frutas: ");
+            for (String tipo : frutasRequeridas.keySet()) {
+                int recolectadas = frutasRecolectadas.getOrDefault(tipo, 0);
+                int requeridas = frutasRequeridas.get(tipo);
+                progreso.append(tipo).append(" ").append(recolectadas).append("/").append(requeridas).append("  ");
+            }
+            g2d.drawString(progreso.toString(), 200, hudY);
+        }
     }
 
-    /**
-     * Obtiene la referencia al juego
-     */
     public BadDopoCream getJuego() {
         return juego;
     }
 
     /**
-     * Actualiza el panel (llama a repaint)
+     * Actualiza el panel - llamado desde GameLoop
      */
+
     public void actualizar() {
+        if (juego == null) return;
         repaint();
     }
 
-    public void inicializarJuego(int nivelActual, String modo, String sabor1, String sabor2) {
-
-    }
 }

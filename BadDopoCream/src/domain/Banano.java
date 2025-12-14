@@ -5,7 +5,8 @@ package domain;
  */
 public class Banano extends FrutaEstatica {
     public static final int GANANCIA_BANANO = 100;
-    private static final String imagen = "src/presentation/images/Banano.png";
+    private static final String imagen = "src/presentation/images/platano.png";
+    private static final String codigo = "BF";
     public Banano (int fila, int columna) throws BadDopoException {
         super(fila,columna,GANANCIA_BANANO);
     }
@@ -18,6 +19,11 @@ public class Banano extends FrutaEstatica {
     @Override
     public void aumentarPuntaje(int puntaje) {
 
+    }
+
+    @Override
+    public String getCodigo(){
+        return codigo;
     }
 
     @Override

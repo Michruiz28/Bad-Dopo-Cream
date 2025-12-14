@@ -2,9 +2,9 @@ package presentation;
 
 import domain.BadDopoCream;
 import domain.BadDopoException;
-import javax.swing.JOptionPane;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  * Hilo que maneja el loop principal del juego
@@ -20,6 +20,8 @@ public class GameLoop extends Thread {
     private final BadDopoCreamGUI gui;
     private static final int FPS = 60; // Frames por segundo
     private static final long FRAME_TIME = 1000 / FPS; // Tiempo por frame en ms
+    private boolean mostrandoDialogoFinNivel = false;
+
     public GameLoop(BoardPanel boardPanel, BadDopoCreamGUI gui) {
         this.boardPanel = boardPanel;
         this.juego = boardPanel.getJuego();
@@ -57,21 +59,29 @@ public class GameLoop extends Thread {
             }
         }
     }
+
     /**
      * Verifica si el nivel fue completado o si se perdió
      */
     private void verificarEstadoJuego() {
+
+        if (mostrandoDialogoFinNivel) return;
+
         if (juego.isNivelCompletado()) {
+            mostrandoDialogoFinNivel = true;
             pausar();
-            if (juego.isVictoria()) {
-                // Juego completo
-                mostrarVictoriaFinal();
-            } else {
-                // Nivel completado, avanzar al siguiente
-                mostrarNivelCompletado();
-            }
+
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                if (juego.isVictoria()) {
+                    mostrarVictoriaFinal();
+                } else {
+                    mostrarNivelCompletado();
+                }
+            });
         }
     }
+
+
     /**
      * Muestra mensaje de nivel completado
      */
@@ -79,14 +89,18 @@ public class GameLoop extends Thread {
         int nivelActual = juego.getNivelActual();
         int puntaje1 = juego.getPuntajeJugador1();
         int puntaje2 = juego.getPuntajeJugador2();
+
         StringBuilder mensaje = new StringBuilder();
         mensaje.append("¡Nivel ").append(nivelActual).append(" completado!\n\n");
         mensaje.append("Puntaje Jugador 1: ").append(puntaje1).append("\n");
+
         if (juego.getHelado2() != null) {
             mensaje.append("Puntaje Jugador 2: ").append(puntaje2).append("\n");
             mensaje.append("\nGanador: ").append(juego.getGanador());
         }
+
         mensaje.append("\n\n¿Deseas continuar al siguiente nivel?");
+
         int opcion = JOptionPane.showConfirmDialog(
                 boardPanel,
                 mensaje.toString(),
@@ -94,10 +108,12 @@ public class GameLoop extends Thread {
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.INFORMATION_MESSAGE
         );
+
         if (opcion == JOptionPane.YES_OPTION) {
             try {
                 juego.avanzarNivel();
-                gui.nivelCompletado(nivelActual);
+                //gui.nivelCompletado(nivelActual);
+                juego.setNivelCompletado(false);
                 reanudar();
             } catch (BadDopoException e) {
                 JOptionPane.showMessageDialog(
@@ -106,11 +122,16 @@ public class GameLoop extends Thread {
                         "Error",
                         JOptionPane.ERROR_MESSAGE
                 );
+                detener();
             }
         } else {
             detener();
         }
+
+        mostrandoDialogoFinNivel = false;
     }
+
+
     /**
      * Muestra mensaje de victoria final
      */
@@ -119,14 +140,18 @@ public class GameLoop extends Thread {
         mensaje.append("¡FELICIDADES!\n\n");
         mensaje.append("Has completado todos los niveles de Bad DOPO Cream\n\n");
         mensaje.append(juego.getResumenFinal());
+
         JOptionPane.showMessageDialog(
                 boardPanel,
                 mensaje.toString(),
                 "¡Victoria Total!",
                 JOptionPane.INFORMATION_MESSAGE
         );
+
+        mostrandoDialogoFinNivel = false;
         detener();
     }
+
     /**
      * Pausa el game loop
      */

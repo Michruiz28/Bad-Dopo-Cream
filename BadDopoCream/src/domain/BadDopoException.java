@@ -27,6 +27,7 @@ public class BadDopoException extends Exception {
     public static final String ACCION_NO_PERMITIDA = "No se permite realizar la ación";
     public static final String INFONIVEL_VACIO = "No se encontró información del nivel";
     public static final String JUEGO_NO_INICIADO = "Juego no iniciado";
+    public static final String FRUTA_NO_REMOVIDA = "Error al remover fruta";
     public BadDopoException(String message) {
         super(message);
     }
