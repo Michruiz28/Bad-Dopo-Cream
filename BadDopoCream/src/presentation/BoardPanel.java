@@ -19,6 +19,8 @@ public class BoardPanel extends JPanel {
     private BadDopoCream juego;
     private HashMap<String, Image> imageCache;
     private static final int CELL_SIZE = 35;
+    private boolean mostrarPantallaFinal = false;
+
 
     private int filas;
     private int columnas;
@@ -543,5 +545,6 @@ public class BoardPanel extends JPanel {
         if (juego == null) return;
         repaint();
     }
+
 
 }
