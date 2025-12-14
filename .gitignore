@@ -9,3 +9,7 @@ bin/
 *.tar.gz
 *.rar
 /bin/
+*.class
+/classes/
+*/classes/
+*/production/
