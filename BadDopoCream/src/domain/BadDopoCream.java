@@ -53,6 +53,7 @@ public class BadDopoCream implements Serializable {
     private boolean victoria;
     private String mensajeEstado;
     private boolean esperandoDecisionNivel;
+    private boolean nivel2Desbloqueado = false;
 
     // Puntuación
     private int puntajeJugador1;
@@ -72,7 +73,7 @@ public class BadDopoCream implements Serializable {
     private final long INTERVALO_CACTUS = 30_000;
     private final long INTERVALO_PINA = 500;
 
-    private static final int MAX_NIVELES = 3;
+    private static final int MAX_NIVELES = 2;
 
     /**
      * Constructor
@@ -136,13 +137,33 @@ public class BadDopoCream implements Serializable {
         }
     }
 
-    public void iniciarJuego() throws BadDopoException {
-        cargarNivel(nivelActual);
-        inicializarHelados();
-        juegoIniciado = true;
-        tiempoInicioNivel = System.currentTimeMillis();
-        tiempoTotalPausado = 0;
-        mensajeEstado = "¡Juego iniciado! Recolecta todas las frutas.";
+//    public void iniciarJuego() throws BadDopoException {
+//        cargarNivel(nivelActual);
+//        inicializarHelados();
+//        juegoIniciado = true;
+//        tiempoInicioNivel = System.currentTimeMillis();
+//        tiempoTotalPausado = 0;
+//        mensajeEstado = "¡Juego iniciado! Recolecta todas las frutas.";
+//    }
+
+        public void iniciarJuego() throws BadDopoException {
+        System.out.println("[BADDOPO] ========== INICIANDO JUEGO ==========");
+        System.out.println("[BADDOPO] Nivel: " + nivelActual);
+        System.out.println("[BADDOPO] Modo: " + modo);
+        
+        try {
+            cargarNivel(nivelActual);
+            inicializarHelados();
+            juegoIniciado = true;
+            tiempoInicioNivel = System.currentTimeMillis();
+            tiempoTotalPausado = 0;
+            mensajeEstado = "¡Juego iniciado! Recolecta todas las frutas.";
+            System.out.println("[BADDOPO] ✓ Juego iniciado correctamente");
+        } catch (Exception e) {
+            System.err.println("[BADDOPO] ✗ ERROR al iniciar juego: " + e.getMessage());
+            e.printStackTrace();
+            throw new BadDopoException("Error al iniciar juego: " + e.getMessage());
+        }
     }
 
     private void cargarNivel(int nivel) throws BadDopoException {
@@ -182,7 +203,6 @@ public class BadDopoCream implements Serializable {
 
         ultimoMovimientoPina = System.currentTimeMillis();
         ultimoTeletransporteCereza = System.currentTimeMillis();
-        ultimoCrecimientoCactus = System.currentTimeMillis();
 
         nivelCompletado = false;
     }
@@ -244,6 +264,14 @@ public class BadDopoCream implements Serializable {
         System.out.println("[BADDOPO] ===========================================\n");
 
         mensajeEstado = "Fase " + (indiceFase + 1) + " de " + fasesDelNivel.size();
+    }
+
+    public boolean isNivel2Desbloqueado() {
+        return nivel2Desbloqueado;
+    }
+
+    public void desbloquearNivel2() {
+        nivel2Desbloqueado = true;
     }
 
     /**
@@ -501,13 +529,17 @@ public class BadDopoCream implements Serializable {
     }
 
     private void completarNivel() throws BadDopoException {
-         if (nivelCompletado) return;
-        
+        if (nivelCompletado) return;
+       
+        if (nivelActual == 0) { 
+            desbloquearNivel2();
+        }
+
         nivelesCompletados.add(nivelActual);
         nivelCompletado = true;
         esperandoDecisionNivel = true;
         
-        if (nivelActual >= MAX_NIVELES - 1) {
+        if (nivelActual >= 2) {
             juegoTerminado = true;
             victoria = true;
             mensajeEstado = "¡Felicidades! Has completado todos los niveles.";
@@ -681,6 +713,10 @@ public class BadDopoCream implements Serializable {
 
         return resumen.toString();
     }
+    public boolean isJuegoGanado() {
+      return nivelActual == 1 && frutasEnJuego.isEmpty();
+    }
+
 
     public HashMap<String, Object> getEstadisticas() {
         HashMap<String, Object> stats = new HashMap<>();
@@ -718,6 +754,14 @@ public class BadDopoCream implements Serializable {
         return tablero.getPosicionesObstaculos();
     }
 
+    public boolean esUltimoNivel() {
+    return nivelActual == 1; // porque solo tienes 2 niveles
+}
+
+    public boolean isJuegoCompletado() {
+        return esUltimoNivel() && frutasEnJuego.isEmpty();
+    }
+
     /**
      * Método principal de actualización - IMPORTANTE: llamar desde GUI
      */
@@ -742,6 +786,7 @@ public class BadDopoCream implements Serializable {
         }
 
     }
+
 
     public String getSabor1() { return sabor1; }
     public String getSabor2() { return sabor2; }

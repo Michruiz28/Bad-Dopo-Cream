@@ -68,15 +68,17 @@ public class GameLoop extends Thread {
         if (mostrandoDialogoFinNivel) return;
 
         if (juego.isNivelCompletado()) {
+            gui.nivelCompletado(juego.getNivelActual());
             mostrandoDialogoFinNivel = true;
             pausar();
 
             javax.swing.SwingUtilities.invokeLater(() -> {
-                if (juego.isVictoria()) {
-                    mostrarVictoriaFinal();
-                } else {
-                    mostrarNivelCompletado();
-                }
+            if (juego.esUltimoNivel()) {
+                mostrarVictoriaFinal();  
+            } else {
+                mostrarNivelCompletado();
+            }
+
             });
         }
     }
@@ -136,20 +138,29 @@ public class GameLoop extends Thread {
      * Muestra mensaje de victoria final
      */
     private void mostrarVictoriaFinal() {
-        StringBuilder mensaje = new StringBuilder();
-        mensaje.append("¡FELICIDADES!\n\n");
-        mensaje.append("Has completado todos los niveles de Bad DOPO Cream\n\n");
-        mensaje.append(juego.getResumenFinal());
 
-        JOptionPane.showMessageDialog(
-                boardPanel,
-                mensaje.toString(),
-                "¡Victoria Total!",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+        detener(); // detener el loop definitivamente
+
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            int opcion = JOptionPane.showOptionDialog(
+                    boardPanel,
+                    "¡FELICIDADES!\n\nHas completado todos los niveles de Bad DOPO Cream 🎉\n\n¿Qué deseas hacer?",
+                    "¡Victoria Total!",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    new String[]{"Ver resultados", "Salir"},
+                    "Ver resultados"
+            );
+
+            if (opcion == 0) {
+                boardPanel.mostrarPantallaFinal();
+            } else {
+                System.exit(0);
+            }
+        });
 
         mostrandoDialogoFinNivel = false;
-        detener();
     }
 
     /**

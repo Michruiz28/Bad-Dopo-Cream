@@ -160,8 +160,8 @@ public class InfoNivel {
     private static String[][] getNivel1Base() {
         String[][] nivel1 = {
                 {"B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B"},
+                {"B", "M", "V", "V", "V", "V", "V", "B", "V", "V", "V", "V", "V", "V", "B"},
                 {"B", "V", "V", "V", "V", "V", "V", "B", "V", "V", "V", "V", "V", "V", "B"},
-                {"B", "V", "M", "V", "V", "V", "V", "B", "V", "V", "V", "V", "V", "V", "B"},
                 {"B", "V", "V", "V", "V", "V", "V", "B", "V", "V", "V", "V", "V", "V", "B"},
                 {"B", "V", "V", "V", "H", "H", "H", "H", "H", "H", "H", "V", "V", "V", "B"},
                 {"B", "V", "V", "V", "H", "H", "H", "H", "H", "H", "H", "V", "V", "V", "B"},
@@ -186,63 +186,34 @@ public class InfoNivel {
 
         // FASE 1: CEREZAS
         FaseNivel fase1 = new FaseNivel();
-        fase1.agregarFruta("CF", 1, 9);
-        fase1.agregarFruta("CF", 1, 11);
-        fase1.agregarFruta("CF", 1, 13);
-        fase1.agregarFruta("CF", 2, 8);
         fase1.agregarFruta("CF", 2, 10);
         fase1.agregarFruta("CF", 2, 12);
         fase1.agregarFruta("CF", 3, 9);
         fase1.agregarFruta("CF", 3, 11);
-        fase1.agregarFruta("CF", 3, 13);
         fase1.agregarFruta("CF", 4, 12);
         fase1.agregarFruta("CF", 5, 11);
-        fase1.agregarFruta("CF", 5, 13);
-        fase1.agregarFruta("CF", 8, 2);
-        fase1.agregarFruta("CF", 9, 1);
         fase1.agregarFruta("CF", 9, 3);
         fase1.agregarFruta("CF", 10, 2);
-        fase1.agregarFruta("CF", 11, 1);
         fase1.agregarFruta("CF", 11, 3);
         fase1.agregarFruta("CF", 11, 5);
         fase1.agregarFruta("CF", 12, 2);
         fase1.agregarFruta("CF", 12, 4);
-        fase1.agregarFruta("CF", 12, 6);
-        fase1.agregarFruta("CF", 13, 1);
-        fase1.agregarFruta("CF", 13, 3);
-        fase1.agregarFruta("CF", 13, 5);
         fases.add(fase1);
 
         // FASE 2: PIÑAS
         FaseNivel fase2 = new FaseNivel();
-        fase2.agregarFruta("P", 1, 1);
-        fase2.agregarFruta("P", 1, 3);
-        fase2.agregarFruta("P", 1, 5);
         fase2.agregarFruta("P", 2, 2);
         fase2.agregarFruta("P", 2, 4);
-        fase2.agregarFruta("P", 2, 6);
-        fase2.agregarFruta("P", 3, 1);
         fase2.agregarFruta("P", 3, 3);
         fase2.agregarFruta("P", 3, 5);
         fase2.agregarFruta("P", 4, 2);
-        fase2.agregarFruta("P", 4, 4);
-        fase2.agregarFruta("P", 5, 1);
         fase2.agregarFruta("P", 5, 3);
-        fase2.agregarFruta("P", 6, 2);
-        fase2.agregarFruta("P", 6, 4);
-        fase2.agregarFruta("P", 8, 12);
         fase2.agregarFruta("P", 9, 11);
-        fase2.agregarFruta("P", 9, 13);
         fase2.agregarFruta("P", 10, 12);
         fase2.agregarFruta("P", 11, 9);
         fase2.agregarFruta("P", 11, 11);
-        fase2.agregarFruta("P", 11, 13);
-        fase2.agregarFruta("P", 12, 8);
         fase2.agregarFruta("P", 12, 10);
         fase2.agregarFruta("P", 12, 12);
-        fase2.agregarFruta("P", 13, 9);
-        fase2.agregarFruta("P", 13, 11);
-        fase2.agregarFruta("P", 13, 13);
         fases.add(fase2);
 
         return fases;

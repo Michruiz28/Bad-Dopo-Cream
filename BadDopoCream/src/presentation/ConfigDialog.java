@@ -1,7 +1,7 @@
 package presentation;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import javax.swing.*;
 
 public class ConfigDialog extends JDialog {
 
@@ -26,6 +26,10 @@ public class ConfigDialog extends JDialog {
 
     private int nivelMaximoAlcanzado = 1;
     private boolean configuracionAceptada = false;
+
+    //Modos no disponibles aún:
+    private static final String MODO_JUGADOR_MAQUINA = "Jugador vs Máquina";
+    private static final String MODO_MAQUINA_MAQUINA =  "Máquina vs Máquina";
 
     public ConfigDialog(JFrame parent) {
         super(parent, "Configuración", true);
@@ -64,6 +68,21 @@ public class ConfigDialog extends JDialog {
         JButton cancelar = new JButton("Cancelar");
 
         aceptar.addActionListener(e -> {
+            String modoSeleccionado = (String) comboModo.getSelectedItem();
+
+
+            if (modoSeleccionado.equals(MODO_JUGADOR_MAQUINA) ||
+                modoSeleccionado.equals(MODO_MAQUINA_MAQUINA)) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Modo de juego no disponible aún.",
+                        "Opción no disponible",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+                return; 
+            }
+            
             // Validar que los sabores no sean iguales cuando ambos están visibles
             if (comboSabor2.isVisible()) {
                 String sabor1Temp = (String) comboSabor1.getSelectedItem();

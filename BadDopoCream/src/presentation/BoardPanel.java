@@ -35,6 +35,9 @@ public class BoardPanel extends JPanel {
     private static final Color COLOR_FONDO = new Color(230, 240, 255);
     private static final Color COLOR_BORDE = new Color(100, 149, 237);
 
+    
+    private boolean mostrarPantallaFinal = false;
+
     public BoardPanel() {
         this.imageCache = new HashMap<>();
         setBackground(COLOR_FONDO);
@@ -89,6 +92,12 @@ public class BoardPanel extends JPanel {
      */
     public void inicializarJuego(int nivel, String modo, String sabor1, String sabor2) {
         inicializarJuego(nivel, modo, sabor1, sabor2, "Jugador 1", "Jugador 2", null, null);
+    }
+
+    
+    public void mostrarPantallaFinal() {
+        this.mostrarPantallaFinal = true;
+        repaint();
     }
 
     /**
@@ -179,16 +188,25 @@ public class BoardPanel extends JPanel {
 
     @Override
     protected void paintComponent(Graphics g) {
+        if (mostrarPantallaFinal) {
+            dibujarPantallaVictoria(g);
+            return;
+        }
+        
         super.paintComponent(g);
 
-    if (juego == null ||
-        cambiandoNivel ||
-        juego.getTablero() == null ||
-        juego.getRepresentacionTablero() == null) {
+        if (juego != null && juego.isJuegoGanado()) {
+            dibujarPantallaVictoria(g);
+            return;
+}
+        if (juego == null ||
+            cambiandoNivel ||
+            juego.getTablero() == null ||
+            juego.getRepresentacionTablero() == null) {
 
-        dibujarMensajeEspera(g);
-        return;
-    }
+            dibujarMensajeEspera(g);
+            return;
+        }
 
         // ===== NUEVO: Detectar cambio de fase =====
         verificarCambioDeFase();
@@ -295,6 +313,184 @@ public class BoardPanel extends JPanel {
         int y = getHeight() / 2;
         g.drawString(mensaje, x, y);
     }
+
+    /**
+     * NUEVO: Dibuja la pantalla de victoria con imagen o mensaje
+     */
+    private void dibujarPantallaVictoria(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // ===== FONDO AZUL DEGRADADO =====
+        GradientPaint gradient = new GradientPaint(
+                0, 0, new Color(30, 60, 150),
+                0, getHeight(), new Color(100, 160, 255)
+        );
+        g2d.setPaint(gradient);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+
+        int centerX = getWidth() / 2;
+        int y = 80;
+
+        // ===== TEXTO SUPERIOR =====
+        g2d.setFont(new Font("Arial", Font.BOLD, 56));
+        g2d.setColor(new Color(255, 215, 0)); // dorado
+        String titulo = "¡FELICIDADES!";
+        FontMetrics fm = g2d.getFontMetrics();
+        g2d.drawString(titulo, centerX - fm.stringWidth(titulo) / 2, y);
+
+        y += 40;
+
+        // ===== SUBTÍTULO =====
+        g2d.setFont(new Font("Arial", Font.BOLD, 26));
+        g2d.setColor(Color.WHITE);
+        String subtitulo = "Completaste el juego";
+        fm = g2d.getFontMetrics();
+        g2d.drawString(subtitulo, centerX - fm.stringWidth(subtitulo) / 2, y);
+
+        // ===== IMAGEN DE VICTORIA =====
+        Image img = cargarImagenVictoria();
+        if (img != null) {
+            int imgX = centerX - img.getWidth(this) / 2;
+            int imgY = y + 20;
+            g2d.drawImage(img, imgX, imgY, this);
+            y = imgY + img.getHeight(this) + 30;
+        } else {
+            y += 80;
+        }
+
+        // ===== PUNTAJES =====
+        dibujarInformacionFinal(g2d, y);
+    }
+
+    
+    /**
+     * Intenta cargar la imagen de victoria
+     */
+    private Image cargarImagenVictoria() {
+        try {
+            File file = new File("src/presentation/images/FinJuego.png");
+            if (file.exists()) {
+                BufferedImage img = ImageIO.read(file);
+                // Escalar si es necesario
+                int maxWidth = getWidth() - 100;
+                int maxHeight = getHeight() - 200;
+                
+                if (img.getWidth() > maxWidth || img.getHeight() > maxHeight) {
+                    double scale = Math.min(
+                        (double) maxWidth / img.getWidth(),
+                        (double) maxHeight / img.getHeight()
+                    );
+                    int newWidth = (int) (img.getWidth() * scale);
+                    int newHeight = (int) (img.getHeight() * scale);
+                    return img.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+                }
+                return img;
+            } else {
+                System.out.println("[BOARD] Imagen de victoria no encontrada: " + file.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            System.err.println("[BOARD] Error al cargar imagen de victoria: " + e.getMessage());
+        }
+        return null;
+    }
+    
+    /**
+     * Dibuja mensaje de victoria en texto si no hay imagen
+     */
+    private void dibujarMensajeVictoriaTexto(Graphics2D g2d) {
+        // Título principal
+        g2d.setColor(new Color(255, 215, 0)); // Dorado
+        g2d.setFont(new Font("Arial", Font.BOLD, 60));
+        String titulo = "¡VICTORIA!";
+        FontMetrics fm = g2d.getFontMetrics();
+        int x = (getWidth() - fm.stringWidth(titulo)) / 2;
+        int y = getHeight() / 2 - 100;
+        
+        // Sombra del texto
+        g2d.setColor(new Color(0, 0, 0, 100));
+        g2d.drawString(titulo, x + 3, y + 3);
+        
+        // Texto principal
+        g2d.setColor(new Color(255, 215, 0));
+        g2d.drawString(titulo, x, y);
+        
+        // Subtítulo
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Arial", Font.BOLD, 24));
+        String subtitulo = "¡Has completado todos los niveles!";
+        fm = g2d.getFontMetrics();
+        x = (getWidth() - fm.stringWidth(subtitulo)) / 2;
+        g2d.drawString(subtitulo, x, y + 60);
+        
+        // Estrellas decorativas
+        dibujarEstrellas(g2d);
+    }
+    
+    /**
+     * Dibuja estrellas decorativas alrededor del mensaje
+     */
+    private void dibujarEstrellas(Graphics2D g2d) {
+        g2d.setColor(new Color(255, 215, 0));
+        int[][] posiciones = {
+            {100, 150}, {getWidth() - 100, 150},
+            {150, getHeight() - 150}, {getWidth() - 150, getHeight() - 150},
+            {getWidth() / 2, 80}
+        };
+        
+        for (int[] pos : posiciones) {
+            dibujarEstrella(g2d, pos[0], pos[1], 20);
+        }
+    }
+    
+    /**
+     * Dibuja una estrella de 5 puntas
+     */
+    private void dibujarEstrella(Graphics2D g2d, int x, int y, int radio) {
+        int[] xPoints = new int[10];
+        int[] yPoints = new int[10];
+        
+        for (int i = 0; i < 10; i++) {
+            double angle = Math.PI / 2 + i * Math.PI / 5;
+            int r = (i % 2 == 0) ? radio : radio / 2;
+            xPoints[i] = x + (int) (r * Math.cos(angle));
+            yPoints[i] = y + (int) (r * Math.sin(angle));
+        }
+        
+        g2d.fillPolygon(xPoints, yPoints, 10);
+    }
+    
+    private void dibujarInformacionFinal(Graphics2D g2d, int y) {
+        g2d.setFont(new Font("Arial", Font.BOLD, 22));
+        g2d.setColor(Color.WHITE);
+
+        String p1 = "Jugador 1: " + juego.getPuntajeJugador1() + " puntos";
+        FontMetrics fm = g2d.getFontMetrics();
+        int x = (getWidth() - fm.stringWidth(p1)) / 2;
+        g2d.drawString(p1, x, y);
+
+        if (juego.getHelado2() != null) {
+            y += 35;
+            String p2 = "Jugador 2: " + juego.getPuntajeJugador2() + " puntos";
+            x = (getWidth() - fm.stringWidth(p2)) / 2;
+            g2d.drawString(p2, x, y);
+
+            y += 35;
+            g2d.setColor(new Color(255, 215, 0));
+            String ganador = "Ganador: " + juego.getGanador();
+            x = (getWidth() - fm.stringWidth(ganador)) / 2;
+            g2d.drawString(ganador, x, y);
+        }
+
+        // ===== MENSAJE DE SALIDA =====
+        y += 50;
+        g2d.setFont(new Font("Arial", Font.ITALIC, 14));
+        g2d.setColor(new Color(230, 230, 230));
+        String salir = "Presiona ESC o cierra la ventana para salir";
+        x = (getWidth() - g2d.getFontMetrics().stringWidth(salir)) / 2;
+        g2d.drawString(salir, x, y);
+    }
+
 
     private void dibujarTablero(Graphics2D g2d) {
         String[][] representacion = juego.getRepresentacionTablero();

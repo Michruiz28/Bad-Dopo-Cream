@@ -41,10 +41,16 @@ public class BadDopoCreamGUI extends JFrame {
 
     private void mostrarVentanaInicial() {
         setTitle("Bad DOPO Cream");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setSize(975, 710);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                salirAccion();
+            }
+        });
 
         // Imagen de portada
         try {
@@ -326,7 +332,7 @@ public class BadDopoCreamGUI extends JFrame {
         int result = JOptionPane.showConfirmDialog(
                 this,
                 comboNivel,
-                "Seleccionar Nivel (Desbloqueados: " + nivelMaximoAlcanzado + "/3)",
+                "Seleccionar Nivel (Desbloqueados: " + nivelMaximoAlcanzado + "/2)",
                 JOptionPane.OK_CANCEL_OPTION
         );
 
@@ -346,7 +352,7 @@ public class BadDopoCreamGUI extends JFrame {
         StringBuilder info = new StringBuilder();
         info.append("INFORMACIÓN DEL JUEGO\n\n");
         info.append("Modo: ").append(modo).append("\n");
-        info.append("Nivel: ").append(nivel).append(" / 3\n");
+        info.append("Nivel: ").append(nivel).append(" / 2\n");
         info.append("Niveles desbloqueados: ").append(nivelMaximoAlcanzado).append("\n\n");
         info.append("Tiempo restante: ").append(boardPanel.getJuego().getTiempoRestanteFormato()).append("\n\n");
         info.append("Puntaje Jugador 1: ").append(boardPanel.getJuego().getPuntajeJugador1()).append("\n");
@@ -492,8 +498,8 @@ public class BadDopoCreamGUI extends JFrame {
     }
 
     public void nivelCompletado(int nivelCompletado) {
-        if (nivelCompletado >= nivelMaximoAlcanzado && nivelCompletado < 3) {
-            nivelMaximoAlcanzado = nivelCompletado + 1;
+        if (nivelCompletado == 0 && nivelCompletado < 2) {
+            nivelMaximoAlcanzado = 2;
         }
     }
 
