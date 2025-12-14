@@ -3,8 +3,6 @@ package domain;
 public class Helado extends Elemento implements Poder {
     private String sabor;
     private int puntaje;
-    private int fila;
-    private int col;
     private int filaInicial;
     private int columnaInicial;
     private String imagenActual;
@@ -61,16 +59,11 @@ public class Helado extends Elemento implements Poder {
     }
 
     public void setPosicionInicial() throws BadDopoException {
-        this.fila = filaInicial;
-        this.col = columnaInicial;
+        setFila(filaInicial);
+        setColumna(columnaInicial);
     }
-
-    public void setFila(int fila) {
-        this.fila = fila;
-    }
-
-    public void setColumna(int columna) {
-        this.col = columna;
+    public String getUltimaDireccion() {
+        return ultimaDireccion;
     }
 
     @Override

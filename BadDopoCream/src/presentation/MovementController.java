@@ -1,327 +1,294 @@
 package presentation;
 
-import javax.swing.*;
+import domain.BadDopoCream;
+import domain.BadDopoException;
+import domain.Helado;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
- * Controlador de movimiento para los jugadores
- * Maneja teclas presionadas simultáneamente y actualiza posiciones
+ * Controlador de movimientos del teclado para los helados
+ * VERSIÓN CORREGIDA con mejor debugging
  */
-public class MovementController implements KeyListener {
+public class MovementController extends KeyAdapter {
 
     private BoardPanel boardPanel;
+    private BadDopoCream juego;
     private String modo;
-    private String sabor1;
-    private String sabor2;
 
-    // Posiciones actuales de los jugadores
-    private int jugador1Fila;
-    private int jugador1Col;
-    private int jugador2Fila;
-    private int jugador2Col;
+    // Teclas para jugador 1 (WASD + F para acción)
+    private static final int TECLA_P1_ARRIBA = KeyEvent.VK_W;
+    private static final int TECLA_P1_ABAJO = KeyEvent.VK_S;
+    private static final int TECLA_P1_IZQUIERDA = KeyEvent.VK_A;
+    private static final int TECLA_P1_DERECHA = KeyEvent.VK_D;
+    private static final int TECLA_P1_EJECUTAR_ACCION = KeyEvent.VK_F;
 
-    // Direcciones actuales (para las imágenes)
-    private String direccionJ1 = "Abajo";
-    private String direccionJ2 = "Abajo";
+    // Teclas para jugador 2 (Flechas + Espacio para acción)
+    private static final int TECLA_P2_ARRIBA = KeyEvent.VK_UP;
+    private static final int TECLA_P2_ABAJO = KeyEvent.VK_DOWN;
+    private static final int TECLA_P2_IZQUIERDA = KeyEvent.VK_LEFT;
+    private static final int TECLA_P2_DERECHA = KeyEvent.VK_RIGHT;
+    private static final int TECLA_P2_EJECUTAR_ACCION = KeyEvent.VK_SPACE;
 
-    // Set de teclas presionadas actualmente
-    private Set<Integer> teclasPresionadas;
-
-    // Timer para movimiento continuo
-    private Timer movementTimer;
-    private static final int VELOCIDAD_MOVIMIENTO = 150; // ms entre movimientos
-
-    // Constantes de direcciones
-    public static final String ARRIBA = "Detras";
-    public static final String ABAJO = "Abajo";
-    public static final String IZQUIERDA = "Izquierda";
-    public static final String DERECHA = "Derecha";
-
-    public MovementController(BoardPanel boardPanel, String modo, String sabor1, String sabor2) {
+    public MovementController(BoardPanel boardPanel, String modo) {
         this.boardPanel = boardPanel;
+        this.juego = boardPanel.getJuego();
         this.modo = modo;
-        this.sabor1 = sabor1;
-        this.sabor2 = sabor2;
-        this.teclasPresionadas = new HashSet<>();
-
-        inicializarPosicionesJugadores();
-        inicializarTimer();
-    }
-
-    /**
-     * Encuentra las posiciones iniciales de los jugadores en el tablero
-     */
-    private void inicializarPosicionesJugadores() {
-        for (int i = 0; i < boardPanel.getFilas(); i++) {
-            for (int j = 0; j < boardPanel.getColumnas(); j++) {
-                int elemento = boardPanel.getElemento(i, j);
-                if (elemento == BoardPanel.JUGADOR1) {
-                    jugador1Fila = i;
-                    jugador1Col = j;
-                    System.out.println("Jugador 1 encontrado en: (" + i + "," + j + ")");
-                } else if (elemento == BoardPanel.JUGADOR2) {
-                    jugador2Fila = i;
-                    jugador2Col = j;
-                    System.out.println("Jugador 2 encontrado en: (" + i + "," + j + ")");
-                }
-            }
-        }
-    }
-
-    /**
-     * Inicializa el timer que procesa movimiento continuo
-     */
-    private void inicializarTimer() {
-        movementTimer = new Timer(VELOCIDAD_MOVIMIENTO, e -> {
-            procesarMovimiento();
-        });
-        movementTimer.start();
-    }
-
-    /**
-     * Procesa el movimiento basado en las teclas presionadas
-     */
-    private void procesarMovimiento() {
-        // Movimiento Jugador 1 (WASD)
-        if (debeControlarJugador1()) {
-            if (teclasPresionadas.contains(KeyEvent.VK_W)) {
-                moverJugador1(ARRIBA);
-            }
-            if (teclasPresionadas.contains(KeyEvent.VK_S)) {
-                moverJugador1(ABAJO);
-            }
-            if (teclasPresionadas.contains(KeyEvent.VK_A)) {
-                moverJugador1(IZQUIERDA);
-            }
-            if (teclasPresionadas.contains(KeyEvent.VK_D)) {
-                moverJugador1(DERECHA);
-            }
-            // Poder con F
-            if (teclasPresionadas.contains(KeyEvent.VK_F)) {
-                usarPoderJugador1();
-            }
-        }
-
-        // Movimiento Jugador 2 (Flechas)
-        if (debeControlarJugador2()) {
-            if (teclasPresionadas.contains(KeyEvent.VK_UP)) {
-                moverJugador2(ARRIBA);
-            }
-            if (teclasPresionadas.contains(KeyEvent.VK_DOWN)) {
-                moverJugador2(ABAJO);
-            }
-            if (teclasPresionadas.contains(KeyEvent.VK_LEFT)) {
-                moverJugador2(IZQUIERDA);
-            }
-            if (teclasPresionadas.contains(KeyEvent.VK_RIGHT)) {
-                moverJugador2(DERECHA);
-            }
-            // Poder con Espacio
-            if (teclasPresionadas.contains(KeyEvent.VK_SPACE)) {
-                usarPoderJugador2();
-            }
-        }
-    }
-
-    /**
-     * Determina si se debe controlar al jugador 1
-     */
-    private boolean debeControlarJugador1() {
-        return modo.equals("Jugador vs Jugador") || modo.equals("Jugador vs Máquina");
-    }
-
-    /**
-     * Determina si se debe controlar al jugador 2
-     */
-    private boolean debeControlarJugador2() {
-        return modo.equals("Un solo jugador") ||
-                modo.equals("Jugador vs Jugador") ||
-                modo.equals("Jugador vs Máquina");
-    }
-
-    /**
-     * Mueve al jugador 1 en la dirección especificada
-     */
-    private void moverJugador1(String direccion) {
-        direccionJ1 = direccion;
-
-        int nuevaFila = jugador1Fila;
-        int nuevaCol = jugador1Col;
-
-        switch (direccion) {
-            case ARRIBA:
-                nuevaFila--;
-                break;
-            case ABAJO:
-                nuevaFila++;
-                break;
-            case IZQUIERDA:
-                nuevaCol--;
-                break;
-            case DERECHA:
-                nuevaCol++;
-                break;
-        }
-
-        // Verificar si el movimiento es válido
-        if (esMovimientoValido(nuevaFila, nuevaCol)) {
-            // Actualizar posición en el tablero
-            boardPanel.moverElemento(jugador1Fila, jugador1Col, nuevaFila, nuevaCol, sabor1, direccion);
-            jugador1Fila = nuevaFila;
-            jugador1Col = nuevaCol;
-        } else {
-            // Solo cambiar dirección sin moverse
-            boardPanel.cambiarDireccion(jugador1Fila, jugador1Col, sabor1, direccion);
-        }
-    }
-
-    /**
-     * Mueve al jugador 2 en la dirección especificada
-     */
-    private void moverJugador2(String direccion) {
-        direccionJ2 = direccion;
-
-        int nuevaFila = jugador2Fila;
-        int nuevaCol = jugador2Col;
-
-        switch (direccion) {
-            case ARRIBA:
-                nuevaFila--;
-                break;
-            case ABAJO:
-                nuevaFila++;
-                break;
-            case IZQUIERDA:
-                nuevaCol--;
-                break;
-            case DERECHA:
-                nuevaCol++;
-                break;
-        }
-
-        // Verificar si el movimiento es válido
-        if (esMovimientoValido(nuevaFila, nuevaCol)) {
-            // Actualizar posición en el tablero
-            String saborActual = modo.equals("Un solo jugador") ? sabor1 : sabor2;
-            boardPanel.moverElemento(jugador2Fila, jugador2Col, nuevaFila, nuevaCol, saborActual, direccion);
-            jugador2Fila = nuevaFila;
-            jugador2Col = nuevaCol;
-        } else {
-            // Solo cambiar dirección sin moverse
-            String saborActual = modo.equals("Un solo jugador") ? sabor1 : sabor2;
-            boardPanel.cambiarDireccion(jugador2Fila, jugador2Col, saborActual, direccion);
-        }
-    }
-
-    /**
-     * Verifica si un movimiento a la posición es válido
-     */
-    private boolean esMovimientoValido(int fila, int col) {
-        // Verificar límites
-        if (fila < 0 || fila >= boardPanel.getFilas() ||
-                col < 0 || col >= boardPanel.getColumnas()) {
-            return false;
-        }
-
-        int elemento = boardPanel.getElemento(fila, col);
-
-        // Puede moverse a espacios vacíos o frutas
-        return elemento == BoardPanel.VACIO || elemento == BoardPanel.FRUTA;
-    }
-
-    /**
-     * Usar poder del jugador 1 (crear bloque de hielo)
-     */
-    private void usarPoderJugador1() {
-        // Crear bloque de hielo en la dirección que mira
-        int bloqueF = jugador1Fila;
-        int bloqueC = jugador1Col;
-
-        switch (direccionJ1) {
-            case ARRIBA: bloqueF--; break;
-            case ABAJO: bloqueF++; break;
-            case IZQUIERDA: bloqueC--; break;
-            case DERECHA: bloqueC++; break;
-        }
-
-        boardPanel.crearBloqueHielo(bloqueF, bloqueC);
-    }
-
-    /**
-     * Usar poder del jugador 2 (crear bloque de hielo)
-     */
-    private void usarPoderJugador2() {
-        int bloqueF = jugador2Fila;
-        int bloqueC = jugador2Col;
-
-        switch (direccionJ2) {
-            case ARRIBA: bloqueF--; break;
-            case ABAJO: bloqueF++; break;
-            case IZQUIERDA: bloqueC--; break;
-            case DERECHA: bloqueC++; break;
-        }
-
-        boardPanel.crearBloqueHielo(bloqueF, bloqueC);
+        System.out.println("[CONTROLLER] MovementController creado para modo: " + modo);
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        teclasPresionadas.add(e.getKeyCode());
-    }
+        int keyCode = e.getKeyCode();
+        String keyText = KeyEvent.getKeyText(keyCode);
 
-    @Override
-    public void keyReleased(KeyEvent e) {
-        teclasPresionadas.remove(e.getKeyCode());
-    }
+        System.out.println("\n[CONTROLLER] ========== TECLA PRESIONADA ==========");
+        System.out.println("[CONTROLLER] Código: " + keyCode + " (" + keyText + ")");
 
-    @Override
-    public void keyTyped(KeyEvent e) {
-        // No usado
-    }
+        // Actualizar referencia al juego (por si cambió)
+        if (juego == null || juego != boardPanel.getJuego()) {
+            juego = boardPanel.getJuego();
+            System.out.println("[CONTROLLER] Actualizando referencia al juego");
+        }
 
-    /**
-     * Detiene el timer de movimiento
-     */
-    public void detener() {
-        if (movementTimer != null) {
-            movementTimer.stop();
+        // Verificaciones de estado
+        if (juego == null) {
+            System.out.println("[CONTROLLER] ERROR: juego es null - no se puede procesar movimiento");
+            return;
+        }
+
+        if (!juego.isJuegoIniciado()) {
+            System.out.println("[CONTROLLER] ERROR: juego no iniciado");
+            return;
+        }
+
+        if (juego.isPausado()) {
+            System.out.println("[CONTROLLER] Juego pausado - movimiento ignorado");
+            return;
+        }
+
+        if (juego.isJuegoTerminado()) {
+            System.out.println("[CONTROLLER] Juego terminado - movimiento ignorado");
+            return;
+        }
+
+        System.out.println("[CONTROLLER] Estado del juego: OK para procesar movimiento");
+
+        try {
+            boolean teclaReconocida = false;
+
+            // Controles del Jugador 1
+            if (esJugadorHumano1()) {
+                if (esTeclaJugador1(keyCode)) {
+                    System.out.println("[CONTROLLER] Tecla reconocida para Jugador 1");
+                    manejarTeclasJugador1(keyCode);
+                    teclaReconocida = true;
+                }
+            }
+
+            // Controles del Jugador 2
+            if (esJugadorHumano2()) {
+                if (esTeclaJugador2(keyCode)) {
+                    System.out.println("[CONTROLLER] Tecla reconocida para Jugador 2");
+                    manejarTeclasJugador2(keyCode);
+                    teclaReconocida = true;
+                }
+            }
+
+            if (!teclaReconocida) {
+                System.out.println("[CONTROLLER] Tecla no reconocida o no aplicable al modo actual");
+            }
+
+            System.out.println("[CONTROLLER] =======================================\n");
+
+        } catch (BadDopoException ex) {
+            System.err.println("[CONTROLLER] ERROR en movimiento: " + ex.getMessage());
+            ex.printStackTrace();
+            mostrarError(ex.getMessage());
+        } catch (Exception ex) {
+            System.err.println("[CONTROLLER] ERROR inesperado: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
     /**
-     * Reanuda el timer de movimiento
+     * Verifica si la tecla corresponde al jugador 1
      */
-    public void reanudar() {
-        if (movementTimer != null) {
-            movementTimer.start();
+    private boolean esTeclaJugador1(int keyCode) {
+        return keyCode == TECLA_P1_ARRIBA ||
+            keyCode == TECLA_P1_ABAJO ||
+            keyCode == TECLA_P1_IZQUIERDA ||
+            keyCode == TECLA_P1_DERECHA ||
+            keyCode == TECLA_P1_EJECUTAR_ACCION ||
+            // Permitir también ESPACIO como acción del jugador1 cuando no hay jugador2 humano (modo un jugador)
+            (keyCode == TECLA_P2_EJECUTAR_ACCION && !esJugadorHumano2());
+    }
+
+    /**
+     * Verifica si la tecla corresponde al jugador 2
+     */
+    private boolean esTeclaJugador2(int keyCode) {
+        return keyCode == TECLA_P2_ARRIBA ||
+                keyCode == TECLA_P2_ABAJO ||
+                keyCode == TECLA_P2_IZQUIERDA ||
+                keyCode == TECLA_P2_DERECHA ||
+                keyCode == TECLA_P2_EJECUTAR_ACCION;
+    }
+
+    /**
+     * Maneja las teclas del jugador 1
+     */
+    private void manejarTeclasJugador1(int keyCode) throws BadDopoException {
+        Helado helado1 = juego.getHelado1();
+        if (helado1 == null) {
+            System.out.println("[CONTROLLER] ERROR: Helado1 es null");
+            return;
         }
+
+        System.out.println("[CONTROLLER] Helado1 en posición: (" + helado1.getFila() + "," + helado1.getColumna() + ")");
+
+        String accion = "";
+        switch (keyCode) {
+            case TECLA_P1_ARRIBA:
+                accion = "ARRIBA";
+                System.out.println("[CONTROLLER] Moviendo Jugador 1 hacia ARRIBA");
+                juego.moverHelado1("ARRIBA");
+                break;
+            case TECLA_P1_ABAJO:
+                accion = "ABAJO";
+                System.out.println("[CONTROLLER] Moviendo Jugador 1 hacia ABAJO");
+                juego.moverHelado1("ABAJO");
+                break;
+            case TECLA_P1_IZQUIERDA:
+                accion = "IZQUIERDA";
+                System.out.println("[CONTROLLER] Moviendo Jugador 1 hacia IZQUIERDA");
+                juego.moverHelado1("IZQUIERDA");
+                break;
+            case TECLA_P1_DERECHA:
+                accion = "DERECHA";
+                System.out.println("[CONTROLLER] Moviendo Jugador 1 hacia DERECHA");
+                juego.moverHelado1("DERECHA");
+                break;
+            case TECLA_P1_EJECUTAR_ACCION:
+                if (helado1.getUltimaDireccion() != null) {
+                    System.out.println("[CONTROLLER] Ejecutando acción en dirección: " + helado1.getUltimaDireccion());
+                    juego.realizarAccion(helado1.getFila(), helado1.getColumna(), helado1.getUltimaDireccion());
+                } else {
+                    System.out.println("[CONTROLLER] No se puede ejecutar acción: no hay dirección previa");
+                }
+                break;
+        }
+
+        System.out.println("[CONTROLLER] Nueva posición Helado1: (" + helado1.getFila() + "," + helado1.getColumna() + ")");
+    }
+
+    /**
+     * Maneja las teclas del jugador 2
+     */
+    private void manejarTeclasJugador2(int keyCode) throws BadDopoException {
+        Helado helado2 = juego.getHelado2();
+        if (helado2 == null) {
+            System.out.println("[CONTROLLER] ERROR: Helado2 es null");
+            return;
+        }
+
+        System.out.println("[CONTROLLER] Helado2 en posición: (" + helado2.getFila() + "," + helado2.getColumna() + ")");
+
+        switch (keyCode) {
+            case TECLA_P2_ARRIBA:
+                System.out.println("[CONTROLLER] Moviendo Jugador 2 hacia ARRIBA");
+                juego.moverHelado2("ARRIBA");
+                break;
+            case TECLA_P2_ABAJO:
+                System.out.println("[CONTROLLER] Moviendo Jugador 2 hacia ABAJO");
+                juego.moverHelado2("ABAJO");
+                break;
+            case TECLA_P2_IZQUIERDA:
+                System.out.println("[CONTROLLER] Moviendo Jugador 2 hacia IZQUIERDA");
+                juego.moverHelado2("IZQUIERDA");
+                break;
+            case TECLA_P2_DERECHA:
+                System.out.println("[CONTROLLER] Moviendo Jugador 2 hacia DERECHA");
+                juego.moverHelado2("DERECHA");
+                break;
+            case TECLA_P2_EJECUTAR_ACCION:
+                if (helado2.getUltimaDireccion() != null) {
+                    System.out.println("[CONTROLLER] Ejecutando acción en dirección: " + helado2.getUltimaDireccion());
+                    juego.realizarAccion(helado2.getFila(), helado2.getColumna(), helado2.getUltimaDireccion());
+                } else {
+                    System.out.println("[CONTROLLER] No se puede ejecutar acción: no hay dirección previa");
+                }
+                break;
+        }
+
+        System.out.println("[CONTROLLER] Nueva posición Helado2: (" + helado2.getFila() + "," + helado2.getColumna() + ")");
+    }
+
+    /**
+     * Verifica si el jugador 1 es humano
+     */
+    private boolean esJugadorHumano1() {
+        boolean esHumano = modo.equals("Un jugador") ||
+                modo.equals("Un solo jugador") ||
+                modo.equals("Jugador vs Jugador") ||
+                modo.equals("Jugador vs Máquina");
+        System.out.println("[CONTROLLER] ¿Jugador 1 es humano? " + esHumano + " (modo: " + modo + ")");
+        return esHumano;
+    }
+
+    /**
+     * Verifica si el jugador 2 es humano
+     */
+    private boolean esJugadorHumano2() {
+        boolean esHumano = modo.equals("Jugador vs Jugador");
+        System.out.println("[CONTROLLER] ¿Jugador 2 es humano? " + esHumano + " (modo: " + modo + ")");
+        return esHumano;
+    }
+
+    /**
+     * Muestra un mensaje de error en consola
+     */
+    private void mostrarError(String mensaje) {
+        System.err.println("[CONTROLLER] ERROR de movimiento: " + mensaje);
     }
 
     /**
      * Actualiza el modo de juego
      */
-    public void actualizarModo(String nuevoModo) {
-        this.modo = nuevoModo;
+    public void setModo(String modo) {
+        this.modo = modo;
+        System.out.println("[CONTROLLER] Modo actualizado a: " + modo);
     }
 
     /**
-     * Actualiza los sabores
+     * Actualiza la referencia al juego
      */
-    public void actualizarSabores(String sabor1, String sabor2) {
-        this.sabor1 = sabor1;
-        this.sabor2 = sabor2;
+    public void setJuego(BadDopoCream juego) {
+        this.juego = juego;
+        System.out.println("[CONTROLLER] Referencia al juego actualizada");
     }
 
     /**
-     * Reinicia las posiciones al cargar un nuevo nivel
+     * Obtiene las instrucciones de control
      */
-    public void reiniciarPosiciones() {
-        teclasPresionadas.clear();
-        direccionJ1 = "Abajo";
-        direccionJ2 = "Abajo";
-        inicializarPosicionesJugadores();
+    public static String getInstrucciones() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== CONTROLES ===\n\n");
+        sb.append("JUGADOR 1:\n");
+        sb.append("  W - Mover arriba\n");
+        sb.append("  S - Mover abajo\n");
+        sb.append("  A - Mover izquierda\n");
+        sb.append("  D - Mover derecha\n");
+        sb.append("  F - Crear/Romper hielo\n\n");
+        sb.append("JUGADOR 2:\n");
+        sb.append("  ↑ - Mover arriba\n");
+        sb.append("  ↓ - Mover abajo\n");
+        sb.append("  ← - Mover izquierda\n");
+        sb.append("  → - Mover derecha\n");
+        sb.append("  ESPACIO - Crear/Romper hielo\n\n");
+        sb.append("OBJETIVO:\n");
+        sb.append("Recolecta todas las frutas antes de que se acabe el tiempo.\n");
+        sb.append("Evita a los enemigos y usa el hielo estratégicamente.\n");
+        return sb.toString();
     }
 }

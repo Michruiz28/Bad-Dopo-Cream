@@ -9,8 +9,4 @@ public class Fearful implements EstrategiaMovimiento {
         return null;
     }
 
-    @Override
-    public Direccion calcularMovimiento(Helado helado, Nivel nivel) throws BadDopoException {
-        return null;
-    }
 }

@@ -110,11 +110,13 @@ public class BadDopoCream implements Serializable {
         this.puntajeJugador2 = 0;
 
         this.modoJuego = crearFactory(modo, perfil1, perfil2);
+        this.creador = this.modoJuego;
     }
 
     private CreadorElemento crearFactory(String modo, String perfil1, String perfil2) {
         switch (modo) {
             case "Un jugador":
+            case "Un solo jugador":
                 return new UnJugador();
             case "Jugador vs Jugador":
                 return new JugadorVsJugador();
@@ -174,6 +176,19 @@ public class BadDopoCream implements Serializable {
 
     }
 
+    public HashMap<String, int[]> getPosicionesHelados() throws BadDopoException {
+        HashMap<String, int[]> posicionesHelados = new HashMap<>();
+        if (helado1 != null) {
+            int[] p1 = tablero.getPosicionHelado(helado1);
+            posicionesHelados.put("helado1", p1);
+        }
+        if (helado2 != null) {
+            int[] p2 = tablero.getPosicionHelado(helado2);
+            posicionesHelados.put("helado2", p2);
+        }
+        return posicionesHelados;
+    }
+
     private void inicializarHelados() throws BadDopoException {
         int[][] pos = InfoNivel.getPosicionesHelados(nivelActual);
 
@@ -214,33 +229,60 @@ public class BadDopoCream implements Serializable {
 
 
     public void moverHelado(Helado helado, String direccion) throws BadDopoException {
+        System.out.println("\n[BADDOPO] ==================== INICIO MOVIMIENTO ====================");
+        System.out.println("[BADDOPO] Estado del juego:");
+        System.out.println("  - juegoIniciado: " + juegoIniciado);
+        System.out.println("  - pausado: " + pausado);
+        System.out.println("  - juegoTerminado: " + juegoTerminado);
+
         if (!juegoIniciado || pausado || juegoTerminado) {
+            System.out.println("[BADDOPO] ERROR: No se puede mover - estado del juego inválido");
             throw new BadDopoException(BadDopoException.JUEGO_NO_INICIADO);
         }
 
-        int[] posActual = tablero.getPosicionHelado(helado);
-        if (posActual == null) {
-            throw new BadDopoException("Helado no encontrado en el tablero");
+        System.out.println("[BADDOPO] Helado antes del movimiento:");
+        System.out.println("  - Posición actual en objeto: (" + helado.getFila() + "," + helado.getColumna() + ")");
+        System.out.println("  - Dirección solicitada: " + direccion);
+        System.out.println("  - Sabor: " + helado.getSabor());
+
+        int filaActual = helado.getFila();
+        int colActual = helado.getColumna();
+
+        System.out.println("[BADDOPO] Llamando a tablero.solicitarMovimiento(" + filaActual + ", " + colActual + ", " + direccion + ")");
+
+        boolean moved = tablero.solicitarMovimiento(filaActual, colActual, direccion);
+
+        System.out.println("[BADDOPO] Resultado del movimiento:");
+        System.out.println("  - moved: " + moved);
+        System.out.println("  - Nueva posición en objeto: (" + helado.getFila() + "," + helado.getColumna() + ")");
+
+        if (moved) {
+            verificarRecoleccionFruta(helado.getFila(), helado.getColumna(), helado);
+            moverPinas();
+            System.out.println("[BADDOPO] Movimiento completado exitosamente");
+        } else {
+            System.out.println("[BADDOPO] Movimiento bloqueado - no se pudo ejecutar");
         }
 
-        tablero.solicitarMovimiento(posActual[0], posActual[1], direccion);
-
-        verificarRecoleccionFruta(posActual[0], posActual[1], helado);
-
-        moverPinas();
+        System.out.println("[BADDOPO] ==================== FIN MOVIMIENTO ====================\n");
     }
-
-
     public void moverHelado1(String direccion) throws BadDopoException {
+        System.out.println("[BADDOPO] moverHelado1 llamado con dirección: " + direccion);
         if (helado1 != null) {
+            System.out.println("[BADDOPO] Helado1 existe, moviendo...");
             moverHelado(helado1, direccion);
+        } else {
+            System.out.println("[BADDOPO] ERROR: Helado1 es null!");
         }
     }
-
 
     public void moverHelado2(String direccion) throws BadDopoException {
+        System.out.println("[BADDOPO] moverHelado2 llamado con dirección: " + direccion);
         if (helado2 != null) {
+            System.out.println("[BADDOPO] Helado2 existe, moviendo...");
             moverHelado(helado2, direccion);
+        } else {
+            System.out.println("[BADDOPO] ERROR: Helado2 es null!");
         }
     }
 
@@ -428,9 +470,9 @@ public class BadDopoCream implements Serializable {
     }
 
     private boolean esJugadorHumano1() {
-        return modo.equals("Un jugador") ||
-                modo.equals("Jugador vs Jugador") ||
-                modo.equals("Jugador vs Máquina");
+        return modo.equals("Un jugador") || modo.equals("Un solo jugador") ||
+            modo.equals("Jugador vs Jugador") ||
+            modo.equals("Jugador vs Máquina");
     }
 
 
@@ -563,5 +605,66 @@ public class BadDopoCream implements Serializable {
         stats.put("frutasRecolectadas", new HashMap<>(frutasRecolectadas));
         stats.put("ganador", getGanador());
         return stats;
+    }
+
+    public int[] getDimensionesTablero(){
+        int[] dimensiones =  tablero.getDimensiones();
+        return dimensiones;
+    }
+
+    public String[][] getRepresentacionTablero(){
+        return this.infoNivel;
+    }
+
+    public HashMap<String, Fruta> getPosicionesFrutas() {
+        return tablero.getPosicionesFrutas();
+    }
+
+    public HashMap<String, Enemigo> getPosicionesEnemigos() {
+        return tablero.getPosicionesEnemigos();
+    }
+
+    public HashMap<String, Obstaculo> getPosicionesObstaculos() {
+        return tablero.getPosicionesObstaculos();
+    }
+
+    public void actualizar() throws BadDopoException {
+        if (!juegoIniciado || pausado || juegoTerminado) {
+            return;
+        }
+
+        long tiempoActual = System.currentTimeMillis();
+
+        // Actualizar frutas y elementos que dependan del tiempo
+        // Iteramos sobre una copia para evitar ConcurrentModification
+        ArrayList<Fruta> copiaFrutas = new ArrayList<>(frutasEnJuego);
+        for (Fruta f : copiaFrutas) {
+            f.actualizar(tiempoActual);
+        }
+
+        // Mover pinas y otras actualizaciones periódicas
+        moverPinas();
+
+        // Verificar colisiones entre helados y enemigos
+        verificarColisiones();
+
+        // Verificar si se agotó el tiempo
+        if (tiempoExcedido()) {
+            juegoTerminado = true;
+            mensajeEstado = "Tiempo agotado";
+        }
+
+        // Si todas las frutas fueron recolectadas, completar el nivel
+        if (todasLasFrutasRecolectadas()) {
+            completarNivel();
+        }
+    }
+
+    public String getSabor2() {
+        return sabor2;
+    }
+
+    public String getSabor1() {
+        return sabor1;
     }
 }

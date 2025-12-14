@@ -9,6 +9,11 @@ public class Borde extends Obstaculo{
     }
 
     @Override
+    public boolean esPeligroso() {
+        return false;
+    }
+
+    @Override
     public void mover(String direccion) {
         //
     }

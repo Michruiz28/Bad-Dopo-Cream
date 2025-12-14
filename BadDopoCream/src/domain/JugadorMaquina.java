@@ -8,11 +8,14 @@ public class JugadorMaquina extends Helado {
             throws BadDopoException {
         super(fila, col, sabor);
 
-        if (estrategia == null) {
-            throw new BadDopoException("La máquina debe tener una estrategia de movimiento");
+        // Permitir que la máquina se cree sin estrategia explícita.
+        // Si no se proporciona, asignamos una estrategia por defecto 'RANDOM'
+        // para que no se lance la excepción y el helado pueda existir.
+        if (estrategia == null || estrategia.trim().isEmpty()) {
+            this.estrategia = "RANDOM";
+        } else {
+            this.estrategia = estrategia;
         }
-
-        this.estrategia = estrategia;
     }
 
     public void setEstrategia(String estrategia) {

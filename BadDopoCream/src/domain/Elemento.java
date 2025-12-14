@@ -33,7 +33,7 @@ public abstract class Elemento implements Mover, RompeHielo {
 
     public abstract void mover(String direccion) throws BadDopoException;
 
-    public abstract void aumentarPuntaje(int puntaje);
+        public abstract void aumentarPuntaje(int puntaje);
 
     public abstract int getGanancia();
 

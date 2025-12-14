@@ -1,6 +1,7 @@
 package domain;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 // Tablero.java
 public class Tablero {
@@ -39,7 +40,6 @@ public class Tablero {
     public boolean solicitarMovimiento(int fila, int columna, String direccion) throws BadDopoException {
         return grafo.solicitarMovimiento(fila, columna, direccion);
     }
-
     public void realizarAccion(int fila, int columna, String ultimaDireccion) throws BadDopoException {
         grafo.realizarAccion(fila, columna, ultimaDireccion);
     }
@@ -91,6 +91,26 @@ public class Tablero {
     public void removerFruta(Fruta fruta){
         int fila =  fruta.getFila();
         int columna = fruta.getColumna();
-        grafo.removeElemento(fila, columna);
+        // Remover la fruta solo si la celda aún contiene esa instancia (evita sobrescribir un helado que ya se movió allí)
+        grafo.removeElementoIfMatches(fila, columna, fruta);
+    }
+
+    public int[] getDimensiones(){
+        int[] dimensiones = new int[2];
+        dimensiones[0] = filas;
+        dimensiones[1] = columnas;
+        return dimensiones;
+    }
+
+    public HashMap<String, Fruta> getPosicionesFrutas(){
+        return grafo.getPosicionesFrutas();
+    }
+
+    public HashMap<String, Enemigo> getPosicionesEnemigos(){
+        return grafo.getPosicionesEnemigos();
+    }
+
+    public HashMap<String, Obstaculo> getPosicionesObstaculos(){
+        return grafo.getPosicionesObstaculos();
     }
 }

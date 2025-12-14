@@ -14,6 +14,36 @@ public class Cactus extends FrutaEstatica {
         super(fila, columna ,GANANCIA_CACTUS);
     }
 
+    @Override
+    public void mover(String direccion) throws BadDopoException {
+
+    }
+
+    @Override
+    public void aumentarPuntaje(int puntaje) {
+
+    }
+
+    @Override
+    public void actualizarImagen(String ultimaDireccion) {
+
+    }
+
+    @Override
+    public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
+
+    }
+
+    @Override
+    public void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException {
+
+    }
+
+    @Override
+    public int[] calcularPosicionesMovimieto(int limiteInferior, int limiteSuperior) {
+        return new int[0];
+    }
+
     public boolean esPeligroso(){
         return peligroso;
     }
