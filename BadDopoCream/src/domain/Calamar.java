@@ -8,17 +8,17 @@ public class Calamar extends Enemigo {
     private String imagenActual;
 
     public Calamar(int fila, int col) {
-        super(fila, col, 1, TipoComportamiento.ROMPEHIELO);
+        super(fila, col, 1);
         this.ultimaDireccion = "ARRIBA";
         this.persigueJugador = true;
         this.puedeRomperBloques = true;
         this.rompeUnBloquePorVez = true;
-        // Imagenes para Calamar
         this.imagenAbajo = "src/presentation/images/CalamarAbajo.png";
         this.imagenDerecha = "src/presentation/images/CalamarDerecha.png";
         this.imagenIzquierda = "src/presentation/images/CalamarIzquierda.png";
-        this.imagenArriba = "src/presentation/images/CalamarArriba.png";
+        this.imagenArriba = "src/presentation/images/CalamarDetras.png";
         this.imagenActual = this.imagenAbajo;
+        setMovimientoStrategy(new EstrategiaRompeHielo());
     }
 
     @Override
@@ -33,8 +33,18 @@ public class Calamar extends Enemigo {
 
     @Override
     public void actualizarImagen(String ultimaDireccion) {
-
+        if (ultimaDireccion == null) return;
+        switch (ultimaDireccion) {
+            case "DERECHA": imagenActual = imagenDerecha; break;
+            case "IZQUIERDA": imagenActual = imagenIzquierda; break;
+            case "ABAJO": imagenActual = imagenAbajo; break;
+            case "ARRIBA": imagenActual = imagenArriba; break;
+            default: break;
+        }
     }
+
+    @Override
+    public String codigoTipo() { return "C"; }
 
     @Override
     public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
@@ -56,27 +66,5 @@ public class Calamar extends Enemigo {
         return false;
     }
 
-    /**
-     * Calamar persigue al jugador.
-     * Si el siguiente casillero es hielo, lo rompe y se detiene.
-     */
-    @Override
-    public String decidirProximaMovida(VistaTablero vista, Helado jugador) throws BadDopoException {
-        String direccion = vista.calcularDireccionHaciaObjetivo(
-            getFila(), getColumna(),
-            jugador.getFila(), jugador.getColumna(),
-            true
-        );
-        if (direccion == null) {
-            return getUltimaDireccion();
-        }
-        // Verificar si el siguiente paso es hielo
-        int[] siguiente = vista.calcularNuevaPosicion(getFila(), getColumna(), direccion);
-        if (vista.esHielo(siguiente[0], siguiente[1])) {
-            setUltimaDireccion(direccion);
-            return direccion; 
-        }
-        setUltimaDireccion(direccion);
-        return direccion;
-    }
+    // El comportamiento delegado a la estrategia (EstrategiaRompeHielo)
 }

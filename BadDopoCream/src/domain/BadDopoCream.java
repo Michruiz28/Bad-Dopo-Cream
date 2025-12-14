@@ -346,7 +346,7 @@ public class BadDopoCream implements Serializable {
         int filaActual = helado.getFila();
         int colActual = helado.getColumna();
 
-        boolean moved = tablero.solicitarMovimiento(filaActual, colActual, direccion);
+        boolean moved = tablero.solicitarMovimientoHacia(filaActual, colActual, direccion);
 
         if (moved) {
             verificarRecoleccionFruta(helado.getFila(), helado.getColumna(), helado);
@@ -377,7 +377,7 @@ public class BadDopoCream implements Serializable {
         }
 
         for (Fruta fruta : frutasEnJuego) {
-            if (fruta instanceof Pina) {
+            if (fruta != null && fruta.getCelda() != null && "P".equals(fruta.getCelda().getTipo())) {
                 ((Pina) fruta).mover();
             }
         }
@@ -734,8 +734,17 @@ public class BadDopoCream implements Serializable {
         }
 
         moverPinas();
-        verificarColisiones();
+        // Actualizar enemigos: cada turno los enemigos ejecutan su estrategia
+        try {
+            if (tablero != null && helado1 != null) tablero.actualizarEnemigos(helado1);
+            // Si hay segundo helado (multijugador), también lo consideramos como referencia
+            if (tablero != null && helado2 != null) tablero.actualizarEnemigos(helado2);
+        } catch (BadDopoException ex) {
+            // Ignorar errores puntuales de movimiento de enemigos para no detener el juego
+        }
 
+        // Verificar colisiones entre helados y enemigos
+        verificarColisiones();
         if (tiempoExcedido()) {
             juegoTerminado = true;
             mensajeEstado = "Tiempo agotado";

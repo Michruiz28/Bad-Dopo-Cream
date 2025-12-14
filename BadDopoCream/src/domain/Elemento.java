@@ -30,10 +30,18 @@ public abstract class Elemento implements Mover, RompeHielo {
     public boolean esSolido() {
         return false;
     }
+    public boolean esEnemigo() { return false; }
+    public boolean esFruta() { return false; }
+    public boolean esHelado() { return false; }
+
+    /** Código de tipo para marcar la celda cuando este elemento ocupa una celda
+     *  Por defecto 'V' de vacio 
+     */
+    public String codigoTipo() { return "V"; }
 
     public abstract void mover(String direccion) throws BadDopoException;
 
-        public abstract void aumentarPuntaje(int puntaje);
+    public abstract void aumentarPuntaje(int puntaje);
 
     public abstract int getGanancia();
 

@@ -8,11 +8,15 @@ import java.util.*;
  * @author Maria Katalina Leyva Díaz y Michelle Dayana Ruíz Carranza.
  */
 public class GrafoTablero {
+    private static final boolean DEBUG = false;
     private Nodo[][] nodos;
     private int filas;
     private int columnas;
     private CreadorElemento creador;
     private ArrayList<Fruta> frutasActivas;
+    private java.util.Map<String, Elemento> elementosSubyacentes = new java.util.HashMap<>();
+    private java.util.Map<String, String> tiposSubyacentes = new java.util.HashMap<>();
+
 
     public GrafoTablero(int filas, int columnas, String[][] infoNivel, CreadorElemento creador) throws BadDopoException {
         this.filas = filas;
@@ -97,6 +101,7 @@ public class GrafoTablero {
         if (nodo != null) {
             // Solo cambiar el tipo de la celda, NO reemplazar el nodo
             nodo.getCelda().setTipo(tipo);
+            nodos[fila][col] = new Nodo (fila,col,tipo,creador);
         }
     }
 
@@ -120,64 +125,52 @@ public class GrafoTablero {
         celdaDestino.setElemento(elemento, creador);
     }
 
-    public boolean solicitarMovimiento(int fila, int columna, String direccion) throws BadDopoException {
+    public boolean solicitarMovimientoHacia(int fila, int columna, String direccion) throws BadDopoException {
         Nodo nodo = getNodo(fila, columna);
         if (nodo == null) {
-            System.out.println("[GRAFO] ERROR: Nodo en posición (" + fila + "," + columna + ") es null");
+            if (DEBUG) System.out.println("[GRAFO] ERROR: Nodo en posición (" + fila + "," + columna + ") es null");
             return false;
         }
 
-        System.out.println("[GRAFO] Solicitando movimiento desde (" + fila + "," + columna + ") hacia " + direccion);
+        if (direccion == null || direccion.trim().isEmpty()) {
+            throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
+        }
 
-        // Calcular nueva posición
-        int nuevaFila = fila;
-        int nuevaColumna = columna;
+        if (DEBUG) System.out.println("[GRAFO] Solicitando movimiento desde (" + fila + "," + columna + ") hacia " + direccion);
 
+        int[] nuevaPosicion = new int[2];
         switch (direccion.toUpperCase()) {
             case "ARRIBA":
-                nuevaFila = fila - 1;
+                nuevaPosicion = moverArriba(fila, columna);
                 break;
             case "ABAJO":
-                nuevaFila = fila + 1;
+                nuevaPosicion = moverAbajo(fila, columna);
                 break;
             case "DERECHA":
-                nuevaColumna = columna + 1;
+                nuevaPosicion = moverDerecha(fila, columna);
                 break;
             case "IZQUIERDA":
-                nuevaColumna = columna - 1;
+                nuevaPosicion = moverIzquierda(fila, columna);
                 break;
             default:
                 throw new BadDopoException(BadDopoException.DIRECCION_DESCONOCIDA);
         }
 
-        // Verificar límites ANTES de buscar el nodo
-        if (nuevaFila < 0 || nuevaFila >= filas || nuevaColumna < 0 || nuevaColumna >= columnas) {
-            System.out.println("[GRAFO] ERROR: Movimiento fuera de límites");
-            return false;
-        }
+        if (DEBUG) System.out.println("[GRAFO] Nueva posición calculada: (" + nuevaPosicion[0] + "," + nuevaPosicion[1] + ")");
 
-        System.out.println("[GRAFO] Nueva posición calculada: (" + nuevaFila + "," + nuevaColumna + ")");
-
-        Nodo nodoDestino = getNodo(nuevaFila, nuevaColumna);
+        Nodo nodoDestino = getNodo(nuevaPosicion[0], nuevaPosicion[1]);
         if (nodoDestino == null) {
-            System.out.println("[GRAFO] ERROR: Nodo destino es null");
+            if (DEBUG) System.out.println("[GRAFO] ERROR: Nodo destino es null");
             return false;
-        }
-
-        // DEBUG: Mostrar información de vecinos
-        System.out.println("[GRAFO] DEBUG: Vecinos del nodo origen:");
-        for (Nodo vecino : nodo.getVecinos()) {
-            System.out.println("  - (" + vecino.getFila() + "," + vecino.getColumna() + ")");
         }
 
         if (!nodo.getVecinos().contains(nodoDestino)) {
-            System.out.println("[GRAFO] ERROR: Nodo destino no es vecino");
-            System.out.println("[GRAFO] DEBUG: Nodo destino buscado: (" + nodoDestino.getFila() + "," + nodoDestino.getColumna() + ")");
+            if (DEBUG) System.out.println("[GRAFO] ERROR: Nodo destino no es vecino");
             return false;
         }
 
         ejecutarMovimiento(nodo, nodoDestino, direccion);
-        System.out.println("[GRAFO] Movimiento ejecutado exitosamente");
+        if (DEBUG) System.out.println("[GRAFO] Movimiento ejecutado exitosamente");
         return true;
     }
 
@@ -187,53 +180,76 @@ public class GrafoTablero {
         Elemento elementoAMover = celdaOrigen.getElemento();
         Elemento elementoEnDestino = celdaDestino.getElemento();
 
-        System.out.println("[GRAFO] Ejecutando movimiento - Tipo origen: " + celdaOrigen.getTipo() + ", Tipo destino: " + celdaDestino.getTipo());
+        if (DEBUG) System.out.println("[GRAFO] Ejecutando movimiento - Tipo origen: " + celdaOrigen.getTipo() + ", Tipo destino: " + celdaDestino.getTipo());
 
-        // Verificar si el destino es transitable según su TIPO
         String tipoDestino = celdaDestino.getTipo();
-        
-        // Hielo o Borde no transitables
-        if (tipoDestino.equals("H") || tipoDestino.equals("B")) {
-            System.out.println("[GRAFO] Destino no transitable (Hielo o Borde)");
+        if ("H".equals(tipoDestino) || "B".equals(tipoDestino)) {
+            // No transitable: mantener en posición
+            if (DEBUG) System.out.println("[GRAFO] Destino no transitable (Hielo o Borde)");
             return;
         }
 
-        // Verificar si hay fruta en la celda destino
-        if (tipoDestino.equals("BF") || tipoDestino.equals("CF") ||
-                tipoDestino.equals("CAF") || tipoDestino.equals("U") ||
-                tipoDestino.equals("P")) {
-            // Recolectar fruta
-            if (elementoEnDestino != null) {
-                elementoAMover.aumentarPuntaje(elementoEnDestino.getGanancia());
-                System.out.println("[GRAFO] Fruta recolectada: +" + elementoEnDestino.getGanancia() + " puntos");
-            }
-            // Colocar el helado en la celda destino y marcar la celda con el tipo correspondiente
-            celdaDestino.setElemento(elementoAMover, creador);
-            // Solo los Helado tienen sabor; verificar antes de llamar getSabor()
-            if (elementoAMover instanceof Helado) {
-                String tipoHelado = obtenerCodigoSabor(((Helado) elementoAMover).getSabor());
-                celdaDestino.setTipo(tipoHelado); // Mantener el tipo correspondiente al helado
-            } else {
-                // Si no es un Helado, dejar como vacío o mantener comportamiento por defecto
-                celdaDestino.setTipo("V");
-            }
-            celdaOrigen.setElementoConTipo("V", creador);
+        // Si el destino tiene fruta (BF, CF, CAF, U, P)
+        if ("BF".equals(tipoDestino) || "CF".equals(tipoDestino) || "CAF".equals(tipoDestino) || "U".equals(tipoDestino) || "P".equals(tipoDestino)) {
+            // Si quien se mueve es un Enemigo, permitir pasar por encima sin aumentar puntaje
+            if (elementoAMover.esEnemigo()) {
+                // Guardar el elemento subyacente (fruta) para restaurarlo cuando el enemigo salga
+                String keyDestino = celdaDestino.getFila() + "_" + celdaDestino.getCol();
+                if (elementoEnDestino != null) {
+                    elementosSubyacentes.put(keyDestino, elementoEnDestino);
+                    tiposSubyacentes.put(keyDestino, celdaDestino.getTipo());
+                }
+                // Colocar al enemigo en la celda destino y marcar tipo de enemigo
+                celdaDestino.setElemento(elementoAMover, creador);
+                String codigo = elementoAMover.codigoTipo();
+                celdaDestino.setTipo(codigo);
 
-            elementoAMover.setFila(celdaDestino.getFila());
-            elementoAMover.setColumna(celdaDestino.getCol());
-            elementoAMover.setCelda(celdaDestino);
-        } else {
-            // Espacio vacío ("V") u otro tipo transitable: mover normalmente
-            celdaDestino.setElemento(elementoAMover, creador);
-            celdaOrigen.setElementoConTipo("V", creador);
-            
-            // Actualizar el tipo de la celda destino para reflejar el helado que se movió
-            if (elementoAMover instanceof Helado) {
-                String tipoHelado = obtenerCodigoSabor(((Helado) elementoAMover).getSabor());
-                celdaDestino.setTipo(tipoHelado);
+                // Restaurar la celda origen: si había un subyacente guardado, restaurarlo
+                String keyOrigen = celdaOrigen.getFila() + "_" + celdaOrigen.getCol();
+                if (tiposSubyacentes.containsKey(keyOrigen)) {
+                    Elemento sub = elementosSubyacentes.remove(keyOrigen);
+                    String tipoSub = tiposSubyacentes.remove(keyOrigen);
+                    if (sub != null) {
+                        celdaOrigen.setElemento(sub, creador);
+                        celdaOrigen.setTipo(tipoSub);
+                    } else {
+                        celdaOrigen.setElementoConTipo("V", creador);
+                    }
+                } else {
+                    celdaOrigen.setElementoConTipo("V", creador);
+                }
+
+                elementoAMover.setFila(celdaDestino.getFila());
+                elementoAMover.setColumna(celdaDestino.getCol());
+                elementoAMover.setCelda(celdaDestino);
             } else {
-                celdaDestino.setTipo("V");
+                // Comportamiento original para helados u otros elementos
+                if (elementoEnDestino != null) {
+                    elementoAMover.aumentarPuntaje(elementoEnDestino.getGanancia());
+                    if (DEBUG) System.out.println("[GRAFO] Fruta recolectada: +" + elementoEnDestino.getGanancia() + " puntos");
+                }
+                celdaDestino.setElemento(elementoAMover, creador);
+                if (elementoAMover.esHelado()) {
+                    String tipoHelado = obtenerCodigoSabor(((Helado) elementoAMover).getSabor());
+                    celdaDestino.setTipo(tipoHelado);
+                } else {
+                    celdaDestino.setTipo("V");
+                }
+                celdaOrigen.setElementoConTipo("V", creador);
+
+                elementoAMover.setFila(celdaDestino.getFila());
+                elementoAMover.setColumna(celdaDestino.getCol());
+                elementoAMover.setCelda(celdaDestino);
             }
+        } else {
+            // Espacio vacío u otro: mover normalmente
+            celdaDestino.setElemento(elementoAMover, creador);
+            // Si el elemento que se mueve es un enemigo, asegurarnos de marcar el tipo de la celda
+            if (elementoAMover.esEnemigo()) {
+                String codigo = elementoAMover.codigoTipo();
+                celdaDestino.setTipo(codigo);
+            }
+            celdaOrigen.setElementoConTipo("V", creador);
 
             elementoAMover.setFila(celdaDestino.getFila());
             elementoAMover.setColumna(celdaDestino.getCol());
@@ -354,24 +370,27 @@ public class GrafoTablero {
 
     public void actualizarEnemigos(Helado jugador) throws BadDopoException {
         VistaTablero vista = new VistaTableroImpl();
-        List<int[]> posicionesEnemigos = new ArrayList<>();
+        java.util.Set<Enemigo> procesados = new java.util.HashSet<>();
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
                 Nodo nodo = nodos[f][c];
                 if (nodo == null) continue;
                 Elemento el = nodo.getCelda().getElemento();
-                if (el instanceof Enemigo) {
-                    posicionesEnemigos.add(new int[]{f, c});
+                if (el != null && el.esEnemigo()) {
+                    Enemigo enemigo = (Enemigo) el;
+                    // Evitar procesar el mismo enemigo más de una vez por ciclo (puede moverse dentro del loop)
+                    if (procesados.contains(enemigo)) continue;
+                    if (DEBUG) System.out.println("[GRAFO] Actualizando enemigo " + enemigo.getClass().getSimpleName() +
+                            " en (" + f + "," + c + ") ultimaDir=" + enemigo.getUltimaDireccion());
+                    enemigo.ejecutarComportamiento(this, vista, jugador);
+                    procesados.add(enemigo);
                 }
             }
-        }
-        for (int[] pos : posicionesEnemigos) {
-            procesarEnemigo(pos[0], pos[1], vista, jugador);
         }
     }
 
     public void procesarMovimientoHelado(int filaOrigen, int columnaOrigen, String direccion, Helado jugador) throws BadDopoException {
-        boolean moved = solicitarMovimiento(filaOrigen, columnaOrigen, direccion);
+        boolean moved = solicitarMovimientoHacia(filaOrigen, columnaOrigen, direccion);
         if (!moved) return;
 
         java.util.List<int[]> posicionesPinas = new java.util.ArrayList<>();
@@ -380,7 +399,7 @@ public class GrafoTablero {
                 Nodo nodo = nodos[f][c];
                 if (nodo == null) continue;
                 Elemento el = nodo.getCelda().getElemento();
-                if (el instanceof Pina) posicionesPinas.add(new int[]{f, c});
+                if (nodo.getCelda().getTipo() != null && nodo.getCelda().getTipo().equals("P")) posicionesPinas.add(new int[]{f, c});
             }
         }
 
@@ -406,7 +425,7 @@ public class GrafoTablero {
                     mejor = obtenerDireccionAleatoria(f, c);
                 }
                 if (mejor != null) {
-                    solicitarMovimiento(f, c, mejor);
+                    solicitarMovimientoHacia(f, c, mejor);
                 }
             } catch (BadDopoException ex) {
                 // Ignorar errores de movimiento individuales
@@ -414,73 +433,13 @@ public class GrafoTablero {
         }
     }
 
-    private void procesarEnemigo(int f, int c, VistaTablero vista, Helado jugador) throws BadDopoException {
-        Nodo nodo = getNodo(f, c);
-        if (nodo == null) return;
-        Elemento elemento = nodo.getCelda().getElemento();
-        if (!(elemento instanceof Enemigo)) return;
-
-        Enemigo enemigo = (Enemigo) elemento;
-        String direccion = enemigo.decidirProximaMovida(vista, jugador);
-        if (direccion == null) return;
-
-        boolean esEmbestida = !enemigo.isPersigueJugador() && enemigo.canRomperBloques()
-                && (f == jugador.getFila() || c == jugador.getColumna());
-
-        if (esEmbestida) {
-            ejecutarEmbestidaNarval(f, c, direccion, jugador.getFila(), jugador.getColumna());
-        } else if (enemigo.canRomperBloques() && enemigo.rompeUnBloquePorVez()) {
-            int[] siguiente = calcularNuevaPosicion(f, c, direccion);
-            if (esHielo(siguiente[0], siguiente[1])) {
-                romperHieloEnDireccion(f, c, direccion, elemento);
-            } else {
-                solicitarMovimiento(f, c, direccion);
-            }
-        } else {
-            solicitarMovimiento(f, c, direccion);
-        }
-    }
-
-    private void ejecutarEmbestidaNarval(int f, int c, String direccion, int objetivoF, int objetivoC) throws BadDopoException {
-        int curF = f;
-        int curC = c;
-
-        while (true) {
-            int[] next = calcularNuevaPosicion(curF, curC, direccion);
-            if (!esPosicionValida(next[0], next[1])) break;
-            Nodo nodoSiguiente = getNodo(next[0], next[1]);
-            if (nodoSiguiente == null) break;
-            Celda celdaSiguiente = nodoSiguiente.getCelda();
-            if (esHielo(next[0], next[1])) {
-                romperHieloEnDireccion(curF, curC, direccion, celdaSiguiente.getElemento());
-                if (solicitarMovimiento(curF, curC, direccion)) {
-                    curF = next[0];
-                    curC = next[1];
-                } else {
-                    break;
-                }
-            } else if (celdaSiguiente.esTransitable()) {
-                if (solicitarMovimiento(curF, curC, direccion)) {
-                    curF = next[0];
-                    curC = next[1];
-                } else {
-                    break;
-                }
-            } else {
-                break;
-            }
-            if (curF == objetivoF && curC == objetivoC) break;
-        }
-    }
-
     public int[] calcularNuevaPosicion(int f, int c, String direccion) throws BadDopoException {
-        return switch (direccion) {
-            case "ARRIBA" -> moverArriba(f, c);
-            case "ABAJO" -> moverAbajo(f, c);
-            case "DERECHA" -> moverDerecha(f, c);
-            case "IZQUIERDA" -> moverIzquierda(f, c);
-            default -> new int[]{f, c};
-        };
+        if (direccion == null) return new int[]{f, c};
+        if (direccion.equals("ARRIBA")) return moverArriba(f, c);
+        if (direccion.equals("ABAJO")) return moverAbajo(f, c);
+        if (direccion.equals("DERECHA")) return moverDerecha(f, c);
+        if (direccion.equals("IZQUIERDA")) return moverIzquierda(f, c);
+        return new int[]{f, c};
     }
 
     public boolean puedeMoverEn(int f, int c, String direccion) throws BadDopoException {
@@ -553,12 +512,6 @@ public class GrafoTablero {
         }
     }
 
-    public void romperHieloEnDireccion(int f, int c, String direccion, Elemento elementoActual) throws BadDopoException {
-        int[] dest = calcularNuevaPosicion(f, c, direccion);
-        if (esPosicionValida(dest[0], dest[1]) && esHielo(dest[0], dest[1])) {
-            romperHielo(dest[0], dest[1], direccion, elementoActual);
-        }
-    }
 
     public boolean esPosicionValida(int f, int c) {
         return f >= 0 && f < filas && c >= 0 && c < columnas;
@@ -569,7 +522,7 @@ public class GrafoTablero {
         Celda celda = nodo.getCelda();
 
         celda.setElemento((Fruta) elemento, creador);
-        
+
         // Actualizar el tipo de celda según la fruta agregada
         if (elemento instanceof Fruta) {
             Fruta fruta = (Fruta) elemento;
@@ -709,7 +662,7 @@ public class GrafoTablero {
     public ArrayList<Fruta> getFrutas(){
         // Usar la lista de tracking en lugar de buscar en toda la matriz
         return new ArrayList<>(frutasActivas);
-    }   
+    }
 
     public ArrayList<Enemigo> getEnemigos(){
         ArrayList<Enemigo> enemigos = new ArrayList<>();
@@ -795,9 +748,9 @@ public class GrafoTablero {
      */
     private String obtenerCodigoFruta(Fruta fruta) {
         if (fruta == null) return null;
-        
+
         String nombreClase = fruta.getClass().getSimpleName();
-        
+
         if (nombreClase.equals("Banano")) {
             return "BF";
         } else if (nombreClase.equals("Cereza")) {
@@ -807,7 +760,7 @@ public class GrafoTablero {
         } else if (nombreClase.equals("Pina")) {
             return "P";
         }
-        
+
         return null;
     }
 
@@ -823,7 +776,8 @@ public class GrafoTablero {
     }
 
     /**
-     * Remueve el elemento en la posición solo si coincide con la instancia esperada (evita sobrescribir helados).
+     *Remueve el elemento en la posición solo si coincide con la instancia esperada (evita sobrescribir helados).
+     *
      */
     public void removeElementoIfMatches(int fila, int col, Elemento esperado){
         Nodo nodo = getNodo(fila, col);
@@ -832,14 +786,8 @@ public class GrafoTablero {
                 Celda celda = nodo.getCelda();
                 if (celda.getElemento() == esperado) {
                     celda.setElementoConTipo("V", creador);
-                    
-                    // ===== AGREGAR ESTAS LÍNEAS =====
-                    if (esperado instanceof Fruta) {
-                        frutasActivas.remove(esperado);
-                        System.out.println("[GRAFO] Fruta removida de lista activa en (" + fila + "," + col + ")");
-                    }
                 } else {
-                    System.out.println("[GRAFO] No se removió elemento en ("+fila+","+col+") porque no coincide con la instancia esperada");
+                    if (DEBUG) System.out.println("[GRAFO] No se removió elemento en ("+fila+","+col+") porque no coincide con la instancia esperada");
                 }
             } catch (BadDopoException e) {
                 System.err.println("Error al remover elemento: " + e.getMessage());

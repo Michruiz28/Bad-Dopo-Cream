@@ -15,6 +15,11 @@ public class Cactus extends FrutaEstatica {
     }
 
     @Override
+    public String getCodigo() {
+        return "";
+    }
+
+    @Override
     public void mover(String direccion) throws BadDopoException {
 
     }

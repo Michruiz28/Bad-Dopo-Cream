@@ -8,17 +8,49 @@ public class Troll extends Enemigo  {
     private String imagenActual;
 
     public Troll(int fila, int col) {
-        super(fila, col, 1, TipoComportamiento.LINEAL);
-        this.ultimaDireccion = "ARRIBA";
+        super(fila, col, 1);
+        // Dirección inicial aleatoria entre ARRIBA/ABAJO/DERECHA/IZQUIERDA
+        String[] dirs = new String[]{"ARRIBA", "ABAJO", "DERECHA", "IZQUIERDA"};
+        this.ultimaDireccion = dirs[new java.util.Random().nextInt(dirs.length)];
         this.persigueJugador = false;
         this.puedeRomperBloques = false;
         this.rompeUnBloquePorVez = false;
-        // Rutas de imagen (usar las mismas convenciones que Helado)
         this.imagenAbajo = "src/presentation/images/TrollAbajo.png";
         this.imagenDerecha = "src/presentation/images/TrollDerecha.png";
-        this.imagenIzquierda = "src/presentation/images/TrollIzquierda.png";
-        this.imagenArriba = "src/presentation/images/TrollArriba.png";
+        this.imagenIzquierda = "src/presentation/images/TrolIzquierda.png";
+        this.imagenArriba = "src/presentation/images/TrollDetras.png";
         this.imagenActual = this.imagenAbajo;
+        setMovimientoStrategy(new EstrategiaTroll());
+    }
+
+    // Contador para ralentizar movimiento (ejecuta movimiento cada N ticks)
+    private int contadorTicks = 0;
+    // Ajusta este valor para controlar la velocidad del Troll (mayor = más lento)
+    private int intervaloMovimiento = 12; // valor inicial más lento
+
+    @Override
+    public void ejecutarComportamiento(GrafoTablero grafo, VistaTablero vista, Helado jugador) throws BadDopoException {
+        // Ajustar la velocidad del Troll en función del último movimiento del helado
+        if (jugador != null) {
+            long last = jugador.getUltimoMovimientoTime();
+            long now = System.currentTimeMillis();
+            long delta = now - last; // ms desde último movimiento del helado
+            // Calcular intervalo en ticks: cuanto más reciente movió el helado, más rápido el troll
+            // Base 12 ticks, y escala con el tiempo desde el último movimiento del helado
+            int computed = (int) Math.max(6, Math.min(80, 12 + (delta / 200)));
+            this.intervaloMovimiento = computed;
+        }
+
+        // Solo ejecutar la estrategia cuando el cooldown se cumpla
+        contadorTicks++;
+        if (contadorTicks < intervaloMovimiento) return;
+        contadorTicks = 0;
+
+        // Delegar a la estrategia (movimiento en línea recta). La estrategia
+        // ya implementa invertir la dirección cuando encuentra un obstáculo.
+        if (estrategiaMovimiento != null) {
+            estrategiaMovimiento.ejecutarTurno(this, vista, jugador, grafo);
+        }
     }
 
     @Override
@@ -33,7 +65,18 @@ public class Troll extends Enemigo  {
 
     @Override
     public void actualizarImagen(String ultimaDireccion) {
+        if (ultimaDireccion == null) return;
+        switch (ultimaDireccion) {
+            case "DERECHA": imagenActual = imagenDerecha; break;
+            case "IZQUIERDA": imagenActual = imagenIzquierda; break;
+            case "ABAJO": imagenActual = imagenAbajo; break;
+            case "ARRIBA": imagenActual = imagenArriba; break;
+            default: break;
+        }
     }
+
+    @Override
+    public String codigoTipo() { return "T"; }
 
     @Override
     public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
@@ -59,43 +102,5 @@ public class Troll extends Enemigo  {
      * El Troll se mueve en línea recta.
      * Si encuentra obstáculo, invierte la dirección.
      */
-    @Override
-    public String decidirProximaMovida(VistaTablero vista, Helado jugador) throws BadDopoException {
-        String dir = getUltimaDireccion();
-        if (dir == null) dir = "ARRIBA";
-
-        // Intentar mover en la dirección actual
-        if (puedeMoverEn(vista, getFila(), getColumna(), dir)) {
-            setUltimaDireccion(dir);
-            return dir;
-        }
-
-        // Si no puede, invertir dirección
-        dir = invertirDireccion(dir);
-        if (puedeMoverEn(vista, getFila(), getColumna(), dir)) {
-            setUltimaDireccion(dir);
-            return dir;
-        }
-
-        // Si tampoco puede en la invertida, mantener última dirección válida
-        return getUltimaDireccion();
-    }
-
-    /**
-     * Verifica si el enemigo puede moverse en una dirección usando la vista del tablero.
-     */
-    private boolean puedeMoverEn(VistaTablero vista, int fila, int columna, String direccion) throws BadDopoException {
-        int[] dest = vista.calcularNuevaPosicion(fila, columna, direccion);
-        return vista.esPosicionValida(dest[0], dest[1]) && vista.esTransitable(dest[0], dest[1]);
-    }
-
-    private String invertirDireccion(String dir) {
-        return switch (dir) {
-            case "ARRIBA" -> "ABAJO";
-            case "ABAJO" -> "ARRIBA";
-            case "IZQUIERDA" -> "DERECHA";
-            case "DERECHA" -> "IZQUIERDA";
-            default -> dir;
-        };
-    }
+    // El movimiento queda delegado a la estrategia asignada en el constructor.
 }

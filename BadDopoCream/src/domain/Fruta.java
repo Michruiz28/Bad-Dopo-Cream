@@ -38,6 +38,9 @@ public abstract class Fruta extends Elemento {
     }
 
     @Override
+    public boolean esFruta() { return true; }
+
+    @Override
     public int getGanancia() {
         return ganancia;
     }

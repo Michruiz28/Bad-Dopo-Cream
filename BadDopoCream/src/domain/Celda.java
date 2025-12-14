@@ -46,6 +46,9 @@ public class Celda {
     }
 
     public boolean esTransitable(){
-        return elemento.esSolido();
+        if (this.tipo == null) return true;
+        // Marcar hielo y borde como no transitables para alinear con la lógica del grafo
+        if (this.tipo.equals("H") || this.tipo.equals("B")) return false;
+        return !elemento.esSolido();
     }
 }
