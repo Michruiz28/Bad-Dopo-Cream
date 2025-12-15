@@ -54,6 +54,7 @@ public class Celda {
         if (this.tipo == null) return true;
         // Marcar hielo y borde como no transitables para alinear con la lógica del grafo
         if (this.tipo.equals("H") || this.tipo.equals("B")) return false;
+        if (this.elemento == null) return true;
         return !elemento.esSolido();
     }
 }
