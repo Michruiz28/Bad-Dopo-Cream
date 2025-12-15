@@ -22,11 +22,7 @@ public class Celda {
 
     public Elemento getElemento() { return elemento; }
 
-    /**
-     * En tu clase Celda, mejora el método setElemento:
-     */
     public void setElemento(Elemento elemento, CreadorElemento creador) throws BadDopoException {
-        // Evitar dejar elemento en null: si se pasa null, creamos el elemento acorde al tipo
         if (elemento == null) {
             String tipoParaCrear = (this.tipo == null) ? "V" : this.tipo;
             this.elemento = creador.creadorElemento(fila, col, tipoParaCrear);
@@ -53,7 +49,6 @@ public class Celda {
 
     public boolean esTransitable(){
         if (this.tipo == null) return true;
-        // Marcar hielo y borde como no transitables para alinear con la lógica del grafo
         if (this.tipo.equals("H") || this.tipo.equals("B")) return false;
         return !elemento.esSolido();
     }

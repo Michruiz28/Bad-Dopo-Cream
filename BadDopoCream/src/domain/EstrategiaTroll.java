@@ -1,16 +1,23 @@
 package domain;
 
-/**
- * Estrategia para enemigo troll: Sigue patrón de movimiento
- */
+
 public class EstrategiaTroll implements MovimientoEnemigoStrategy {
 
+    /**
+     * Ejecuta un turno para el troll: intenta continuar recto, luego probar
+     * perpendiculares y, finalmente, invertir la dirección si no hay
+     * alternativas.
+     *
+     * @param enemigo enemigo que ejecuta la estrategia
+     * @param vista    no usado por esta estrategia (pero se incluye por la interfaz)
+     * @param jugador  referencia al jugador (no usado directamente)
+     * @param grafo    grafo del tablero para verificar movimientos y solicitar acciones
+     * @throws BadDopoException si ocurre un error al solicitar movimientos
+     */
     @Override
     public void ejecutarTurno(Enemigo enemigo, VistaTablero vista, Helado jugador, GrafoTablero grafo) throws BadDopoException {
         String dir = enemigo.getUltimaDireccion();
         if (dir == null) dir = "ARRIBA";
-
-        // Calcular posición al frente y comprobar si es hielo
         int[] ahead = grafo.calcularNuevaPosicion(enemigo.getFila(), enemigo.getColumna(), dir);
         boolean aheadIsIce = false;
         if (grafo.esPosicionValida(ahead[0], ahead[1])) {
@@ -23,10 +30,7 @@ public class EstrategiaTroll implements MovimientoEnemigoStrategy {
             grafo.solicitarMovimientoHacia(enemigo.getFila(), enemigo.getColumna(), dir);
             return;
         }
-
-        // Si hay hielo al frente (o no se puede avanzar), probar perpendiculares
         if ("ARRIBA".equals(dir) || "ABAJO".equals(dir)) {
-            // estaba yendo vertical -> probar izquierda, luego derecha
             if (grafo.puedeMoverEn(enemigo.getFila(), enemigo.getColumna(), "IZQUIERDA")) {
                 enemigo.setUltimaDireccion("IZQUIERDA");
                 grafo.solicitarMovimientoHacia(enemigo.getFila(), enemigo.getColumna(), "IZQUIERDA");
@@ -38,7 +42,6 @@ public class EstrategiaTroll implements MovimientoEnemigoStrategy {
                 return;
             }
         } else {
-            // estaba yendo horizontal -> probar arriba, luego abajo
             if (grafo.puedeMoverEn(enemigo.getFila(), enemigo.getColumna(), "ARRIBA")) {
                 enemigo.setUltimaDireccion("ARRIBA");
                 grafo.solicitarMovimientoHacia(enemigo.getFila(), enemigo.getColumna(), "ARRIBA");
@@ -50,8 +53,6 @@ public class EstrategiaTroll implements MovimientoEnemigoStrategy {
                 return;
             }
         }
-
-        // Si no hay perpendiculares válidas, intentar invertir la dirección
         String invert = null;
         if ("ARRIBA".equals(dir)) invert = "ABAJO";
         else if ("ABAJO".equals(dir)) invert = "ARRIBA";
@@ -62,7 +63,6 @@ public class EstrategiaTroll implements MovimientoEnemigoStrategy {
             enemigo.setUltimaDireccion(invert);
             grafo.solicitarMovimientoHacia(enemigo.getFila(), enemigo.getColumna(), invert);
         }
-        // Si no puede invertir, queda en su lugar este turno.
     }
 }
 

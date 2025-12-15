@@ -28,12 +28,11 @@ public class Pina extends FrutaEnMovimiento {
 
    @Override
    public void actualizar(long timpoActual) throws BadDopoException {
-      // No necesita actualización por cada frame; teletransporte está gestionado por el Grafo/Tablero
-   }
+      // Pina es estática: no necesita actualizarse cada tick.
+      }
 
-   @Override
+      @Override
    public void aumentarPuntaje(int puntaje) {
-      // No aplica
    }
 
    @Override
@@ -43,22 +42,18 @@ public class Pina extends FrutaEnMovimiento {
 
    @Override
    public void actualizarImagen(String ultimaDireccion) {
-      // No aplica
    }
 
    @Override
    public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
-      // No aplica
    }
 
    @Override
    public void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException {
-      // No aplica
    }
 
    @Override
    public void mover(String direccion) throws BadDopoException {
-      // No aplica para piña (teletransporte en vez de movimiento por dirección)
    }
 
    @Override
@@ -83,5 +78,4 @@ public class Pina extends FrutaEnMovimiento {
       System.out.println("[PINA] Nueva posición calculada: (" + p[0] + "," + p[1] + ")");
       return p;
    }
-
 }

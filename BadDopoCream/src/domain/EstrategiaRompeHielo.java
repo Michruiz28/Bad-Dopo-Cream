@@ -1,9 +1,16 @@
 package domain;
 
-/**
- * Estrategia rompeHielo
- */
+
 public class EstrategiaRompeHielo implements MovimientoEnemigoStrategy {
+    /**
+     * Ejecuta el turno de un enemigo con capacidad de romper hielo.
+     *
+     * @param enemigo enemigo que ejecuta la estrategia
+     * @param vista    interfaz para calcular direcciones hacia el objetivo
+     * @param jugador  referencia al helado jugador
+     * @param grafo    grafo del tablero para calcular posiciones y solicitar acciones
+     * @throws BadDopoException si hay errores al solicitar movimientos o romper hielo
+     */
     @Override
     public void ejecutarTurno(Enemigo enemigo, VistaTablero vista, Helado jugador, GrafoTablero grafo) throws BadDopoException {
         String direccion = vista.calcularDireccionHaciaObjetivo(

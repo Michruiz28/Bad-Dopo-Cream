@@ -2,9 +2,7 @@ package domain;
 
 import java.util.*;
 
-/**
- * Clase grafo tablero que obtiene la lógica de un grafo para la ejecución del juego con nodos y conexiones.
- */
+
 public class GrafoTablero {
     private static final boolean DEBUG = true;
     private Nodo[][] nodos;
@@ -14,7 +12,6 @@ public class GrafoTablero {
     private ArrayList<Fruta> frutasActivas;
     private java.util.Map<String, Elemento> elementosSubyacentes = new java.util.HashMap<>();
     private java.util.Map<String, String> tiposSubyacentes = new java.util.HashMap<>();
-    // Flag para controlar si las piñas deben moverse cuando se mueve un helado
     private boolean moverPinasAlMoverHelado = false;
 
 
@@ -45,6 +42,7 @@ public class GrafoTablero {
         verificarGrafo();
     }
 
+
     public void verificarGrafo() {
         System.out.println("Dimensiones: " + filas + "x" + columnas);
 
@@ -72,6 +70,12 @@ public class GrafoTablero {
         System.out.println("Nodos sin vecinos: " + nodosSinVecinos);
     }
 
+    /**
+     * Imprime información de depuración sobre el grafo (nodos totales,
+     * nodos con/sin vecinos). Método pensado para diagnóstico en tiempo de
+     * desarrollo.
+     */
+
     private void conectarVecinos(int f, int c) {
         int[][] dirs = { {1,0},{-1,0},{0,1},{0,-1} };
         for (int[] d : dirs) {
@@ -89,6 +93,8 @@ public class GrafoTablero {
         return nodos[fila][col];
     }
 
+
+
     public void setNodo(int fila, int col, String tipo) throws BadDopoException {
         Nodo nodo = getNodo(fila, col);
         if (nodo != null) {
@@ -100,6 +106,7 @@ public class GrafoTablero {
             }
         }
     }
+
 
     public boolean solicitarMovimiento(int fila, int col) throws BadDopoException {
         Nodo n = getNodo(fila, col);
@@ -116,10 +123,12 @@ public class GrafoTablero {
         return true;
     }
 
+
     public void ejecutarMovimientoAutonomo(Celda celdaActual, Celda celdaDestino, Elemento elemento) throws BadDopoException {
         celdaActual.setElementoConTipo("N", creador);
         celdaDestino.setElemento(elemento, creador);
     }
+
 
     public boolean solicitarMovimientoHacia(int fila, int columna, String direccion) throws BadDopoException {
         Nodo nodo = getNodo(fila, columna);
@@ -301,6 +310,7 @@ public class GrafoTablero {
         }
     }
 
+
     public void ejecutarAccion(Nodo nodoVecino, String ultimaDireccion, Elemento elementoActual) throws BadDopoException {
         System.out.println("nodoVecino: " + (nodoVecino != null ? "presente" : "null"));
         System.out.println("ultimaDireccion: " + ultimaDireccion);
@@ -371,6 +381,18 @@ public class GrafoTablero {
             celda = siguienteNodo.getCelda();
         }
     }
+    
+    /**
+     * Rompe celdas de hielo a partir de la posición indicada y en la
+     * ultimaDireccion. Si el actor es un enemigo que solo rompe un
+     * bloque por vez, solo romperá la primera celda de hielo.
+     *
+     * @param fila fila inicial del rompimiento
+     * @param columna columna inicial del rompimiento
+     * @param ultimaDireccion dirección del actor
+     * @param elementoActual actor que provoca la ruptura
+     * @throws BadDopoException si ocurre un error al delegar la ruptura
+     */
     public void crearHielo(int fila, int columna, String ultimaDireccion, Elemento elementoActual) throws BadDopoException {
         System.out.println("Iniciando creación de hielo");
         System.out.println("Posición inicial: (" + fila + "," + columna + ")");
@@ -440,6 +462,7 @@ public class GrafoTablero {
     }
 
 
+
     public void actualizarEnemigos(Helado jugador) throws BadDopoException {
         VistaTablero vista = new VistaTableroImpl();
         java.util.Set<Enemigo> procesados = new java.util.HashSet<>();
@@ -460,11 +483,21 @@ public class GrafoTablero {
         }
     }
 
+    /**
+     * Recorre el grafo y ejecuta el comportamiento de todos los enemigos
+     * presentes en el tablero para el turno actual.
+     *
+     * @param jugador referencia al helado jugador (objetivo de los enemigos)
+     * @throws BadDopoException si alguna estrategia lanza una excepción
+     */
+
     /** Setter para activar o desactivar la mecánica: "las piñas se mueven cuando se mueve un helado" */
     public void setMoverPinasAlMoverHelado(boolean activar) {
         this.moverPinasAlMoverHelado = activar;
         if (DEBUG) System.out.println("[GRAFO] moverPinasAlMoverHelado = " + activar);
     }
+
+
 
     public boolean procesarMovimientoHelado(int filaOrigen, int columnaOrigen, String direccion, Helado jugador) throws BadDopoException {
         boolean moved = solicitarMovimientoHacia(filaOrigen, columnaOrigen, direccion);
@@ -511,6 +544,7 @@ public class GrafoTablero {
         }
         return true;
     }
+
 
     public int[] calcularNuevaPosicion(int f, int c, String direccion) throws BadDopoException {
         if (direccion == null) return new int[]{f, c};
@@ -570,6 +604,14 @@ public class GrafoTablero {
         return null;
     }
 
+    /**
+     * Calcula la primera dirección a tomar desde (f0,c0) para acercarse a
+     * (objetivoF,objetivoC) utilizando BFS. Si  permitirHielo es true,
+     * se consideran transitablees las celdas de hielo para fines de búsqueda.
+     *
+     * @return la primera dirección a tomar ("ARRIBA","ABAJO","DERECHA","IZQUIERDA") o {@code null} si no hay camino
+     */
+
     public String obtenerDireccionAleatoria(int f, int c) {
         List<String> posibles = new ArrayList<>();
         String[] dirs = {"ARRIBA", "ABAJO", "DERECHA", "IZQUIERDA"};
@@ -595,6 +637,7 @@ public class GrafoTablero {
             return false;
         }
     }
+
 
 
     public boolean esPosicionValida(int f, int c) {
@@ -698,6 +741,7 @@ public class GrafoTablero {
         return posicionesFrutas;
     }
 
+
     public HashMap<String, Obstaculo> getPosicionesObstaculos(){
         HashMap<String, Obstaculo> posicionesObstaculos = new HashMap<>();
         for(int i = 0; i < nodos.length; i++){
@@ -741,6 +785,10 @@ public class GrafoTablero {
         }
         return posicionesEnemigos;
     }
+
+    /**
+     * Retorna un mapa con los enemigos presentes en el tablero, indexados por clave.
+     */
 
     public ArrayList<Fruta> getFrutas(){
         return new ArrayList<>(frutasActivas);

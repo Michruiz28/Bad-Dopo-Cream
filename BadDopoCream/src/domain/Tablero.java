@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Clase tablero
+ * Fachada de alto nivel sobre el grafo del tablero.
+ *
+ * <p>Administra la representación del nivel, delega la lógica de movimiento y
+ * operaciones sobre celdas a {@link GrafoTablero} y expone métodos útiles para
+ * la capa de presentación y el bucle de juego.</p>
  */
 public class Tablero {
     private String[][] infoNivel;
@@ -29,9 +33,27 @@ public class Tablero {
         this.grafo = new GrafoTablero(filas, columnas, infoNivel, creador);
     }
 
+    /**
+     * Crea un tablero a partir de la representación textual del nivel y un
+     * CreadorElemento para instanciar elementos.
+     *
+     * @param infoNivel matriz de códigos por celda
+     * @param creador factor para crear elementos
+     * @throws BadDopoException si la representación del nivel es inválida
+     */
+
     public void setElementoEnGrafo(int fila, int col, String tipo) throws BadDopoException {
         grafo.setNodo(fila, col, tipo);
     }
+
+    /**
+     * Actualiza el tipo/elemento de una celda del grafo.
+     *
+     * @param fila fila de la celda
+     * @param col  columna de la celda
+     * @param tipo código de tipo a aplicar
+     * @throws BadDopoException si la operación no es válida
+     */
 
     public int getColumnas() {
         return columnas;
@@ -49,10 +71,18 @@ public class Tablero {
         grafo.realizarAccion(fila, columna, ultimaDireccion);
     }
 
-    /** Procesa un movimiento de helado delegando al grafo (mueve helado y, si corresponde, las piñas). */
+
+    /**  
+     * Procesa un movimiento de helado delegando al grafo (mueve helado y, si corresponde, las piñas).
+    */
     public boolean procesarMovimientoHelado(int filaOrigen, int columnaOrigen, String direccion, Helado jugador) throws BadDopoException {
         return grafo.procesarMovimientoHelado(filaOrigen, columnaOrigen, direccion, jugador);
     }
+
+    /**
+     * Procesa el movimiento de un helado en el tablero y aplica lógica
+     * adicional delegada al grafo (p. ej. movimiento de piñas si está activado).
+     */
 
     public ArrayList<Fruta> getListaFrutas() {
         return grafo.getFrutas();
@@ -74,12 +104,15 @@ public class Tablero {
         grafo.agregarHelado(helado);
     }
 
+    
+
     public int[] getPosicionHelado(Helado helado){
         int[] posicionHelado = new int[2];
         posicionHelado[0] = helado.getFila();
         posicionHelado[1] = helado.getColumna();
         return posicionHelado;
     }
+
 
     public int[] getPosicionEnemigo(Enemigo enemigo)  {
         int[] posicionEnemigo = new int[2];
@@ -132,6 +165,7 @@ public class Tablero {
     public void getPosicionesFrutas(){
         this.posicionesFrutas = grafo.getPosicionesFrutas();
     }
+    
     public HashMap<String, Fruta> getListaPosicionesFrutas(){
         return grafo.getPosicionesFrutas();
     }
@@ -144,7 +178,6 @@ public class Tablero {
         grafo.actualizarEnemigos(jugador);
     }
 
-    /** Permite activar/desactivar el movimiento de piñas cuando se mueve un helado. */
     public void setMoverPinasAlMoverHelado(boolean activar) {
         try {
             grafo.setMoverPinasAlMoverHelado(activar);
@@ -165,6 +198,15 @@ public class Tablero {
         frutas.add(fruta);
     }
 
+    /**
+     * Agrega una fruta en la posición indicada y la registra internamente.
+     *
+     * @param fruta instancia de fruta a agregar
+     * @param fila  fila destino
+     * @param col   columna destino
+     * @throws BadDopoException si la posición está fuera de rango o la operación falla
+     */
+
     public void verificarGrafo() {
         grafo.verificarGrafo();
     }
@@ -172,8 +214,6 @@ public class Tablero {
     public void teletransportarCerezas() throws BadDopoException {
         grafo.teletransportarCerezas();
     }
-
-
     public String[][] construirRepresentacionActual(){
         return  grafo.construirRepresentacionActual();
     }
