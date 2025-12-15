@@ -93,11 +93,11 @@ public class MovementController extends KeyAdapter {
 
 
         } catch (BadDopoException ex) {
-            System.err.println("ERROR en movimiento: " + ex.getMessage());
+            System.err.println("Error al realizar movimiento: " + ex.getMessage());
             ex.printStackTrace();
             mostrarError(ex.getMessage());
         } catch (Exception ex) {
-            System.err.println("ERROR inesperado: " + ex.getMessage());
+            System.err.println("Error : " + ex.getMessage());
             ex.printStackTrace();
         }
     }
@@ -122,7 +122,8 @@ public class MovementController extends KeyAdapter {
     private void manejarTeclasJugador1(int keyCode) throws BadDopoException {
         Helado helado1 = juego.getHelado1();
         if (helado1 == null) {
-            System.out.println("ERROR: Helado1 es null");
+            System.out.println("Helado1 es null");
+            
             return;
         }
 
