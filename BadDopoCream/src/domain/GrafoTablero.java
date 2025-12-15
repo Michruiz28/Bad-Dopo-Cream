@@ -787,8 +787,151 @@ public class GrafoTablero {
     }
 
     /**
+<<<<<<< HEAD
      *Remueve el elemento en la posición solo si coincide con la instancia esperada (evita sobrescribir helados).
      *
+=======
+     * Teletransportar cerezas
+     * @param fila
+     * @param col
+     * @return
+     * @throws BadDopoException
+     */
+    public void teletransportarCerezas() throws BadDopoException {
+        ArrayList<int[]> posicionesCerezas = new ArrayList<>();
+        
+        for (int i = 0; i < nodos.length; i++) {
+            for (int j = 0; j < nodos[0].length; j++) {
+                Nodo n = nodos[i][j];
+                Celda c = n.getCelda();
+                
+                // Verificar por tipo de celda
+                if (c.getTipo().equals("CF")) {
+                    posicionesCerezas.add(new int[]{i, j});
+                }
+            }
+        }
+
+        for (int[] pos : posicionesCerezas) {
+            teletransportarCereza(pos[0], pos[1]);
+        }  
+    
+    }
+    
+    public String[][] construirRepresentacionActual(){
+        int filas = nodos.length;
+        int columnas = nodos[0].length;
+
+        String[][] rep = new String[filas][columnas];
+
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                rep[i][j] = nodos[i][j].getCelda().getTipo();
+            }
+        }
+
+        return rep;
+    }
+
+    /**
+     * Teletransporta una cereza a una posición aleatoria válida
+     */
+    public boolean teletransportarCereza(int fila, int col) throws BadDopoException {
+        System.out.println("\n[GRAFO] ========== INICIO TELETRANSPORTE ==========");
+        System.out.println("[GRAFO] Cereza en posición: (" + fila + "," + col + ")");
+        
+        Nodo nodoActual = getNodo(fila, col);
+        Celda celdaActual = nodoActual.getCelda();
+        
+        // Verificar que sea una celda con cereza
+        if (!celdaActual.getTipo().equals("CF")) {
+            System.err.println("[GRAFO] ✗ La celda no contiene una cereza. Tipo: " + celdaActual.getTipo());
+            return false;
+        }
+        
+        Elemento elemento = celdaActual.getElemento();
+        if (elemento == null) {
+            System.err.println("[GRAFO] ✗ No hay elemento en la celda");
+            return false;
+        }
+        
+        // ===== BUSCAR POSICIONES DISPONIBLES =====
+        ArrayList<int[]> posicionesDisponibles = new ArrayList<>();
+        
+        for (int i = 1; i < filas - 1; i++) {
+            for (int j = 1; j < columnas - 1; j++) {
+                Nodo nodo = getNodo(i, j);
+                Celda celda = nodo.getCelda();
+                String tipo = celda.getTipo();
+                
+                // ✅ Criterios basados en TIPO de celda:
+                // Puede ir a celdas vacías (V) o celdas con frutas (F, CF, FP, etc.)
+                // NO puede ir a: Bordes (B), Hielo (H), Enemigos (M, T, C), Helados (VH, CH, F)
+                boolean esDisponible = tipo.equals("V") ||      
+                                    tipo.equals("N");         
+                
+                if (esDisponible) {
+                    posicionesDisponibles.add(new int[]{i, j});
+                }
+            }
+        }
+        
+        System.out.println("[GRAFO] Posiciones disponibles encontradas: " + posicionesDisponibles.size());
+        
+        if (posicionesDisponibles.isEmpty()) {
+            System.err.println("[GRAFO] ✗ NO HAY POSICIONES DISPONIBLES");
+            return false;
+        }
+        
+        // ✅ Remover la posición actual para forzar movimiento
+        final int filaActual = fila;
+        final int colActual = col;
+        posicionesDisponibles.removeIf(pos -> pos[0] == filaActual && pos[1] == colActual);
+        
+        if (posicionesDisponibles.isEmpty()) {
+            System.err.println("[GRAFO] ✗ Solo está disponible la posición actual");
+            return false;
+        }
+        
+        System.out.println("[GRAFO] Posiciones diferentes a la actual: " + posicionesDisponibles.size());
+        
+        Cereza cereza = (Cereza) elemento;
+        // ===== DELEGAR A LA CEREZA LA SELECCIÓN DE POSICIÓN =====
+        int[] nuevaPosicion = cereza.calcularPosicionAleatoria(posicionesDisponibles);
+        
+        if (nuevaPosicion == null) {
+            System.err.println("[GRAFO] ✗ La cereza no pudo calcular una posición válida");
+            return false;
+        }
+
+        cereza.setFila(nuevaPosicion[0]);
+        cereza.setColumna(nuevaPosicion[1]);
+        
+        System.out.println("[GRAFO] Posición elegida por la cereza: (" + nuevaPosicion[0] + "," + nuevaPosicion[1] + ")");
+    
+        // ===== REALIZAR EL MOVIMIENTO =====
+        
+        // 1. Limpiar posición actual
+        Nodo nodoDestino = getNodo(nuevaPosicion[0], nuevaPosicion[1]);
+        Celda celdaDestino = nodoDestino.getCelda();
+    
+        celdaActual.setElemento(null, creador);
+        celdaActual.setTipo("V");  // Restaurar a vacío
+        
+        // 3. Colocar en nueva posición
+        celdaDestino.setElemento(elemento, creador);
+        celdaDestino.setTipo("CF");  // Marcar como celda con cereza
+        
+        System.out.println("[GRAFO] ✓ TELETRANSPORTE EXITOSO: (" + fila + "," + col + 
+                        ") → (" + nuevaPosicion[0] + "," + nuevaPosicion[1] + ")");
+        System.out.println("[GRAFO] ========================================\n");
+        
+        return true;
+    }
+
+    /**
+     * Remueve el elemento en la posición solo si coincide con la instancia esperada (evita sobrescribir helados).
+>>>>>>> ramaKatav3
      */
     public void removeElementoIfMatches(int fila, int col, Elemento esperado){
         Nodo nodo = getNodo(fila, col);

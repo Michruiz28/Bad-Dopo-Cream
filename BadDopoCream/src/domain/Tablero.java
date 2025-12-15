@@ -172,4 +172,18 @@ public class Tablero {
         grafo.verificarGrafo();
     }
 
+    /**
+     * Teletransporta una cereza a una nueva posición aleatoria válida
+     * @param fila Fila actual de la cereza
+     * @param col Columna actual de la cereza
+     * @throws BadDopoException si hay error en el teletransporte
+     */
+    public void teletransportarCerezas() throws BadDopoException {
+        grafo.teletransportarCerezas();
+    }
+
+    public String[][] construirRepresentacionActual(){
+        return  grafo.construirRepresentacionActual();
+    }
+
 }

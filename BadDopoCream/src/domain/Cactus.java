@@ -16,7 +16,7 @@ public class Cactus extends FrutaEstatica {
 
     @Override
     public String getCodigo() {
-        return "";
+        return "CACO";
     }
 
     @Override
