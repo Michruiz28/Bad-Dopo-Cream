@@ -129,49 +129,41 @@ public class ConfigDialog extends JDialog {
             dispose();
         });
 
-        // Layout principal
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 5, 5, 5);
 
-        // Modo
         gbc.gridx = 0; gbc.gridy = 0;
         panel.add(new JLabel("Modo:"), gbc);
         gbc.gridx = 1;
         panel.add(comboModo, gbc);
 
-        // Sabor 1
         gbc.gridx = 0; gbc.gridy = 1;
         panel.add(labelSabor1, gbc);
         gbc.gridx = 1;
         panel.add(comboSabor1, gbc);
 
-        // Sabor 2
         gbc.gridx = 0; gbc.gridy = 2;
         panel.add(labelSabor2, gbc);
         gbc.gridx = 1;
         panel.add(comboSabor2, gbc);
 
-        // Perfil Máquina 1
         gbc.gridx = 0; gbc.gridy = 3;
         panel.add(labelModoMaquina1, gbc);
         gbc.gridx = 1;
         panel.add(perfilMaquina1, gbc);
 
-        // Perfil Máquina 2
         gbc.gridx = 0; gbc.gridy = 4;
         panel.add(labelModoMaquina2, gbc);
         gbc.gridx = 1;
         panel.add(perfilMaquina2, gbc);
 
-        // Nivel
         gbc.gridx = 0; gbc.gridy = 5;
         panel.add(new JLabel("Nivel:"), gbc);
         gbc.gridx = 1;
         panel.add(comboNivel, gbc);
 
-        // Panel de botones
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         panelBotones.add(aceptar);
         panelBotones.add(cancelar);
@@ -186,13 +178,9 @@ public class ConfigDialog extends JDialog {
         setLocationRelativeTo(parent);
     }
 
-    /**
-     * Actualiza dinámicamente la interfaz según el modo seleccionado
-     */
     private void actualizarInterfazSegunModo() {
         String modoSeleccionado = (String) comboModo.getSelectedItem();
 
-        // Primero ocultar todo
         comboSabor1.setVisible(false);
         labelSabor1.setVisible(false);
         comboSabor2.setVisible(false);
@@ -202,7 +190,6 @@ public class ConfigDialog extends JDialog {
         perfilMaquina2.setVisible(false);
         labelModoMaquina2.setVisible(false);
 
-        // Mostrar según el modo
         switch (modoSeleccionado) {
             case "Un solo jugador":
                 comboSabor1.setVisible(true);
@@ -237,14 +224,10 @@ public class ConfigDialog extends JDialog {
                 break;
         }
 
-        // Reajustar el tamaño del diálogo
         pack();
         setLocationRelativeTo(getParent());
     }
 
-    /**
-     * Actualiza los niveles disponibles según el progreso del jugador
-     */
     private void actualizarNivelesDisponibles() {
         comboNivel.removeAllItems();
 
@@ -253,9 +236,6 @@ public class ConfigDialog extends JDialog {
         }
     }
 
-    /**
-     * Método para actualizar el nivel máximo alcanzado
-     */
     public void setNivelMaximoAlcanzado(int nivel) {
         if (nivel >= 1 && nivel <= 3) {
             this.nivelMaximoAlcanzado = nivel;
@@ -271,7 +251,6 @@ public class ConfigDialog extends JDialog {
         return configuracionAceptada;
     }
 
-    // Getters
     public String getModo() { return modo; }
     public String getSabor1() { return sabor1; }
     public String getSabor2() { return sabor2; }

@@ -10,10 +10,6 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
-/**
- * Panel central que renderiza el tablero del juego Bad DOPO Cream
- * Ahora con soporte para múltiples fases por nivel
- */
 public class BoardPanel extends JPanel {
 
     private BadDopoCream juego;
@@ -25,11 +21,11 @@ public class BoardPanel extends JPanel {
     private int filas;
     private int columnas;
 
-    // ===== NUEVO: Control de fases =====
+    // Control de fases
     private int ultimaFaseRenderizada = -1;
     private String mensajeFaseCambiada = null;
     private long tiempoMensajeFase = 0;
-    private static final long DURACION_MENSAJE_FASE = 3000; // 3 segundos
+    private static final long DURACION_MENSAJE_FASE = 3000;
 
     private MovementController movementController;
     private boolean cambiandoNivel = false; 
@@ -53,12 +49,9 @@ public class BoardPanel extends JPanel {
         this.movementController = controller;
         this.addKeyListener(controller);
         this.setFocusable(true);
-        System.out.println("[BOARD] MovementController configurado");
+        System.out.println("MovementController configurado");
     }
 
-    /**
-     * Inicializa el juego con la configuración dada
-     */
     public void inicializarJuego(int nivel, String modo, String sabor1, String sabor2,
                                  String nombre1, String nombre2, String perfil1, String perfil2) {
         try {
@@ -70,7 +63,6 @@ public class BoardPanel extends JPanel {
             this.filas = dimensiones[0];
             this.columnas = dimensiones[1];
 
-            // Resetear control de fases
             this.ultimaFaseRenderizada = juego.getFaseActual();
             this.mensajeFaseCambiada = null;
 
@@ -78,7 +70,7 @@ public class BoardPanel extends JPanel {
             revalidate();
             repaint();
 
-            System.out.println("[BOARD] Juego inicializado - Fase: " + juego.getFaseActual());
+            System.out.println("Juego inicializado - Fase: " + juego.getFaseActual());
 
         } catch (BadDopoException e) {
             JOptionPane.showMessageDialog(this,
@@ -88,9 +80,6 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    /**
-     * Sobrecarga del método para compatibilidad
-     */
     public void inicializarJuego(int nivel, String modo, String sabor1, String sabor2) {
         inicializarJuego(nivel, modo, sabor1, sabor2, "Jugador 1", "Jugador 2", null, null);
     }
@@ -101,12 +90,8 @@ public class BoardPanel extends JPanel {
         repaint();
     }
 
-    /**
-     * Carga todas las imágenes necesarias en caché
-     */
     private void cargarImagenes() {
         try {
-            // Cargar imágenes de helados
             cargarImagenSiExiste("VH_ABAJO", "src/presentation/images/VainillaAbajo.png");
             cargarImagenSiExiste("VH_ARRIBA", "src/presentation/images/VainillaDetras.png");
             cargarImagenSiExiste("VH_IZQUIERDA", "src/presentation/images/VainillaIzquierda.png");
@@ -122,7 +107,6 @@ public class BoardPanel extends JPanel {
             cargarImagenSiExiste("F_IZQUIERDA", "src/presentation/images/FresaIzquierda.png");
             cargarImagenSiExiste("F_DERECHA", "src/presentation/images/FresaDerecha.png");
 
-            // Cargar imágenes de frutas
             cargarImagenSiExiste("UVA", "src/presentation/images/Uva.png");
             cargarImagenSiExiste("BANANO", "src/presentation/images/platano.png");
             cargarImagenSiExiste("BANANA", "src/presentation/images/platano.png");
@@ -130,7 +114,6 @@ public class BoardPanel extends JPanel {
             cargarImagenSiExiste("CEREZA", "src/presentation/images/Cereza.png");
             cargarImagenSiExiste("PINA", "src/presentation/images/Piña.png");
 
-            // Cargar imágenes de enemigos
             cargarImagenSiExiste("TROLL_ABAJO", "src/presentation/images/TrollAbajo.png");
             cargarImagenSiExiste("TROLL_ARRIBA", "src/presentation/images/TrollDetras.png");
             cargarImagenSiExiste("TROLL_IZQUIERDA", "src/presentation/images/TrolIzquierda.png");
@@ -146,7 +129,6 @@ public class BoardPanel extends JPanel {
             cargarImagenSiExiste("CALAMAR_IZQUIERDA", "src/presentation/images/CalamarIzquierda.png");
             cargarImagenSiExiste("CALAMAR_DERECHA", "src/presentation/images/CalamarDerecha.png");
 
-            // Cargar imágenes de obstáculos
             cargarImagenSiExiste("HIELO", "src/presentation/images/BloqueDeHielo.png");
             cargarImagenSiExiste("BORDE", "src/presentation/images/Borde.png");
 
@@ -220,7 +202,6 @@ public class BoardPanel extends JPanel {
             return;
         }
 
-        // ===== NUEVO: Detectar cambio de fase =====
         verificarCambioDeFase();
 
         Graphics2D g2d = (Graphics2D) g;
@@ -239,42 +220,33 @@ public class BoardPanel extends JPanel {
 
         dibujarHUD(g2d);
 
-        // ===== NUEVO: Mostrar mensaje de cambio de fase =====
         dibujarMensajeFase(g2d);
     }
 
-    /**
-     * NUEVO: Detecta si cambió la fase y muestra mensaje
-     */
     private void verificarCambioDeFase() {
         if (juego == null) return;
 
         int faseActual = juego.getFaseActual();
 
         if (faseActual != ultimaFaseRenderizada) {
-            System.out.println("[BOARD] ¡Cambio de fase detectado! " + ultimaFaseRenderizada + " -> " + faseActual);
+            System.out.println("Cambio de fase detectado " + ultimaFaseRenderizada + " -> " + faseActual);
 
                 SwingUtilities.invokeLater(() -> {
                     repaint();
                });
 
-            // Configurar mensaje
-            if (faseActual > 0) { // No mostrar mensaje en la fase inicial
+            if (faseActual > 0) {
                 mensajeFaseCambiada = "¡NUEVA FASE! (" + (faseActual + 1) + "/" + juego.getTotalFases() + ")";
                 tiempoMensajeFase = System.currentTimeMillis();
             }
 
             ultimaFaseRenderizada = faseActual;
 
-            // Forzar actualización visual
             revalidate();
             repaint();
         }
     }
 
-    /**
-     * NUEVO: Dibuja mensaje de cambio de fase (temporal)
-     */
     private void dibujarMensajeFase(Graphics2D g2d) {
         if (mensajeFaseCambiada == null) return;
 
@@ -284,18 +256,14 @@ public class BoardPanel extends JPanel {
             mensajeFaseCambiada = null;
             return;
         }
-
-        // Calcular opacidad (fade out)
         float opacidad = 1.0f;
         if (tiempoTranscurrido > DURACION_MENSAJE_FASE - 1000) {
             opacidad = (DURACION_MENSAJE_FASE - tiempoTranscurrido) / 1000.0f;
         }
 
-        // Configurar composite para transparencia
         Composite originalComposite = g2d.getComposite();
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacidad));
 
-        // Dibujar fondo del mensaje
         int mensajeWidth = 300;
         int mensajeHeight = 60;
         int mensajeX = (columnas * CELL_SIZE - mensajeWidth) / 2;
@@ -308,7 +276,6 @@ public class BoardPanel extends JPanel {
         g2d.setStroke(new BasicStroke(3));
         g2d.drawRoundRect(mensajeX, mensajeY, mensajeWidth, mensajeHeight, 20, 20);
 
-        // Dibujar texto
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Arial", Font.BOLD, 20));
         FontMetrics fm = g2d.getFontMetrics();
@@ -316,7 +283,6 @@ public class BoardPanel extends JPanel {
         int textY = mensajeY + (mensajeHeight + fm.getAscent()) / 2;
         g2d.drawString(mensajeFaseCambiada, textX, textY);
 
-        // Restaurar composite original
         g2d.setComposite(originalComposite);
     }
 
@@ -330,14 +296,10 @@ public class BoardPanel extends JPanel {
         g.drawString(mensaje, x, y);
     }
 
-    /**
-     * NUEVO: Dibuja la pantalla de victoria con imagen o mensaje
-     */
     private void dibujarPantallaVictoria(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // ===== FONDO AZUL DEGRADADO =====
         GradientPaint gradient = new GradientPaint(
                 0, 0, new Color(30, 60, 150),
                 0, getHeight(), new Color(100, 160, 255)
@@ -348,7 +310,6 @@ public class BoardPanel extends JPanel {
         int centerX = getWidth() / 2;
         int y = 80;
 
-        // ===== TEXTO SUPERIOR =====
         g2d.setFont(new Font("Arial", Font.BOLD, 56));
         g2d.setColor(new Color(255, 215, 0)); // dorado
         String titulo = "¡FELICIDADES!";
@@ -357,14 +318,12 @@ public class BoardPanel extends JPanel {
 
         y += 40;
 
-        // ===== SUBTÍTULO =====
         g2d.setFont(new Font("Arial", Font.BOLD, 26));
         g2d.setColor(Color.WHITE);
         String subtitulo = "Completaste el juego";
         fm = g2d.getFontMetrics();
         g2d.drawString(subtitulo, centerX - fm.stringWidth(subtitulo) / 2, y);
 
-        // ===== IMAGEN DE VICTORIA =====
         Image img = cargarImagenVictoria();
         if (img != null) {
             int imgX = centerX - img.getWidth(this) / 2;
@@ -375,20 +334,14 @@ public class BoardPanel extends JPanel {
             y += 80;
         }
 
-        // ===== PUNTAJES =====
         dibujarInformacionFinal(g2d, y);
     }
 
-    
-    /**
-     * Intenta cargar la imagen de victoria
-     */
     private Image cargarImagenVictoria() {
         try {
             File file = new File("src/presentation/images/FinJuego.png");
             if (file.exists()) {
                 BufferedImage img = ImageIO.read(file);
-                // Escalar si es necesario
                 int maxWidth = getWidth() - 100;
                 int maxHeight = getHeight() - 200;
                 
@@ -410,42 +363,31 @@ public class BoardPanel extends JPanel {
         }
         return null;
     }
-    
-    /**
-     * Dibuja mensaje de victoria en texto si no hay imagen
-     */
+
     private void dibujarMensajeVictoriaTexto(Graphics2D g2d) {
-        // Título principal
         g2d.setColor(new Color(255, 215, 0)); // Dorado
         g2d.setFont(new Font("Arial", Font.BOLD, 60));
         String titulo = "¡VICTORIA!";
         FontMetrics fm = g2d.getFontMetrics();
         int x = (getWidth() - fm.stringWidth(titulo)) / 2;
         int y = getHeight() / 2 - 100;
-        
-        // Sombra del texto
+
         g2d.setColor(new Color(0, 0, 0, 100));
         g2d.drawString(titulo, x + 3, y + 3);
-        
-        // Texto principal
+
         g2d.setColor(new Color(255, 215, 0));
         g2d.drawString(titulo, x, y);
-        
-        // Subtítulo
+
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Arial", Font.BOLD, 24));
         String subtitulo = "¡Has completado todos los niveles!";
         fm = g2d.getFontMetrics();
         x = (getWidth() - fm.stringWidth(subtitulo)) / 2;
         g2d.drawString(subtitulo, x, y + 60);
-        
-        // Estrellas decorativas
+
         dibujarEstrellas(g2d);
     }
-    
-    /**
-     * Dibuja estrellas decorativas alrededor del mensaje
-     */
+
     private void dibujarEstrellas(Graphics2D g2d) {
         g2d.setColor(new Color(255, 215, 0));
         int[][] posiciones = {
@@ -458,10 +400,7 @@ public class BoardPanel extends JPanel {
             dibujarEstrella(g2d, pos[0], pos[1], 20);
         }
     }
-    
-    /**
-     * Dibuja una estrella de 5 puntas
-     */
+
     private void dibujarEstrella(Graphics2D g2d, int x, int y, int radio) {
         int[] xPoints = new int[10];
         int[] yPoints = new int[10];
@@ -498,7 +437,6 @@ public class BoardPanel extends JPanel {
             g2d.drawString(ganador, x, y);
         }
 
-        // ===== MENSAJE DE SALIDA =====
         y += 50;
         g2d.setFont(new Font("Arial", Font.ITALIC, 14));
         g2d.setColor(new Color(230, 230, 230));
@@ -506,7 +444,6 @@ public class BoardPanel extends JPanel {
         x = (getWidth() - g2d.getFontMetrics().stringWidth(salir)) / 2;
         g2d.drawString(salir, x, y);
     }
-
 
     private void dibujarTablero(Graphics2D g2d) {
         String[][] representacion = juego.getRepresentacionTablero();
@@ -558,9 +495,6 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    /**
-     * Dibuja las frutas usando las claves precargadas en imageCache
-     */
     private void dibujarFrutas(Graphics2D g2d) {
         ArrayList<Fruta> frutas = juego.getFrutasEnJuego();
         
@@ -575,15 +509,13 @@ public class BoardPanel extends JPanel {
             int x = col * CELL_SIZE;
             int y = fila * CELL_SIZE;
 
-            // Obtener el nombre de la clase y convertir a mayúsculas para buscar en imageCache
             String nombreClase = fruta.getClass().getSimpleName();
-            String clave = nombreClase.toUpperCase(); // "UVA", "BANANO", "CEREZA", "PINA"
+            String clave = nombreClase.toUpperCase();
             Image img = imageCache.get(clave);
 
             if (img != null) {
                 g2d.drawImage(img, x, y, this);
             } else {
-                // Placeholder si no se encuentra imagen
                 Color colorFruta = Color.GREEN;
                 String inicial = nombreClase.substring(0, 1);
 
@@ -600,7 +532,6 @@ public class BoardPanel extends JPanel {
                 g2d.setColor(colorFruta);
                 g2d.fillOval(x + 8, y + 8, CELL_SIZE - 16, CELL_SIZE - 16);
 
-                // Dibujar inicial de la fruta
                 g2d.setColor(Color.WHITE);
                 g2d.setFont(new Font("Arial", Font.BOLD, 12));
                 FontMetrics fm = g2d.getFontMetrics();
@@ -629,7 +560,6 @@ public class BoardPanel extends JPanel {
             String key = tipo.toUpperCase() + "_" + direccion;
             img = imageCache.get(key);
             if (img == null) {
-                // Fallback a la imagen genérica por tipo
                 img = imageCache.get(tipo.toUpperCase());
             }
 
@@ -682,16 +612,12 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    /**
-     * Dibuja el HUD - MEJORADO con información de fase
-     */
     private void dibujarHUD(Graphics2D g2d) {
         int hudY = filas * CELL_SIZE + 15;
 
         g2d.setColor(Color.BLACK);
         g2d.setFont(new Font("Arial", Font.BOLD, 14));
 
-        // Línea 1: Tiempo y Puntajes
         String tiempo = "Tiempo: " + juego.getTiempoRestanteFormato();
         g2d.drawString(tiempo, 10, hudY);
 
@@ -703,12 +629,10 @@ public class BoardPanel extends JPanel {
             g2d.drawString(puntaje2, 250, hudY);
         }
 
-        // ===== NUEVO: Información de fase =====
         String infoFase = "Fase: " + (juego.getFaseActual() + 1) + "/" + juego.getTotalFases();
         g2d.setColor(new Color(0, 100, 200));
         g2d.drawString(infoFase, 350, hudY);
 
-        // Línea 2: Mensaje de estado y progreso de frutas
         hudY += 20;
         g2d.setColor(Color.BLACK);
         g2d.setFont(new Font("Arial", Font.ITALIC, 12));
@@ -717,7 +641,6 @@ public class BoardPanel extends JPanel {
             g2d.drawString(juego.getMensajeEstado(), 10, hudY);
         }
 
-        // Mostrar progreso de frutas de la fase actual
         HashMap<String, Integer> frutasRequeridas = juego.getFrutasRequeridas();
         HashMap<String, Integer> frutasRecolectadas = juego.getFrutasRecolectadas();
 
@@ -735,10 +658,6 @@ public class BoardPanel extends JPanel {
     public BadDopoCream getJuego() {
         return juego;
     }
-
-    /**
-     * Actualiza el panel - llamado desde GameLoop
-     */
 
     public void actualizar() {
         if (juego == null) return;

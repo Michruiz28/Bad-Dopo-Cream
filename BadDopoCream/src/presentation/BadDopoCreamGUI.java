@@ -52,7 +52,6 @@ public class BadDopoCreamGUI extends JFrame {
             }
         });
 
-        // Imagen de portada
         try {
             ImageIcon icon = new ImageIcon("src/presentation/images/portada.png");
             JLabel lblImagen = new JLabel(icon, JLabel.CENTER);
@@ -63,14 +62,12 @@ public class BadDopoCreamGUI extends JFrame {
             add(lblTitulo, BorderLayout.CENTER);
         }
 
-        // Botón empezar
         JButton btnEmpezar = new JButton("Empezar Juego");
         btnEmpezar.setFont(new Font("Arial", Font.BOLD, 18));
         JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panelBoton.add(btnEmpezar);
         add(panelBoton, BorderLayout.SOUTH);
 
-        // Acción del botón
         btnEmpezar.addActionListener(e -> {
             getContentPane().removeAll();
 
@@ -99,16 +96,13 @@ public class BadDopoCreamGUI extends JFrame {
         this.nombre1 = "Jugador 1";
         this.nombre2 = "Jugador 2";
 
-        System.out.println("[GUI] Configuración inicial:");
+        System.out.println("Configuración inicial:");
         System.out.println("  Modo: " + modo);
         System.out.println("  Sabor1: " + sabor1);
         System.out.println("  Sabor2: " + sabor2);
         System.out.println("  Nivel: " + nivel);
     }
 
-    /**
-     * Convierte el nombre del sabor de la GUI al código del dominio
-     */
     private String convertirSabor(String saborGUI) {
         if (saborGUI == null) return null;
         switch (saborGUI) {
@@ -120,41 +114,32 @@ public class BadDopoCreamGUI extends JFrame {
     }
 
     private void iniciarJuego() {
-        System.out.println("[GUI] Iniciando juego...");
+        System.out.println("Iniciando juego...");
         prepareElements();
         prepareActions();
 
-        // Inicializar el juego en el BoardPanel
         boardPanel.inicializarJuego(nivel, modo, sabor1, sabor2,
                 nombre1, nombre2, perfilMaq1, perfilMaq2);
 
         movementController = new MovementController(boardPanel, modo);
         gameLoop = new GameLoop(boardPanel, this);
 
-        // CONFIGURACIÓN MEJORADA DE LISTENERS Y FOCO
         configurarListeners();
-
-        // Iniciar el game loop
         gameLoop.start();
 
         add(panel);
         revalidate();
         repaint();
 
-        System.out.println("[GUI] Juego iniciado correctamente");
+        System.out.println("Juego iniciado correctamente");
 
         testTeclado();
     }
 
     private void testTeclado() {
-        System.out.println("\n=== TEST DE CONFIGURACIÓN TECLADO ===");
-        System.out.println("1. BoardPanel focusable: " + boardPanel.isFocusable());
-        System.out.println("2. BoardPanel tiene foco: " + boardPanel.hasFocus());
-        System.out.println("3. Frame focusable: " + this.isFocusable());
 
-        // Simular tecla W después de 2 segundos
         Timer timer = new Timer(2000, e -> {
-            System.out.println("\n[TEST] Simulando tecla W...");
+            System.out.println("\nSimulando tecla W...");
             KeyEvent testEvent = new KeyEvent(
                     boardPanel,
                     KeyEvent.KEY_PRESSED,
@@ -164,7 +149,6 @@ public class BadDopoCreamGUI extends JFrame {
                     'W'
             );
 
-            // Despachar evento a todos los listeners del boardPanel
             for (KeyListener listener : boardPanel.getKeyListeners()) {
                 System.out.println("[TEST] Enviando a: " + listener.getClass().getName());
                 listener.keyPressed(testEvent);
@@ -178,22 +162,19 @@ public class BadDopoCreamGUI extends JFrame {
         addKeyListener(movementController);
         boardPanel.addKeyListener(movementController);
 
-        System.out.println("[GUI] MovementController creado para modo: " + modo);
+        System.out.println("MovementController creado para modo: " + modo);
 
-        // Hacer focusable solo el boardPanel
         boardPanel.setFocusable(true);
 
 
-        // Agregar MouseListener para recuperar el foco al hacer clic
         boardPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 boardPanel.requestFocusInWindow();
-                System.out.println("[GUI] Foco devuelto al boardPanel por clic");
+                System.out.println("Foco devuelto al boardPanel por clic");
             }
         });
 
-        // También agregar mouse listener al panel principal
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -201,11 +182,10 @@ public class BadDopoCreamGUI extends JFrame {
             }
         });
 
-        // Solicitar foco inicial
         SwingUtilities.invokeLater(() -> {
             boardPanel.requestFocusInWindow();
-            System.out.println("[GUI] Foco inicial solicitado");
-            System.out.println("[GUI] ¿BoardPanel tiene foco? " + boardPanel.hasFocus());
+            System.out.println("Foco inicial solicitado");
+            System.out.println(" ¿BoardPanel tiene foco? " + boardPanel.hasFocus());
         });
     }
 
@@ -240,7 +220,6 @@ public class BadDopoCreamGUI extends JFrame {
     }
 
     private void prepareElementsBoard() {
-        // Panel del Oeste
         oeste = new JPanel(new GridLayout(3, 1, 5, 5));
         oeste.setPreferredSize(new Dimension(160, 0));
 
@@ -252,11 +231,9 @@ public class BadDopoCreamGUI extends JFrame {
         oeste.add(cambiarSabor);
         oeste.add(cambiarNivel);
 
-        // Panel del Este (vacío por ahora)
         este = new JPanel();
         este.setPreferredSize(new Dimension(160, 0));
 
-        // Panel Sur con botones
         sur = new JPanel(new BorderLayout());
         JPanel buttonPanel = new JPanel();
 
@@ -272,7 +249,6 @@ public class BadDopoCreamGUI extends JFrame {
 
         sur.add(buttonPanel, BorderLayout.CENTER);
 
-        // Panel Central - Tablero del juego
         boardPanel = new BoardPanel();
         boardPanel.setBorder(BorderFactory.createTitledBorder("Nivel " + nivel));
 
@@ -520,7 +496,6 @@ public class BadDopoCreamGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        // Configurar look and feel del sistema
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {

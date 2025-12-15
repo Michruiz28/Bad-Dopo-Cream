@@ -6,10 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
-/**
- * Hilo que maneja el loop principal del juego
- * Actualiza el estado del juego y refresca la visualización
- */
+
 public class GameLoop extends Thread {
     private static final Logger LOGGER = Logger.getLogger(GameLoop.class.getName());
 
@@ -36,17 +33,13 @@ public class GameLoop extends Thread {
             long startTime = System.currentTimeMillis();
             if (!pausado && !juego.isJuegoTerminado()) {
                 try {
-                    // Actualizar lógica del juego
                     juego.actualizar();
-                    // Verificar condiciones de victoria/derrota
                     verificarEstadoJuego();
                 } catch (BadDopoException e) {
                     LOGGER.log(Level.SEVERE, "Error en el game loop: " + e.getMessage(), e);
                 }
             }
-            // Refrescar visualización
             boardPanel.actualizar();
-            // Controlar FPS
             long elapsedTime = System.currentTimeMillis() - startTime;
             long sleepTime = FRAME_TIME - elapsedTime;
             if (sleepTime > 0) {
@@ -60,9 +53,6 @@ public class GameLoop extends Thread {
         }
     }
 
-    /**
-     * Verifica si el nivel fue completado o si se perdió
-     */
     private void verificarEstadoJuego() {
 
         if (mostrandoDialogoFinNivel) return;
@@ -83,10 +73,6 @@ public class GameLoop extends Thread {
         }
     }
 
-
-    /**
-     * Muestra mensaje de nivel completado
-     */
     private void mostrarNivelCompletado() {
         int nivelActual = juego.getNivelActual();
         int puntaje1 = juego.getPuntajeJugador1();
@@ -114,7 +100,6 @@ public class GameLoop extends Thread {
         if (opcion == JOptionPane.YES_OPTION) {
             try {
                 juego.avanzarNivel();
-                //gui.nivelCompletado(nivelActual);
                 juego.setNivelCompletado(false);
                 reanudar();
             } catch (BadDopoException e) {
@@ -134,17 +119,14 @@ public class GameLoop extends Thread {
     }
 
 
-    /**
-     * Muestra mensaje de victoria final
-     */
     private void mostrarVictoriaFinal() {
 
-        detener(); // detener el loop definitivamente
+        detener();
 
         javax.swing.SwingUtilities.invokeLater(() -> {
             int opcion = JOptionPane.showOptionDialog(
                     boardPanel,
-                    "¡FELICIDADES!\n\nHas completado todos los niveles de Bad DOPO Cream 🎉\n\n¿Qué deseas hacer?",
+                    "¡FELICIDADES!\n\nHas completado todos los niveles de Bad DOPO Cream \n\n¿Qué deseas hacer?",
                     "¡Victoria Total!",
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.INFORMATION_MESSAGE,
@@ -163,46 +145,33 @@ public class GameLoop extends Thread {
         mostrandoDialogoFinNivel = false;
     }
 
-    /**
-     * Pausa el game loop
-     */
     public void pausar() {
         pausado = true;
         if (juego != null) {
             juego.pausar();
         }
     }
-    /**
-     * Reanuda el game loop
-     */
+
     public void reanudar() {
         pausado = false;
         if (juego != null) {
             juego.reanudar();
         }
     }
-    /**
-     * Detiene el game loop completamente
-     */
+
     public void detener() {
         ejecutando = false;
         pausado = true;
     }
-    /**
-     * Verifica si el juego está pausado
-     */
+
     public boolean isPausado() {
         return pausado;
     }
-    /**
-     * Verifica si el game loop está ejecutándose
-     */
+
     public boolean isEjecutando() {
         return ejecutando;
     }
-    /**
-     * Actualiza la referencia al juego (útil cuando se carga una partida)
-     */
+
     public void setJuego(BadDopoCream juego) {
         this.juego = juego;
     }
