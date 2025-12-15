@@ -42,6 +42,6 @@ public class Nieve extends Elemento {
 
     @Override
     public boolean esTransitable() {
-        return false;
+        return true;
     }
 }

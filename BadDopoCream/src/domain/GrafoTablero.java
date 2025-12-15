@@ -322,55 +322,115 @@ public class GrafoTablero {
     }
 
     public void ejecutarAccion(Nodo nodoVecino, String ultimaDireccion, Elemento elementoActual) throws BadDopoException {
-        if (nodoVecino == null) return;
+        System.out.println("[GRAFO] === ejecutarAccion llamado ===");
+        System.out.println("[GRAFO] nodoVecino: " + (nodoVecino != null ? "presente" : "null"));
+        System.out.println("[GRAFO] ultimaDireccion: " + ultimaDireccion);
+        System.out.println("[GRAFO] elementoActual: " + elementoActual);
+        
+        if (nodoVecino == null) {
+            System.out.println("[GRAFO] nodoVecino es null - retornando");
+            return;
+        }
 
         Celda celda = nodoVecino.getCelda();
         int fila = celda.getFila();
         int columna = celda.getCol();
         Elemento elemento = celda.getElemento();
+        String tipo = celda.getTipo();
+        
+        System.out.println("[GRAFO] Celda analizada: (" + fila + "," + columna + ")");
+        System.out.println("[GRAFO] Tipo de celda: " + tipo);
+        System.out.println("[GRAFO] Elemento en celda: " + (elemento != null ? elemento.getClass().getSimpleName() : "null"));
 
-        if (!(elemento.esTransitable()) && celda.getTipo().equals("H")) {
+        // Si es hielo, romper
+        if (tipo.equals("H")) {
+            System.out.println("[GRAFO] Ejecutando: romperHielo");
             romperHielo(fila, columna, ultimaDireccion, elementoActual);
-        } else if (elemento.esTransitable()) {
+        } 
+        // Si está vacío, crear hielo
+        else if (tipo.equals("V") || tipo.equals("N")) {
+            System.out.println("[GRAFO] Ejecutando: crearHielo");
             crearHielo(fila, columna, ultimaDireccion, elementoActual);
+        } 
+        else {
+            System.out.println("[GRAFO] Celda no vacía y no es hielo (" + tipo + ") - no se hace nada");
         }
     }
 
-    public void romperHielo(int fila, int columna, String ultimaDireccion, Elemento elementoActual) throws BadDopoException {
-        Nodo nodo = getNodo(fila, columna);
-        if (nodo == null) return;
-
-        Celda celda = nodo.getCelda();
-
-        while (celda.getTipo().equals("H")) {
-            Celda celdaARomper = celda;
-            elementoActual.romperHielo(celdaARomper, creador);
-
-            if (ultimaDireccion.equals("DERECHA")) {
-                columna++;
-            } else if (ultimaDireccion.equals("ARRIBA")) {
-                fila--;
-            } else if (ultimaDireccion.equals("ABAJO")) {
-                fila++;
-            } else if (ultimaDireccion.equals("IZQUIERDA")) {
-                columna--;
-            }
-
-            Nodo siguienteNodo = getNodo(fila, columna);
-            if (siguienteNodo == null) break;
-            celda = siguienteNodo.getCelda();
-        }
+    public void romperHielo(int fila, int columna, String ultimaDireccion, Elemento elementoActual) throws BadDopoException { 
+        Nodo nodo = getNodo(fila, columna); if (nodo == null) return; 
+        Celda celda = nodo.getCelda(); 
+        while (celda.getTipo().equals("H")) { 
+            Celda celdaARomper = celda; 
+            elementoActual.romperHielo(celdaARomper, creador); 
+            if (ultimaDireccion.equals("DERECHA")) { 
+                columna++; 
+            } else if (ultimaDireccion.equals("ARRIBA")) { 
+                fila--; 
+            } else if (ultimaDireccion.equals("ABAJO")) { 
+                fila++; 
+            } else if (ultimaDireccion.equals("IZQUIERDA")) { 
+                columna--; 
+            } 
+            Nodo siguienteNodo = getNodo(fila, columna); 
+            if (siguienteNodo == null) break; 
+            celda = siguienteNodo.getCelda(); 
+        } 
     }
 
     public void crearHielo(int fila, int columna, String ultimaDireccion, Elemento elementoActual) throws BadDopoException {
-        Nodo nodo = getNodo(fila, columna);
-        if (nodo == null) return;
-
-        Celda celda = nodo.getCelda();
-
-        if (celda.getTipo().equals("V")) {
-            celda.setElementoConTipo("H", creador);
+        System.out.println("[GRAFO] === Iniciando creación de hielo ===");
+        System.out.println("[GRAFO] Posición inicial: (" + fila + "," + columna + ")");
+        System.out.println("[GRAFO] Dirección: " + ultimaDireccion);
+        
+        int celdasCreadas = 0;
+        
+        while (true) {
+            Nodo nodo = getNodo(fila, columna);
+            
+            // Verificar límites del tablero
+            if (nodo == null) {
+                System.out.println("[GRAFO] Límite del tablero alcanzado");
+                break;
+            }
+            
+            Celda celda = nodo.getCelda();
+            String tipo = celda.getTipo();
+            Elemento elemento = celda.getElemento();
+            
+            System.out.println("[GRAFO] Analizando celda (" + fila + "," + columna + ") - Tipo: " + tipo);
+            
+            // Solo crear hielo en celdas vacías y transitables
+            if (!tipo.equals("V")) {
+                System.out.println("[GRAFO] Celda no está vacía (tipo: " + tipo + ") - deteniendo");
+                break;
+            }
+            
+            if (elemento != null && !elemento.esTransitable()) {
+                System.out.println("[GRAFO] Celda no es transitable - deteniendo");
+                break;
+            }
+            
+            // Crear hielo en esta celda
+            System.out.println("[GRAFO] Creando hielo en (" + fila + "," + columna + ")");
             elementoActual.crearHielo(celda, creador);
+            celdasCreadas++;
+            
+            // Avanzar a la siguiente posición en la dirección
+            switch (ultimaDireccion) {
+                case "DERECHA":
+                    columna++;
+                    break;
+                case "IZQUIERDA":
+                    columna--;
+                    break;
+                case "ARRIBA":
+                    fila--;
+                    break;
+                case "ABAJO":
+                    fila++;
+                    break;
+            }
         }
     }
 
@@ -831,6 +891,10 @@ public class GrafoTablero {
         }
 
         return rep;
+    }
+
+    public void actualizarRepresentacion(int fila, int columna, String tipo) throws BadDopoException {
+       nodos[fila][columna] = new Nodo(fila, columna, tipo, creador);
     }
 
     /**
