@@ -38,7 +38,6 @@ public class BoardPanel extends JPanel {
     private static final Color COLOR_BORDE = new Color(100, 149, 237);
 
     
-    private boolean mostrarPantallaFinal = false;
 
     public BoardPanel() {
         this.imageCache = new HashMap<>();
