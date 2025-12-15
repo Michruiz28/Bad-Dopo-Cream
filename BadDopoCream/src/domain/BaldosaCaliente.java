@@ -5,7 +5,7 @@ public class BaldosaCaliente extends Obstaculo {
     }
     @Override
     public boolean esSolido() {
-        return false; // se puede caminar encima
+        return false;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class BaldosaCaliente extends Obstaculo {
 
     @Override
     public boolean esPeligroso() {
-        return true; // daña al helado
+        return true;
     }
 
     @Override

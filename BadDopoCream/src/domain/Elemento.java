@@ -1,5 +1,8 @@
 package domain;
 
+/**
+ * Clase abstracta Elemento
+ */
 public abstract class Elemento implements Mover, RompeHielo {
     private int fila;
     private int columna;
@@ -21,12 +24,6 @@ public abstract class Elemento implements Mover, RompeHielo {
     public void setCelda(Celda celda) {this.celda = celda;}
 
 
-    /**
-     * Indica si el elemento es solido
-     * si es asi bloquea el paso
-     * Este metodo lo sobreescriben las clases de los elementos segun la logica
-     * @return
-     */
     public boolean esSolido() {
         return false;
     }
@@ -34,9 +31,6 @@ public abstract class Elemento implements Mover, RompeHielo {
     public boolean esFruta() { return false; }
     public boolean esHelado() { return false; }
 
-    /** Código de tipo para marcar la celda cuando este elemento ocupa una celda
-     *  Por defecto 'V' de vacio 
-     */
     public String codigoTipo() { return "V"; }
 
     public abstract void mover(String direccion) throws BadDopoException;

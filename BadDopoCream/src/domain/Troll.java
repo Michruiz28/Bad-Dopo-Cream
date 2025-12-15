@@ -1,5 +1,8 @@
 package domain;
 
+/**
+ * Clase troll
+ */
 public class Troll extends Enemigo  {
     private String imagenAbajo;
     private String imagenDerecha;
@@ -9,7 +12,6 @@ public class Troll extends Enemigo  {
 
     public Troll(int fila, int col) {
         super(fila, col, 1);
-        // Dirección inicial aleatoria entre ARRIBA/ABAJO/DERECHA/IZQUIERDA
         String[] dirs = new String[]{"ARRIBA", "ABAJO", "DERECHA", "IZQUIERDA"};
         this.ultimaDireccion = dirs[new java.util.Random().nextInt(dirs.length)];
         this.persigueJugador = false;
@@ -23,31 +25,23 @@ public class Troll extends Enemigo  {
         setMovimientoStrategy(new EstrategiaTroll());
     }
 
-    // Contador para ralentizar movimiento (ejecuta movimiento cada N ticks)
     private int contadorTicks = 0;
-    // Ajusta este valor para controlar la velocidad del Troll (mayor = más lento)
-    private int intervaloMovimiento = 12; // valor inicial más lento
+    private int intervaloMovimiento = 12;
 
     @Override
     public void ejecutarComportamiento(GrafoTablero grafo, VistaTablero vista, Helado jugador) throws BadDopoException {
-        // Ajustar la velocidad del Troll en función del último movimiento del helado
         if (jugador != null) {
             long last = jugador.getUltimoMovimientoTime();
             long now = System.currentTimeMillis();
-            long delta = now - last; // ms desde último movimiento del helado
-            // Calcular intervalo en ticks: cuanto más reciente movió el helado, más rápido el troll
-            // Base 12 ticks, y escala con el tiempo desde el último movimiento del helado
+            long delta = now - last;
             int computed = (int) Math.max(6, Math.min(80, 12 + (delta / 200)));
             this.intervaloMovimiento = computed;
         }
 
-        // Solo ejecutar la estrategia cuando el cooldown se cumpla
         contadorTicks++;
         if (contadorTicks < intervaloMovimiento) return;
         contadorTicks = 0;
 
-        // Delegar a la estrategia (movimiento en línea recta). La estrategia
-        // ya implementa invertir la dirección cuando encuentra un obstáculo.
         if (estrategiaMovimiento != null) {
             estrategiaMovimiento.ejecutarTurno(this, vista, jugador, grafo);
         }
@@ -98,9 +92,4 @@ public class Troll extends Enemigo  {
         return false;
     }
 
-    /**
-     * El Troll se mueve en línea recta.
-     * Si encuentra obstáculo, invierte la dirección.
-     */
-    // El movimiento queda delegado a la estrategia asignada en el constructor.
 }

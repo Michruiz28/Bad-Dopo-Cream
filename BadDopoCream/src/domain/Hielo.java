@@ -1,12 +1,22 @@
 package domain;
 
 /**
- * Hielo: puede ser roto por ciertos enemigos
+ * Clase hielo
  */
 public class Hielo extends Obstaculo {
 
     public Hielo(int fila, int col) throws BadDopoException {
         super(fila, col);
+    }
+
+    @Override
+    public int getFila(){
+        return super.getFila();
+    }
+
+    @Override
+    public int getColumna(){
+        return super.getColumna();
     }
 
     @Override

@@ -1,5 +1,8 @@
 package domain;
 
+/**
+ * Patrón de diseño de comportamiento para EstrategiaMovimiento
+ */
 public interface EstrategiaMovimiento {
     /**
      * Calcula la próxima dirección que debe tomar el helado.

@@ -28,6 +28,10 @@ public class BadDopoException extends Exception {
     public static final String INFONIVEL_VACIO = "No se encontró información del nivel";
     public static final String JUEGO_NO_INICIADO = "Juego no iniciado";
     public static final String FRUTA_NO_REMOVIDA = "Error al remover fruta";
+    public static final String ERROR_INICIO_JUEGO = "Error al iniciar el juego";
+    public static final String FASES_NO_ENCONTRADAS = "Fases del nivel no encontradas";
+    public static final String ERROR_CREAR_FRUTA = "No se pudo crear fruta";
+    public static final String NODO_NO_EXISTE = "No se encontró el nodo dado";
     public BadDopoException(String message) {
         super(message);
     }

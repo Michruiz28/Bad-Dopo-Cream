@@ -1,5 +1,9 @@
 package domain;
 
+/**
+ * Clase donde se definen jugadores para modo jugador vs máquina
+ */
+
 public class JugadorVsMaquina extends CreadorElemento {
     private String perfil;
 

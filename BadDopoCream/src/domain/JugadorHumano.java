@@ -1,5 +1,9 @@
  
 package domain;
+
+/**
+ * Clase para jugador humano
+ */
 public class JugadorHumano extends Helado {
 
     private Direccion ultimaDireccion;

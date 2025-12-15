@@ -1,5 +1,8 @@
 package domain;
 
+/**
+ * Clase ExpertIA para futuros modos de juego estrategia de movimiento
+ */
 public class ExpertIA implements EstrategiaMovimiento {
 
 

@@ -3,7 +3,9 @@ package domain;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-// Tablero.java
+/**
+ * Clase tablero
+ */
 public class Tablero {
     private String[][] infoNivel;
     private static int filas;
@@ -13,9 +15,6 @@ public class Tablero {
     private ArrayList<Fruta> frutas;
     private HashMap<String, Fruta> posicionesFrutas;
 
-    /**
-     * Constructor
-     */
     public Tablero(String[][] infoNivel, CreadorElemento creador) throws BadDopoException {
         if (infoNivel == null || infoNivel.length == 0 || infoNivel[0].length == 0) {
             throw new BadDopoException(BadDopoException.INFONIVEL_VACIO);
@@ -27,8 +26,6 @@ public class Tablero {
         this.frutas = new ArrayList<>();
         this.posicionesFrutas = new HashMap<>();
 
-        // El Tablero pasa toda la información necesaria al Grafo para que este lo construya
-        // El Grafo se encarga de crear Nodos, que crean Celdas, que crean Elementos.
         this.grafo = new GrafoTablero(filas, columnas, infoNivel, creador);
     }
 
@@ -103,7 +100,6 @@ public class Tablero {
     public void removerFruta(Fruta fruta){
         int fila =  fruta.getFila();
         int columna = fruta.getColumna();
-        // Remover la fruta solo si la celda aún contiene esa instancia (evita sobrescribir un helado que ya se movió allí)
         grafo.removeElementoIfMatches(fila, columna, fruta);
     }
 
@@ -116,7 +112,6 @@ public class Tablero {
 
 
     public void limpiarFrutas() {
-        // Hacer copia para evitar ConcurrentModificationException
         ArrayList<Fruta> copiaFrutas = new ArrayList<>(frutas);
 
         for (Fruta f : copiaFrutas) {
@@ -140,9 +135,6 @@ public class Tablero {
         return grafo.getPosicionesEnemigos();
     }
 
-    /**
-     * Ejecuta la actualización/autómata de los enemigos delegando al grafo.
-     */
     public void actualizarEnemigos(Helado jugador) throws BadDopoException {
         grafo.actualizarEnemigos(jugador);
     }
@@ -151,15 +143,6 @@ public class Tablero {
         return grafo.getPosicionesObstaculos();
     }
 
-    // Agregar este método a tu clase Tablero.java
-
-    /**
-     * Agrega una fruta en una posición específica del tablero
-     * @param fruta La fruta a agregar
-     * @param fila Fila donde colocar la fruta
-     * @param col Columna donde colocar la fruta
-     * @throws BadDopoException si la posición es inválida
-     */
     public void agregarFrutaEnPosicion(Fruta fruta, int fila, int col) throws BadDopoException {
         if (fila < 0 || fila >= filas || col < 0 || col >= columnas) {
             throw new BadDopoException(BadDopoException.POSICION_FUERA_DE_RANGO);
@@ -172,12 +155,6 @@ public class Tablero {
         grafo.verificarGrafo();
     }
 
-    /**
-     * Teletransporta una cereza a una nueva posición aleatoria válida
-     * @param fila Fila actual de la cereza
-     * @param col Columna actual de la cereza
-     * @throws BadDopoException si hay error en el teletransporte
-     */
     public void teletransportarCerezas() throws BadDopoException {
         grafo.teletransportarCerezas();
     }

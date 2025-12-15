@@ -4,14 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Clase que almacena la información estática de cada nivel.
- * Cada nivel puede tener múltiples fases (olas de frutas).
+ * Clase que almacena la información de cada nivel.
  */
 public class InfoNivel {
 
-    /**
-     * Clase interna para representar una fase del nivel
-     */
     public static class FaseNivel {
         private HashMap<String, Integer> frutasRequeridas;
         private ArrayList<PosicionFruta> posicionesFrutas;
@@ -35,9 +31,6 @@ public class InfoNivel {
         }
     }
 
-    /**
-     * Clase para almacenar posición y tipo de fruta
-     */
     public static class PosicionFruta {
         public String tipo;
         public int fila;
@@ -50,9 +43,6 @@ public class InfoNivel {
         }
     }
 
-    /**
-     * Retorna el mapa BASE del nivel (sin frutas, solo estructura)
-     */
     public static String[][] getNivelBase(int numeroNivel) {
         if (numeroNivel == 0) {
             return getNivel0Base();
@@ -62,9 +52,6 @@ public class InfoNivel {
         return null;
     }
 
-    /**
-     * Retorna todas las fases de un nivel
-     */
     public static ArrayList<FaseNivel> getFasesNivel(int numeroNivel) {
         if (numeroNivel == 0) {
             return getFasesNivel0();
@@ -74,9 +61,6 @@ public class InfoNivel {
         return null;
     }
 
-    /**
-     * Nivel 1 - Mapa base (sin frutas)
-     */
     private static String[][] getNivel0Base() {
         String[][] nivel0 = {
                 {"B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B"},
@@ -100,15 +84,10 @@ public class InfoNivel {
         return nivel0;
     }
 
-    /**
-     * Nivel 1 - Fases con posiciones exactas de frutas
-     */
     private static ArrayList<FaseNivel> getFasesNivel0() {
         ArrayList<FaseNivel> fases = new ArrayList<>();
 
-        // FASE 1: BANANOS (BF)
         FaseNivel fase1 = new FaseNivel();
-        // Posiciones según tu documento
         fase1.agregarFruta("BF", 3, 3);
         fase1.agregarFruta("BF", 3, 4);
         fase1.agregarFruta("BF", 3, 13);
@@ -131,7 +110,6 @@ public class InfoNivel {
         fase1.agregarFruta("BF", 12, 14);
         fases.add(fase1);
 
-        // FASE 2: UVAS (U)
         FaseNivel fase2 = new FaseNivel();
         fase2.agregarFruta("U", 2, 2);
         fase2.agregarFruta("U", 2, 3);
@@ -154,9 +132,6 @@ public class InfoNivel {
         return fases;
     }
 
-    /**
-     * Nivel 2 - Mapa base
-     */
     private static String[][] getNivel1Base() {
         String[][] nivel1 = {
                 {"B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B"},
@@ -178,13 +153,9 @@ public class InfoNivel {
         return nivel1;
     }
 
-    /**
-     * Nivel 2 - Fases
-     */
     private static ArrayList<FaseNivel> getFasesNivel1() {
         ArrayList<FaseNivel> fases = new ArrayList<>();
 
-        // FASE 1: CEREZAS
         FaseNivel fase1 = new FaseNivel();
         fase1.agregarFruta("CF", 2, 10);
         fase1.agregarFruta("CF", 2, 12);
@@ -200,7 +171,6 @@ public class InfoNivel {
         fase1.agregarFruta("CF", 12, 4);
         fases.add(fase1);
 
-        // FASE 2: PIÑAS
         FaseNivel fase2 = new FaseNivel();
         fase2.agregarFruta("P", 2, 2);
         fase2.agregarFruta("P", 2, 4);
@@ -219,9 +189,6 @@ public class InfoNivel {
         return fases;
     }
 
-    /**
-     * Posiciones iniciales de los helados
-     */
     public static int[][] getPosicionesHelados(int nivel) {
         if (nivel == 0) {
             return new int[][] {
@@ -237,19 +204,11 @@ public class InfoNivel {
         return null;
     }
 
-    // ===== MÉTODOS DE COMPATIBILIDAD (deprecated) =====
-
-    /**
-     * @deprecated Usar getNivelBase() y getFasesNivel()
-     */
     @Deprecated
     public static String[][] getNivel(int numeroNivel) {
         return getNivelBase(numeroNivel);
     }
 
-    /**
-     * @deprecated Usar getFasesNivel()
-     */
     @Deprecated
     public static HashMap<String, Integer> getFrutasNivel(int nivel) {
         ArrayList<FaseNivel> fases = getFasesNivel(nivel);

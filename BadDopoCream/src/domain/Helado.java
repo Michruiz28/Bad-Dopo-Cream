@@ -1,5 +1,8 @@
 package domain;
 
+/**
+ * Clase helado
+ */
 public class Helado extends Elemento implements Poder {
     private String sabor;
     private int puntaje;
@@ -7,7 +10,7 @@ public class Helado extends Elemento implements Poder {
     private int columnaInicial;
     private String imagenActual;
     private String ultimaDireccion;
-    private long ultimoMovimientoTime = 0; // timestamp ms del último movimiento
+    private long ultimoMovimientoTime = 0;
     private static String imagenAbajo;
     private static String imagenDerecha;
     private static String imagenIzquierda;

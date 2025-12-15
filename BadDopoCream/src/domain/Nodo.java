@@ -1,4 +1,7 @@
 package domain;
+/**
+ * Clase nodo
+ */
 
 import java.util.ArrayList;
 import java.util.List;

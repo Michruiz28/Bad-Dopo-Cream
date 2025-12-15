@@ -1,5 +1,8 @@
 package domain;
 
+/**
+ * Clase Fogata
+ */
 public class Fogata extends Obstaculo {
     private boolean encendida;
     public Fogata(int fila, int col) throws BadDopoException {
@@ -17,7 +20,7 @@ public class Fogata extends Obstaculo {
     public boolean estaEncendida() { return encendida; }
     @Override
     public boolean esSolido() {
-        return false; // se puede caminar encima
+        return false;
     }
 
     @Override

@@ -1,5 +1,8 @@
 package domain;
 
+/**
+ * Clase enemigo
+ */
 public abstract class Enemigo extends Elemento {
 
     protected int velocidad;

@@ -1,11 +1,7 @@
 package domain;
 
 /**
- * Estrategia simple para el Troll:
- * - Se mueve en línea recta según `ultimaDireccion`.
- * - Si al frente hay hielo, cambia a una dirección perpendicular disponible
- *   (vertical -> izquierda/derecha; horizontal -> arriba/abajo).
- * - Si no hay perpendiculares válidas, intenta invertir la dirección.
+ * Estrategia para enemigo troll: Sigue patrón de movimiento
  */
 public class EstrategiaTroll implements MovimientoEnemigoStrategy {
 

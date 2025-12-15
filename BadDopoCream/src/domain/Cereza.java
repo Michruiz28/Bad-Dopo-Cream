@@ -24,12 +24,10 @@ public class Cereza extends FrutaEnMovimiento {
 
     @Override
     public void actualizar(long timpoActual) throws BadDopoException {
-        //
     }
 
     @Override
     public void aumentarPuntaje(int puntaje) {
-        //
     }
 
     @Override
@@ -39,17 +37,14 @@ public class Cereza extends FrutaEnMovimiento {
 
     @Override
     public void actualizarImagen(String ultimaDireccion) {
-        //
     }
 
     @Override
     public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
-        //
     }
 
     @Override
     public void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException {
-        //
     }
 
     public int[] calcularPosicionesMovimieto(int limiteInferior, int limiteSuperiorFilas, int limiteSuperiorColumnas) {
@@ -73,19 +68,17 @@ public class Cereza extends FrutaEnMovimiento {
         Random random = new Random();
         int indiceAleatorio = random.nextInt(posicionesDisponibles.size());
         int[] posicionElegida = posicionesDisponibles.get(indiceAleatorio);
-        
-        // Actualizar coordenadas
+
         this.fila = posicionElegida[0];
         this.columna = posicionElegida[1];
         
-        System.out.println("[CEREZA] Nueva posición calculada: (" + fila + "," + columna + ")");
+        System.out.println("Nueva posición calculada: (" + fila + "," + columna + ")");
         
         return posicionElegida;
     }
 
     @Override
     public void mover(String direccion) throws BadDopoException {
-        //
     }
 
     @Override

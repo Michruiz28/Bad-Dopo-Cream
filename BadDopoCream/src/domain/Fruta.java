@@ -1,8 +1,7 @@
 package domain;
 
 /**
- * Clase que representa una fruta en el juego Bad Dopo Cream
- * Las frutas deben ser recolectadas por el helado para ganar puntos
+ * Clase abstracta fruta
  */
 public abstract class Fruta extends Elemento {
 

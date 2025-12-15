@@ -1,5 +1,8 @@
 package domain;
 
+/**
+ * Calse calamar
+ */
 public class Calamar extends Enemigo {
     private String imagenAbajo;
     private String imagenDerecha;
@@ -21,12 +24,9 @@ public class Calamar extends Enemigo {
         setMovimientoStrategy(new EstrategiaRompeHielo());
     }
 
-    // Control de velocidad por ticks
     private int contadorTicks = 0;
-    // Mayor = más lento (movimiento normal)
     private int intervaloMovimiento = 20;
     private int contadorRuptura = 0;
-    // Menor = rompe más rápido un bloque
     private int intervaloRuptura = 20;
 
     @Override
@@ -46,12 +46,10 @@ public class Calamar extends Enemigo {
         }
 
         if (frenteEsHielo) {
-            // Usar contador de ruptura (más rápido)
             contadorRuptura++;
             if (contadorRuptura < intervaloRuptura) return;
             contadorRuptura = 0;
         } else {
-            // Movimiento normal, más lento
             contadorTicks++;
             if (contadorTicks < intervaloMovimiento) return;
             contadorTicks = 0;
@@ -91,7 +89,6 @@ public class Calamar extends Enemigo {
     public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
         if (celdaARomper == null) return;
         celdaARomper.setElementoConTipo("V", creador);
-        // Marcar la celda para que no pueda reconstruirse el hielo
         try {
             celdaARomper.setPermiteReconstruccion(false);
         } catch (Exception e) {

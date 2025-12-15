@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Clase principal con soporte para múltiples fases por nivel
+ * Clase principal BadDopoCream
  */
 public class BadDopoCream implements Serializable {
 
@@ -16,10 +16,10 @@ public class BadDopoCream implements Serializable {
     private ArrayList<Integer> nivelesCompletados;
 
     // Control de fases
-    private int faseActual; // Índice de la fase actual (0, 1, 2...)
-    private ArrayList<InfoNivel.FaseNivel> fasesDelNivel; // Todas las fases del nivel
-    private boolean faseCompletada; // Flag para detectar cuando se completó una fase
-    
+    private int faseActual;
+    private ArrayList<InfoNivel.FaseNivel> fasesDelNivel;
+    private boolean faseCompletada;
+
     // Jugadores
     private Helado helado1;
     private Helado helado2;
@@ -37,7 +37,7 @@ public class BadDopoCream implements Serializable {
     private ArrayList<Obstaculo> obstaculosEnJuego;
 
     // Configuración del nivel
-    private String[][] mapaBase; 
+    private String[][] mapaBase;
     private HashMap<String, Integer> frutasRequeridas;
     private HashMap<String, Integer> frutasRecolectadas;
 
@@ -77,6 +77,14 @@ public class BadDopoCream implements Serializable {
 
     /**
      * Constructor
+     * @param nivel que se jugará
+     * @param modo Modo de juego
+     * @param sabor1 Sabor del primer jugador
+     * @param sabor2 Sabor del segundo jugador
+     * @param nombre1 nombre del primer jugador
+     * @param nombre2 nombre del segundo jugador
+     * @param perfil1 perfil del jugador 1 si está en modo máquina
+     * @param perfil2 perfil del juagdor 2 si está en modo máquina
      */
     public BadDopoCream(int nivel, String modo, String sabor1, String sabor2,
                         String nombre1, String nombre2, String perfil1, String perfil2)
@@ -103,7 +111,6 @@ public class BadDopoCream implements Serializable {
         this.frutasRequeridas = new HashMap<>();
         this.frutasRecolectadas = new HashMap<>();
 
-        // Inicializar control de fases
         this.faseActual = 0;
         this.faseCompletada = false;
 
@@ -121,6 +128,13 @@ public class BadDopoCream implements Serializable {
         this.creador = this.modoJuego;
     }
 
+    /**
+     * Creador elemento que crea los elementossegún configuración previa del juego.
+     * @param modo
+     * @param perfil1
+     * @param perfil2
+     * @return
+     */
     private CreadorElemento crearFactory(String modo, String perfil1, String perfil2) {
         switch (modo) {
             case "Un jugador":
@@ -137,20 +151,15 @@ public class BadDopoCream implements Serializable {
         }
     }
 
-//    public void iniciarJuego() throws BadDopoException {
-//        cargarNivel(nivelActual);
-//        inicializarHelados();
-//        juegoIniciado = true;
-//        tiempoInicioNivel = System.currentTimeMillis();
-//        tiempoTotalPausado = 0;
-//        mensajeEstado = "¡Juego iniciado! Recolecta todas las frutas.";
-//    }
-
-        public void iniciarJuego() throws BadDopoException {
-        System.out.println("[BADDOPO] ========== INICIANDO JUEGO ==========");
+    /**
+     * inciar juego permite iniciar el nivel del juego y el tiempo para su conteo.
+     * @throws BadDopoException
+     */
+    public void iniciarJuego() throws BadDopoException {
+        System.out.println("[BADDOPO] INICIANDO JUEGO");
         System.out.println("[BADDOPO] Nivel: " + nivelActual);
         System.out.println("[BADDOPO] Modo: " + modo);
-        
+
         try {
             cargarNivel(nivelActual);
             inicializarHelados();
@@ -158,29 +167,31 @@ public class BadDopoCream implements Serializable {
             tiempoInicioNivel = System.currentTimeMillis();
             tiempoTotalPausado = 0;
             mensajeEstado = "¡Juego iniciado! Recolecta todas las frutas.";
-            System.out.println("[BADDOPO] ✓ Juego iniciado correctamente");
+            System.out.println("[BADDOPO] Juego iniciado correctamente");
         } catch (Exception e) {
-            System.err.println("[BADDOPO] ✗ ERROR al iniciar juego: " + e.getMessage());
+            System.err.println("[BADDOPO] ERROR al iniciar juego: " + e.getMessage());
             e.printStackTrace();
-            throw new BadDopoException("Error al iniciar juego: " + e.getMessage());
+            throw new BadDopoException(BadDopoException.ERROR_INICIO_JUEGO);
         }
     }
 
+    /**
+     * Método para cargar nivel que se jugara con sus respectivas fases.
+     * @param nivel que se jugará
+     * @throws BadDopoException NIVEL_INVALIDO, FASES_NO_ENCONTRADAS
+     */
     private void cargarNivel(int nivel) throws BadDopoException {
-        // Cargar mapa base (sin frutas)
         this.mapaBase = InfoNivel.getNivelBase(nivel);
-        
+
         if (mapaBase == null) {
             throw new BadDopoException(BadDopoException.NIVEL_INVALIDO);
         }
 
-        // Cargar todas las fases del nivel
         this.fasesDelNivel = InfoNivel.getFasesNivel(nivel);
         if (fasesDelNivel == null || fasesDelNivel.isEmpty()) {
-            throw new BadDopoException("Nivel sin fases configuradas");
+            throw new BadDopoException(BadDopoException.FASES_NO_ENCONTRADAS);
         }
 
-        // Iniciar en la fase 0
         this.faseActual = 0;
         this.faseCompletada = false;
 
@@ -198,7 +209,6 @@ public class BadDopoCream implements Serializable {
 
         sincronizarElementosDesdeTablero();
 
-        // Cargar primera fase
         cargarFase(faseActual);
 
         ultimoMovimientoPina = System.currentTimeMillis();
@@ -206,88 +216,104 @@ public class BadDopoCream implements Serializable {
 
         nivelCompletado = false;
     }
+
+    /**
+     * Marcarnivel como completado
+     * @param nivelCompletado
+     */
     public void setNivelCompletado(boolean nivelCompletado) {
         this.nivelCompletado = nivelCompletado;
     }
 
     /**
-     * Carga una fase específica: agrega las frutas en sus posiciones
-     * SIN importar el estado actual del tablero
+     * Carga una fase específica donde agrega las frutas en sus posiciones sin importar el estado actual del tablero
+     * @param indiceFase Fase que se actualizará
+     * @param BadDopoException
      */
     private void cargarFase(int indiceFase) throws BadDopoException {
-        System.out.println("\n[BADDOPO] ========== CARGANDO FASE " + indiceFase + " ==========");
-        
+        System.out.println("\nCARGANDO FASE");
+
         if (indiceFase >= fasesDelNivel.size()) {
             throw new BadDopoException("Fase inválida");
         }
 
         InfoNivel.FaseNivel fase = fasesDelNivel.get(indiceFase);
-        
-        // IMPORTANTE: Limpiar frutas de la fase anterior
+
         tablero.limpiarFrutas();
         frutasEnJuego.clear();
-        
-        // Configurar frutas requeridas para esta fase
+
         frutasRequeridas.clear();
         frutasRecolectadas.clear();
         frutasRequeridas.putAll(fase.getFrutasRequeridas());
-        
+
         for (String tipo : frutasRequeridas.keySet()) {
             frutasRecolectadas.put(tipo, 0);
         }
-        
-        System.out.println("[BADDOPO] Frutas requeridas en esta fase:");
+
+        System.out.println("Frutas requeridas en esta fase:");
         for (Map.Entry<String, Integer> entry : frutasRequeridas.entrySet()) {
             System.out.println("  - " + entry.getKey() + ": " + entry.getValue());
         }
 
-        // Agregar frutas en las posiciones especificadas
         int frutasCreadas = 0;
         for (InfoNivel.PosicionFruta pf : fase.getPosicionesFrutas()) {
             try {
                 Fruta fruta = creador.crearFruta(pf.fila, pf.columna, pf.tipo);
-                
+
                 if (fruta != null) {
                     tablero.agregarFrutaEnPosicion(fruta, pf.fila, pf.columna);
                     frutasEnJuego.add(fruta);
                     frutasCreadas++;
                 } else {
-                    System.err.println("[BADDOPO] FALLO al crear fruta: " + pf.tipo);
+                    System.err.println("FALLO al crear fruta: " + pf.tipo);
                 }
             } catch (BadDopoException e) {
-                System.err.println("[BADDOPO] Error creando fruta: " + e.getMessage());
+                System.err.println("Error creando fruta: " + e.getMessage());
             }
         }
-        
-        System.out.println("[BADDOPO] Total frutas creadas: " + frutasCreadas);
-        System.out.println("[BADDOPO] Total frutas en juego: " + frutasEnJuego.size());
-        System.out.println("[BADDOPO] ===========================================\n");
+
+        System.out.println("frutas creadas: " + frutasCreadas);
+        System.out.println("frutas en juego: " + frutasEnJuego.size());
 
         mensajeEstado = "Fase " + (indiceFase + 1) + " de " + fasesDelNivel.size();
     }
 
+    /**
+     * Verificar si el segundo nivel ya está desbloqueado
+     * @return si el segundo nivel ya está desbloqueado
+     */
     public boolean isNivel2Desbloqueado() {
         return nivel2Desbloqueado;
     }
 
+    /**
+     * Asignar nivel 2 como desbloqueado
+     */
     public void desbloquearNivel2() {
         nivel2Desbloqueado = true;
     }
 
     /**
-     * Agrega una fruta en una posición específica del tablero
+     * Agregar fruta con tipo en posición dada
+     * @param tipo de la fruta
+     * @param fila donde se ubicará
+     * @param col donde se ubicará
+     * @throws BadDopoException
      */
     private void agregarFrutaEnPosicion(String tipo, int fila, int col) throws BadDopoException {
         Fruta fruta = creador.crearFruta(fila, col, tipo);
-        
+
         if (fruta != null) {
             tablero.agregarFrutaEnPosicion(fruta, fila, col);
             frutasEnJuego.add(fruta);
         } else {
-            System.err.println("[BADDOPO] No se pudo crear fruta tipo: " + tipo);
+            throw new BadDopoException(BadDopoException.ERROR_CREAR_FRUTA);
         }
     }
 
+    /**
+     * sincronizar elementos desde tablero a través de la lista de las frutas, enemigos y obstaculos.
+     */
     private void sincronizarElementosDesdeTablero() {
         elementos.clear();
         frutasEnJuego.clear();
@@ -298,18 +324,23 @@ public class BadDopoCream implements Serializable {
         if (frutas != null) {
             frutasEnJuego.addAll(frutas);
         }
-        
+
         ArrayList<Enemigo> enemigos = tablero.getEnemigos();
         if (enemigos != null) {
             enemigosEnJuego.addAll(enemigos);
         }
-        
+
         ArrayList<Obstaculo> obstaculos = tablero.getObstaculos();
         if (obstaculos != null) {
             obstaculosEnJuego.addAll(obstaculos);
         }
     }
 
+    /**
+     * Genera y retorna un diccionario con la lista de los helados y sus respectivas posiciones
+     * @return diccionario de helados y sus posiciones
+     * @throws BadDopoException
+     */
     public HashMap<String, int[]> getPosicionesHelados() throws BadDopoException {
         HashMap<String, int[]> posicionesHelados = new HashMap<>();
         if (helado1 != null) {
@@ -323,6 +354,10 @@ public class BadDopoCream implements Serializable {
         return posicionesHelados;
     }
 
+    /**
+     * Método para verificar si se puede pasar a la siguiente fase o no
+     * @throws BadDopoException
+     */
     private void verificarFinDeFase() throws BadDopoException {
         if (faseActual >= fasesDelNivel.size() - 1) {
             nivelCompletado = true;
@@ -332,17 +367,24 @@ public class BadDopoCream implements Serializable {
         }
     }
 
+    /**
+     * Revisar si existe el nivel
+     * @param nivelIndex
+     * @return si existe o no
+     */
     public static boolean existeNivel(int nivelIndex) {
         try {
             return nivelIndex >= 0 && nivelIndex < MAX_NIVELES;
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return false;
     }
 
-
+    /**
+     * Inicializar helados con sus respectivas posiciones y sabores
+     * @throws BadDopoException
+     */
     private void inicializarHelados() throws BadDopoException {
         int[][] pos = InfoNivel.getPosicionesHelados(nivelActual);
 
@@ -363,11 +405,17 @@ public class BadDopoCream implements Serializable {
         }
     }
 
+    /**
+     * moverHelado revisa el helado que se desea mover y la dirección en la que se quiere mover realizando las respectivas verificaciones para realizar el movimiento
+     * @param helado a mover
+     * @param direccion en la que se desea mover el helado
+     * @throws BadDopoException JUEGO_NO_INICIADO
+     */
     public void moverHelado(Helado helado, String direccion) throws BadDopoException {
-        System.out.println("\n[BADDOPO] INICIO MOVIMIENTO");
-        
+        System.out.println("\nINICIO MOVIMIENTO");
+
         if (!juegoIniciado || pausado || juegoTerminado) {
-            System.out.println("[BADDOPO] ERROR: No se puede mover");
+            System.out.println("ERROR: No se puede mover");
             throw new BadDopoException(BadDopoException.JUEGO_NO_INICIADO);
         }
 
@@ -382,22 +430,43 @@ public class BadDopoCream implements Serializable {
         }
     }
 
+    /**
+     * Mover helado 1 (jugador 1) en dirección deseada
+     * @param direccion a la que se desea mover
+     * @throws BadDopoException
+     */
     public void moverHelado1(String direccion) throws BadDopoException {
         if (helado1 != null) {
             moverHelado(helado1, direccion);
         }
     }
 
+    /**
+     * Mover helado 2 (jugador 2) en dirección deseada
+     * @param direccion a la que se desea mover
+     * @throws BadDopoException
+     */
     public void moverHelado2(String direccion) throws BadDopoException {
         if (helado2 != null) {
             moverHelado(helado2, direccion);
         }
     }
 
+    /**
+     * Se solicita al tablero realizar dirección
+     * @param fila de donde se quiere realizar el movimiento
+     * @param columna de donde se quiere realizar el movimiento
+     * @param ultimaDireccion última dirección hacia donde se dirigía el elemento
+     * @throws BadDopoException
+     */
     public void realizarAccion(int fila, int columna, String ultimaDireccion) throws BadDopoException {
         tablero.realizarAccion(fila, columna, ultimaDireccion);
     }
 
+    /**
+     * Mover piñas método que se implementa para movimiento continuo de la fruta
+     * @throws BadDopoException
+     */
     private void moverPinas() throws BadDopoException {
         long tiempoActual = System.currentTimeMillis();
         if (tiempoActual - ultimoMovimientoPina < INTERVALO_PINA) {
@@ -412,6 +481,10 @@ public class BadDopoCream implements Serializable {
         ultimoMovimientoPina = tiempoActual;
     }
 
+    /**
+     * Verificar colisiones para saber si el helado se elimina luego de tocar un enemigo.
+     * @throws BadDopoException
+     */
     private void verificarColisiones() throws BadDopoException {
         if (helado1 != null && colisionaConEnemigo(helado1)) {
             heladoEliminado(helado1);
@@ -421,6 +494,11 @@ public class BadDopoCream implements Serializable {
         }
     }
 
+    /**
+     * Revisa las posiciones de los helados y enemigos para asignar una colisión
+     * @param helado
+     * @return si colisiona con un enemigo
+     */
     private boolean colisionaConEnemigo(Helado helado) {
         int[] posHelado = tablero.getPosicionHelado(helado);
         if (posHelado == null) return false;
@@ -436,11 +514,23 @@ public class BadDopoCream implements Serializable {
         return false;
     }
 
+    /**
+     * Reiniciar nivel si se elimina el helado
+     * @param helado que se verifica
+     * @throws BadDopoException
+     */
     private void heladoEliminado(Helado helado) throws BadDopoException {
         mensajeEstado = "¡Helado eliminado! Reiniciando nivel...";
         reiniciarNivel();
     }
 
+    /**
+     * Verificar si se recolecta la fruta o no
+     * @param fila donde se recoletará fruta
+     * @param col donde se recolectará fruta
+     * @param helado helado que recolectará la fruta
+     * @throws BadDopoException
+     */
     private void verificarRecoleccionFruta(int fila, int col, Helado helado) throws BadDopoException {
         Fruta frutaEnPosicion = null;
 
@@ -457,6 +547,12 @@ public class BadDopoCream implements Serializable {
         }
     }
 
+    /**
+     *
+     * @param fruta
+     * @param helado
+     * @throws BadDopoException
+     */
     private void recolectarFruta(Fruta fruta, Helado helado) throws BadDopoException {
         int puntos = fruta.getGanancia();
 
@@ -498,15 +594,13 @@ public class BadDopoCream implements Serializable {
 
         if (todasLasFrutasFaseRecolectadas()) {
             faseCompletada = true;
-            
+
             if (faseActual + 1 < fasesDelNivel.size()) {
-                // Hay más fases en este nivel
                 faseActual++;
                 cargarFase(faseActual);
                 mensajeEstado = "¡Fase completada! Nueva fruta disponible.";
                 faseCompletada = false;
             } else {
-                // Se completaron todas las fases del nivel
                 completarNivel();
             }
         }
@@ -528,17 +622,21 @@ public class BadDopoCream implements Serializable {
         return true;
     }
 
+    /**
+     * Confirmar el que se completó un nivel
+     * @throws BadDopoException
+     */
     private void completarNivel() throws BadDopoException {
         if (nivelCompletado) return;
-       
-        if (nivelActual == 0) { 
+
+        if (nivelActual == 0) {
             desbloquearNivel2();
         }
 
         nivelesCompletados.add(nivelActual);
         nivelCompletado = true;
         esperandoDecisionNivel = true;
-        
+
         if (nivelActual >= 2) {
             juegoTerminado = true;
             victoria = true;
@@ -548,10 +646,14 @@ public class BadDopoCream implements Serializable {
         }
     }
 
+    /**
+     * Avanzar al siguiente nivel
+     * @throws BadDopoException
+     */
     public void avanzarNivel() throws BadDopoException {
         esperandoDecisionNivel = false;
         nivelCompletado = false;
-        
+
         nivelActual++;
         if (nivelActual > MAX_NIVELES) {
             juegoTerminado = true;
@@ -566,6 +668,10 @@ public class BadDopoCream implements Serializable {
         nivelCompletado = false;
     }
 
+    /**
+     * Recibir el tiempo que queda de juego
+     * @return
+     */
     public long getTiempoRestante() {
         if (!juegoIniciado || juegoTerminado) {
             return TIEMPO_MAXIMO;
@@ -576,6 +682,10 @@ public class BadDopoCream implements Serializable {
         return Math.max(0, tiempoRestante);
     }
 
+    /**
+     * Revisar el tiempo restante de juego
+     * @return formato string del juego
+     */
     public String getTiempoRestanteFormato() {
         long milisegundos = getTiempoRestante();
         long segundos = milisegundos / 1000;
@@ -584,10 +694,17 @@ public class BadDopoCream implements Serializable {
         return String.format("%02d:%02d", minutos, segundos);
     }
 
+    /**
+     * Evalúa si se acabó el tiempo
+     * @return
+     */
     private boolean tiempoExcedido() {
         return getTiempoRestante() == 0;
     }
 
+    /**
+     * Pausa el juego
+     */
     public void pausar() {
         if (juegoIniciado && !pausado && !juegoTerminado) {
             pausado = true;
@@ -595,6 +712,9 @@ public class BadDopoCream implements Serializable {
         }
     }
 
+    /**
+     * Reanuda el juego
+     */
     public void reanudar() {
         if (pausado) {
             pausado = false;
@@ -602,51 +722,169 @@ public class BadDopoCream implements Serializable {
         }
     }
 
+    /**
+     * Revisa si se requiere segundo jugador en el juego
+     * @return boolean
+     */
     private boolean requiereSegundoJugador() {
         return modo.equals("Jugador vs Jugador") ||
                 modo.equals("Jugador vs Máquina") ||
                 modo.equals("Máquina vs Máquina");
     }
 
+    /**
+     * Revisa si es humano el jugador 1
+     * @return boolean
+     */
     private boolean esJugadorHumano1() {
         return modo.equals("Un jugador") || modo.equals("Un solo jugador") ||
             modo.equals("Jugador vs Jugador") ||
             modo.equals("Jugador vs Máquina");
     }
 
+    /**
+     * Revisa si es humano el jugador 2
+     * @return boolean
+     */
     private boolean esJugadorHumano2() {
         return modo.equals("Jugador vs Jugador");
     }
 
-    // ===== GETTERS =====
-    
+    /**
+     * retorna tablero del juego
+     * @return tablero
+     */
     public Tablero getTablero() { return tablero; }
+
+    /**
+     * retorna nivel actual del juego
+     * @return niveLactual
+     */
     public int getNivelActual() { return nivelActual; }
+
+    /**
+     * Retorna fase actual del juego
+     * @return faseActual
+     */
     public int getFaseActual() { return faseActual; }
+
+    /**
+     * Retorna cantidad total de fases
+     * @return TotalFases
+     */
     public int getTotalFases() { return fasesDelNivel != null ? fasesDelNivel.size() : 0; }
+
+    /**
+     * Retorna modo de juego
+     * @return modo
+     */
     public String getModo() { return modo; }
+
+    /**
+     * Retorna si se inició el juego
+     * @return juegoInciado
+     */
     public boolean isJuegoIniciado() { return juegoIniciado; }
+
+    /**
+     * Retrona si ya se acabó el juego
+     * @return juegoTerminado
+     */
     public boolean isJuegoTerminado() { return juegoTerminado; }
+
+    /**
+     * Retorna si el juego está pausado
+     * @return pausado
+     */
     public boolean isPausado() { return pausado; }
+
+    /**
+     * Retorna si el nivel está completado
+     * @return nivelCompletado
+     */
     public boolean isNivelCompletado() { return nivelCompletado; }
+
+    /**
+     * Retorna si fue victoria
+     * @return victoria
+     */
     public boolean isVictoria() { return victoria; }
+
+    /**
+     * Retorna mensaje de estado del juego
+     * @return mensaje estado
+     */
     public String getMensajeEstado() { return mensajeEstado; }
+
+    /**
+     * Retorna puntaje jugador 1
+     * @return
+     */
     public int getPuntajeJugador1() { return puntajeJugador1; }
+
+    /**
+     * Retorna puntaje jugador 2
+     * @return
+     */
     public int getPuntajeJugador2() { return puntajeJugador2; }
+
+    /**
+     * Retorna helado primer jugador
+     * @return Helado1
+     */
     public Helado getHelado1() { return helado1; }
+
+    /**
+     * Retorna helado segundo jugador
+     * @return Helado2
+     */
     public Helado getHelado2() { return helado2; }
+
+    /**
+     * Retorna arraylist de frutas en juego
+     * @return ArrayList de frutas
+     */
     public ArrayList<Fruta> getFrutasEnJuego() { return new ArrayList<>(frutasEnJuego); }
+
+    /**
+     * Retorna arraylist de enemigos en juego
+     * @return arrayList de enemigos en juego
+     */
     public ArrayList<Enemigo> getEnemigosEnJuego() { return new ArrayList<>(enemigosEnJuego); }
+
+    /**
+     * Retorna arraylist de frutas que se deben recolectar
+     * @return diccionario de frutas que se necesitan
+     */
     public HashMap<String, Integer> getFrutasRequeridas() { return new HashMap<>(frutasRequeridas); }
+
+    /**
+     * retorna diccionario de frutas recolectadas
+     * @return retorna frutas recolectadas
+     */
     public HashMap<String, Integer> getFrutasRecolectadas() { return new HashMap<>(frutasRecolectadas); }
+
+    /**
+     * retorna cantidad de niveles completadas
+     * @return
+     */
     public int getCantidadNivelesCompletados() { return nivelesCompletados.size(); }
 
+    /**
+     * retorna el progreso que llevan las frutas
+     * @param tipoFruta que se va a revisar el progreso
+     * @return progreso de frutas en formato String
+     */
     public String getProgresoFrutas(String tipoFruta) {
         int recolectadas = frutasRecolectadas.getOrDefault(tipoFruta, 0);
         int requeridas = frutasRequeridas.getOrDefault(tipoFruta, 0);
         return recolectadas + "/" + requeridas;
     }
 
+    /**
+     * Retorna el ganador
+     * @return String ganador
+     */
     public String getGanador() {
         if (!requiereSegundoJugador()) {
             return nombreJugador1;
@@ -661,12 +899,24 @@ public class BadDopoCream implements Serializable {
         }
     }
 
+    /**
+     * Persistencia para guardar juego
+     * @param archivo
+     * @throws IOException
+     */
     public void guardar(String archivo) throws IOException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
             oos.writeObject(this);
         }
     }
 
+    /**
+     * persistencia para cargar juego
+     * @param archivo
+     * @return juego
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public static BadDopoCream cargar(String archivo) throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
             BadDopoCream juego = (BadDopoCream) ois.readObject();
@@ -677,12 +927,19 @@ public class BadDopoCream implements Serializable {
         }
     }
 
+    /**
+     * Termina el juego cambiando estados
+     */
     public void terminarJuego() {
         juegoTerminado = true;
         pausado = false;
         mensajeEstado = "Juego terminado por el usuario";
     }
 
+    /**
+     * Se reinicia juego
+     * @throws BadDopoException
+     */
     public void reiniciarJuego() throws BadDopoException {
         nivelActual = 1;
         nivelesCompletados.clear();
@@ -693,6 +950,10 @@ public class BadDopoCream implements Serializable {
         iniciarJuego();
     }
 
+    /**
+     * Se retorna resumen final del juego
+     * @return
+     */
     public String getResumenFinal() {
         StringBuilder resumen = new StringBuilder();
         resumen.append("Modo: ").append(modo).append("\n");
@@ -713,11 +974,19 @@ public class BadDopoCream implements Serializable {
 
         return resumen.toString();
     }
+
+    /**
+     * Revisa si se finalizó con éxito el juego
+     * @return si es juego ganado
+     */
     public boolean isJuegoGanado() {
       return nivelActual == 1 && frutasEnJuego.isEmpty();
     }
 
-
+    /**
+     * Retorna estadísticas finales del juego
+     * @return estadísticas del juego
+     */
     public HashMap<String, Object> getEstadisticas() {
         HashMap<String, Object> stats = new HashMap<>();
         stats.put("modo", modo);
@@ -734,40 +1003,63 @@ public class BadDopoCream implements Serializable {
         return stats;
     }
 
+    /**
+     * Retorna dimensiones del tablero
+     * @return dimensiones del tablero como array de int
+     */
     public int[] getDimensionesTablero() {
         return tablero.getDimensiones();
     }
 
-    //public String[][] getRepresentacionTablero() {
-    //    return this.mapaBase;
-    //}
-
+    /**
+     * Retorna presentación del tablero como String[][]
+     */
     public String[][] getRepresentacionTablero() {
         return tablero.construirRepresentacionActual();
     }
 
+    /**
+     * Retorna las posiciones de las frutas
+     * @return lista de posiciones
+     */
     public HashMap<String, Fruta> getPosicionesFrutas() {
         return tablero.getListaPosicionesFrutas();
     }
 
+    /**
+     * Retorna las posiciones de los enemigos
+     * @return lista de posiciones
+     */
     public HashMap<String, Enemigo> getPosicionesEnemigos() {
         return tablero.getPosicionesEnemigos();
     }
 
+    /**
+     * Retorna posiciones de los obstáculos
+     * @return lista de posiciones
+     */
     public HashMap<String, Obstaculo> getPosicionesObstaculos() {
         return tablero.getPosicionesObstaculos();
     }
 
+    /**
+     * Revisa si está en la última posición del juego
+     * @return si es último nivel
+     */
     public boolean esUltimoNivel() {
-    return nivelActual == 1; // porque solo tienes 2 niveles
-}
+        return nivelActual == 1;
+    }
 
+    /**
+     * Revisa si se completó el juego
+     * @return si se completó el juego
+     */
     public boolean isJuegoCompletado() {
         return esUltimoNivel() && frutasEnJuego.isEmpty();
     }
 
     /**
-     * Método principal de actualización - IMPORTANTE: llamar desde GUI
+     * Método principal de actualización del juego
      */
     public void actualizar() throws BadDopoException {
         if (!juegoIniciado || pausado || juegoTerminado || esperandoDecisionNivel) {
@@ -781,20 +1073,15 @@ public class BadDopoCream implements Serializable {
             f.actualizar(tiempoActual);
         }
 
-        // Actualizar enemigos: cada turno los enemigos ejecutan su estrategia
         try {
             if (tablero != null && helado1 != null) tablero.actualizarEnemigos(helado1);
-            // Si hay segundo helado (multijugador), también lo consideramos como referencia
             if (tablero != null && helado2 != null) tablero.actualizarEnemigos(helado2);
         } catch (BadDopoException ex) {
-            // Ignorar errores puntuales de movimiento de enemigos para no detener el juego
         }
 
         moverPinas();
         teletransportarCerezas();
         verificarColisiones();
-
-        // Verificar colisiones entre helados y enemigos
         verificarColisiones();
         if (tiempoExcedido()) {
             juegoTerminado = true;
@@ -805,29 +1092,40 @@ public class BadDopoCream implements Serializable {
 
     /**
      * Teletransporta las cerezas a posiciones aleatorias del tablero
-     * Se ejecuta cada cierto intervalo de tiempo
      */
     public void teletransportarCerezas() throws BadDopoException {
         if (!juegoIniciado || pausado || juegoTerminado) {
             return;
         }
-        
+
         long tiempoActual = System.currentTimeMillis();
-        
-        // Verificar si ha pasado el intervalo necesario
+
         if (tiempoActual - ultimoTeletransporteCereza < INTERVALO_CEREZA) {
             return;
         }
 
         tablero.teletransportarCerezas();
-        
+
         ultimoTeletransporteCereza = tiempoActual;
     }
 
+    /**
+     * Construye representación actual del juego
+     * @return representación del tablero como String
+     */
     public String[][] construirRepresentacionActual(){
         return  tablero.construirRepresentacionActual();
     }
 
+    /**
+     * Retorna sabor del primer helado
+     * @return String del sabor
+     */
     public String getSabor1() { return sabor1; }
+
+    /**
+     * Retorna sabor del segundo helado
+     * @return String del sabor
+     */
     public String getSabor2() { return sabor2; }
 }

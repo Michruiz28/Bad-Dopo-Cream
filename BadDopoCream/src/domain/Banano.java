@@ -1,7 +1,6 @@
 package domain;
 /**
- * Clase que representa un Banano en el juego Bad Dopo Cream
- * El banano es una fruta estática que permanece en su posición hasta ser recolectada
+ * Clase Banano
  */
 public class Banano extends FrutaEstatica {
     public static final int GANANCIA_BANANO = 100;

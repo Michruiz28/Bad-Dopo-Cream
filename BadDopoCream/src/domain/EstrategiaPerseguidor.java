@@ -2,6 +2,9 @@ package domain;
 
 import java.util.List;
 
+/**
+ * Estrategia perseguidor
+ */
 public class EstrategiaPerseguidor implements MovimientoEnemigoStrategy {
     @Override
     public void ejecutarTurno(Enemigo enemigo, VistaTablero vista, Helado jugador, GrafoTablero grafo) throws BadDopoException {

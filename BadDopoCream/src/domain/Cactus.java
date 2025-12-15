@@ -1,8 +1,7 @@
  
 package domain;
 /**
- * Clase que representa un Cactus en el juego Bad Dopo Cream.
- * Es una fruta estática que alterna entre estado normal y estado con púas.
+ * Clase cactus
  */
 public class Cactus extends FrutaEstatica {
 

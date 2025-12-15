@@ -1,5 +1,9 @@
 package domain;
 
+/**
+ * Clase maceta
+ */
+
 public class Maceta extends Enemigo  {
     private String imagenAbajo;
     private String imagenDerecha;
@@ -19,7 +23,6 @@ public class Maceta extends Enemigo  {
         setMovimientoStrategy(new EstrategiaPerseguidor());
     }
 
-    // Contador para ralentizar movimiento
     private int contadorTicks = 0;
     private int intervaloMovimiento = 17;
 

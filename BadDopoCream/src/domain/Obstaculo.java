@@ -3,7 +3,7 @@ package domain;
 import java.util.ArrayList;
 
 /**
- * Clase abstracta que representa un obstáculo en el juego Bad Dopo Cream.
+ * Clase abstracta obstáculo
  */
 public abstract class Obstaculo extends Elemento {
     private int fila;

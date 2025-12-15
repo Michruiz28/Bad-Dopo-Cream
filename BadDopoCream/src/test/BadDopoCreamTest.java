@@ -4,10 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import domain.*;
-/**
- * Pruebas unitarias para BadDopoCream
- * Máximo 3 pruebas por método público
- */
+
 class BadDopoCreamTest {
 
     private BadDopoCream juego;
@@ -15,16 +12,13 @@ class BadDopoCreamTest {
 
     @BeforeEach
     void setUp() throws BadDopoException {
-        // Configuración para un jugador
         juego = new BadDopoCream(1, "Un jugador", "VH", null, 
                                  "Jugador 1", null, null, null);
-        
-        // Configuración para multijugador
+
         juegoMultijugador = new BadDopoCream(1, "Jugador vs Jugador", "VH", "CH",
                                              "Jugador 1", "Jugador 2", null, null);
     }
 
-    // ========== PRUEBAS DEL CONSTRUCTOR ==========
 
     @Test
     void deberiaCrearJuegoConNivel1Valido() throws BadDopoException {
@@ -48,8 +42,6 @@ class BadDopoCreamTest {
         assertEquals(BadDopoException.NIVEL_INVALIDO, excepcion.getMessage());
     }
 
-    // ========== PRUEBAS DE iniciarJuego() ==========
-
     @Test
     void deberiaIniciarJuegoCorrectamente() throws BadDopoException {
         juego.iniciarJuego();
@@ -66,10 +58,8 @@ class BadDopoCreamTest {
     void deberiaInicializarTiempoAlIniciar() throws BadDopoException {
         juego.iniciarJuego();
         long tiempoRestante = juego.getTiempoRestante();
-        assertEquals(180000, tiempoRestante, 1000); // 180 segundos ±1seg
+        assertEquals(180000, tiempoRestante, 1000);
     }
-
-    // ========== PRUEBAS DE moverHelado1() ==========
 
     @Test
     void deberiaMoverHelado1EnDireccionValida() throws BadDopoException {
@@ -78,8 +68,7 @@ class BadDopoCreamTest {
         int filaInicial = helado.getFila();
         
         juego.moverHelado1("DERECHA");
-        
-        // Verificar que se guardó la dirección
+
         assertEquals("DERECHA", helado.getUltimaDireccion());
     }
 
@@ -92,8 +81,6 @@ class BadDopoCreamTest {
             juego.moverHelado1("ABAJO");
         });
     }
-
-    // ========== PRUEBAS DE moverHelado2() ==========
 
     @Test
     void deberiaMoverHelado2EnModoMultijugador() throws BadDopoException {
@@ -117,8 +104,6 @@ class BadDopoCreamTest {
         assertNotNull(juegoMultijugador.getHelado2());
     }
 
-    // ========== PRUEBAS DE pausar() y reanudar() ==========
-
     @Test
     void deberiaPausarJuegoCorrectamente() throws BadDopoException {
         juego.iniciarJuego();
@@ -140,8 +125,6 @@ class BadDopoCreamTest {
         assertEquals(false, juego.isPausado());
     }
 
-    // ========== PRUEBAS DE getTiempoRestante() ==========
-
     @Test
     void deberiaTenerTiempoMaximoAlIniciar() throws BadDopoException {
         juego.iniciarJuego();
@@ -155,16 +138,12 @@ class BadDopoCreamTest {
         assertEquals(180000, tiempo);
     }
 
-    // ========== PRUEBAS DE getTiempoRestanteFormato() ==========
-
     @Test
     void deberiaFormatearConCeros() throws BadDopoException {
         juego.iniciarJuego();
         String formato = juego.getTiempoRestanteFormato();
         assertEquals(5, formato.length()); // Formato MM:SS
     }
-
-    // ========== PRUEBAS DE getFaseActual() y getTotalFases() ==========
 
     @Test
     void deberiaIniciarEnFase0() throws BadDopoException {
@@ -179,8 +158,6 @@ class BadDopoCreamTest {
         assertEquals(true, totalFases >= 1);
     }
 
-    // ========== PRUEBAS DE getPuntajeJugador1() y getPuntajeJugador2() ==========
-
     @Test
     void deberiaIniciarConPuntajeCero() throws BadDopoException {
         juego.iniciarJuego();
@@ -194,8 +171,6 @@ class BadDopoCreamTest {
         assertEquals(0, juegoMultijugador.getPuntajeJugador2());
     }
 
-    // ========== PRUEBAS DE getGanador() ==========
-
     @Test
     void deberiaRetornarJugador1ComoGanadorEnModoUnJugador() throws BadDopoException {
         juego.iniciarJuego();
@@ -208,15 +183,11 @@ class BadDopoCreamTest {
         assertEquals("Empate", juegoMultijugador.getGanador());
     }
 
-    // ========== PRUEBAS DE isNivelCompletado() ==========
-
     @Test
     void noDeberiaEstarCompletoAlIniciar() throws BadDopoException {
         juego.iniciarJuego();
         assertEquals(false, juego.isNivelCompletado());
     }
-
-    // ========== PRUEBAS DE isJuegoTerminado() ==========
 
     @Test
     void noDeberiaEstarTerminadoAlIniciar() throws BadDopoException {
@@ -230,8 +201,6 @@ class BadDopoCreamTest {
         juego.terminarJuego();
         assertEquals(true, juego.isJuegoTerminado());
     }
-
-    // ========== PRUEBAS DE getDimensionesTablero() ==========
 
     @Test
     void deberiaRetornarDimensionesValidas() throws BadDopoException {
@@ -254,8 +223,6 @@ class BadDopoCreamTest {
         assertEquals(true, dimensiones[1] > 0);
     }
 
-    // ========== PRUEBAS DE getRepresentacionTablero() ==========
-
     @Test
     void deberiaRetornarTableroNoNulo() throws BadDopoException {
         juego.iniciarJuego();
@@ -277,8 +244,6 @@ class BadDopoCreamTest {
         assertEquals(true, tablero[0].length > 0);
     }
 
-    // ========== PRUEBAS DE getFrutasEnJuego() ==========
-
     @Test
     void deberiaRetornarListaFrutasNoNula() throws BadDopoException {
         juego.iniciarJuego();
@@ -292,16 +257,11 @@ class BadDopoCreamTest {
         assertEquals(true, cantidadFrutas > 0);
     }
 
-    // ========== PRUEBAS DE getEnemigosEnJuego() ==========
-
     @Test
     void deberiaRetornarListaEnemigosNoNula() throws BadDopoException {
         juego.iniciarJuego();
         assertNotNull(juego.getEnemigosEnJuego());
     }
-
-    // ========== PRUEBAS DE getModo() ==========
-
     @Test
     void deberiaRetornarModoUnJugador() {
         assertEquals("Un jugador", juego.getModo());
@@ -312,7 +272,6 @@ class BadDopoCreamTest {
         assertEquals("Jugador vs Jugador", juegoMultijugador.getModo());
     }
 
-    // ========== PRUEBAS DE esUltimoNivel() ==========
 
     @Test
     void noDeberiaSerUltimoNivelEnNivel1() throws BadDopoException {
@@ -328,8 +287,6 @@ class BadDopoCreamTest {
         assertEquals(true, juegoNivel2.esUltimoNivel());
     }
 
-    // ========== PRUEBAS DE getNivelActual() ==========
-
     @Test
     void deberiaRetornarIndice0ParaNivel1() {
         assertEquals(0, juego.getNivelActual());
@@ -341,8 +298,6 @@ class BadDopoCreamTest {
                                                      "Test", null, null, null);
         assertEquals(1, juegoNivel2.getNivelActual());
     }
-
-    // ========== PRUEBAS DE getSabor1() y getSabor2() ==========
 
     @Test
     void deberiaRetornarSaborVainillaParaJugador1() {
@@ -358,8 +313,6 @@ class BadDopoCreamTest {
     void deberiaRetornarNullParaSabor2EnModoUnJugador() {
         assertNull(juego.getSabor2());
     }
-
-    // ========== PRUEBAS DE getFrutasRequeridas() y getFrutasRecolectadas() ==========
 
     @Test
     void deberiaRetornarMapaFrutasRequeridasNoNulo() throws BadDopoException {
@@ -381,16 +334,12 @@ class BadDopoCreamTest {
         assertEquals(0, total);
     }
 
-    // ========== PRUEBAS DE getProgresoFrutas() ==========
-
     @Test
     void deberiaRetornarFormatoCorrectoProgresoFrutas() throws BadDopoException {
         juego.iniciarJuego();
         String progreso = juego.getProgresoFrutas("UVA");
         assertEquals(true, progreso.contains("/"));
     }
-
-    // ========== PRUEBAS DE existeNivel() ==========
 
     @Test
     void deberiaExistirNivel0() {
@@ -407,8 +356,6 @@ class BadDopoCreamTest {
         assertEquals(false, BadDopoCream.existeNivel(5));
     }
 
-    // ========== PRUEBAS DE getMensajeEstado() ==========
-
     @Test
     void deberiaTenerMensajeEstadoAlIniciar() throws BadDopoException {
         juego.iniciarJuego();
@@ -421,8 +368,6 @@ class BadDopoCreamTest {
         String mensaje = juego.getMensajeEstado();
         assertEquals(true, mensaje.contains("iniciado") || mensaje.contains("Fase"));
     }
-
-    // ========== PRUEBAS DE getEstadisticas() ==========
 
     @Test
     void deberiaRetornarEstadisticasNoNulas() throws BadDopoException {
@@ -443,8 +388,6 @@ class BadDopoCreamTest {
         var stats = juego.getEstadisticas();
         assertEquals(0, stats.get("nivelActual"));
     }
-
-    // ========== PRUEBAS DE getResumenFinal() ==========
 
     @Test
     void deberiaRetornarResumenNoNulo() throws BadDopoException {

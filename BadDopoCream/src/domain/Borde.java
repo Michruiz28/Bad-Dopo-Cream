@@ -1,5 +1,8 @@
 package domain;
 
+/**
+ * Clase Borde
+ */
 public class Borde extends Obstaculo{
     private static final String imagen = "src/presentation/images/Borde.png";
 
@@ -15,7 +18,6 @@ public class Borde extends Obstaculo{
 
     @Override
     public void mover(String direccion) {
-        //
     }
 
     @Override
@@ -30,7 +32,6 @@ public class Borde extends Obstaculo{
 
     @Override
     public void aumentarPuntaje(int puntaje) {
-        //
     }
 
     @Override
@@ -40,17 +41,14 @@ public class Borde extends Obstaculo{
 
     @Override
     public void actualizarImagen(String ultimaDireccion) {
-        //
     }
 
     @Override
     public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
-        //
     }
 
     @Override
     public void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException {
-        //
     }
 
     @Override

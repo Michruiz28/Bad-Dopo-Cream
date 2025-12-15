@@ -1,9 +1,9 @@
 package domain; 
 
 /**
- * Clase que representa Uvas en el juego Bad Dopo Cream
- * Las uvas son frutas estáticas que permanecen en su posición hasta ser recolectadas
+ * Clase uva
  */
+
 public class Uva extends FrutaEstatica {
     public static final int GANANCIA_UVA = 50;
     private static final String imagen = "src/presentation/images/Uva.png";

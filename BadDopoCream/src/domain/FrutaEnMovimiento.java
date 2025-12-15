@@ -1,5 +1,8 @@
 package domain;
 
+/**
+ * Subclase FrutaEnMovimiento
+ */
 public abstract class FrutaEnMovimiento extends Fruta {
 
     protected Direccion direccionActual;

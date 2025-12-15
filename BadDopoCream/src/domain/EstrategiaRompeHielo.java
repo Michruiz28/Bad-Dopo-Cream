@@ -1,5 +1,8 @@
 package domain;
 
+/**
+ * Estrategia rompeHielo
+ */
 public class EstrategiaRompeHielo implements MovimientoEnemigoStrategy {
     @Override
     public void ejecutarTurno(Enemigo enemigo, VistaTablero vista, Helado jugador, GrafoTablero grafo) throws BadDopoException {
@@ -15,8 +18,6 @@ public class EstrategiaRompeHielo implements MovimientoEnemigoStrategy {
         int f = enemigo.getFila();
         int c = enemigo.getColumna();
 
-        // Si es embestida (por ejemplo, narval): avanzar hasta objetivo o hasta obstáculo,
-        // rompiendo hielo en el camino.
         if (!enemigo.isPersigueJugador() && enemigo.canRomperBloques() && (f == jugador.getFila() || c == jugador.getColumna())) {
             int curF = f;
             int curC = c;
