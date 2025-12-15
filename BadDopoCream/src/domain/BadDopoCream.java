@@ -69,7 +69,7 @@ public class BadDopoCream implements Serializable {
     private long ultimoMovimientoPina;
     private long ultimoTeletransporteCereza;
     private long ultimoCrecimientoCactus;
-    private final long INTERVALO_CEREZA = 20_000;
+    private final long INTERVALO_CEREZA = 8_000;
     private final long INTERVALO_CACTUS = 30_000;
     private final long INTERVALO_PINA = 500;
 
@@ -738,8 +738,12 @@ public class BadDopoCream implements Serializable {
         return tablero.getDimensiones();
     }
 
+    //public String[][] getRepresentacionTablero() {
+    //    return this.mapaBase;
+    //}
+
     public String[][] getRepresentacionTablero() {
-        return this.mapaBase;
+        return tablero.construirRepresentacionActual();
     }
 
     public HashMap<String, Fruta> getPosicionesFrutas() {
@@ -778,6 +782,7 @@ public class BadDopoCream implements Serializable {
         }
 
         moverPinas();
+        teletransportarCerezas();
         verificarColisiones();
 
         if (tiempoExcedido()) {
@@ -787,6 +792,30 @@ public class BadDopoCream implements Serializable {
 
     }
 
+    /**
+     * Teletransporta las cerezas a posiciones aleatorias del tablero
+     * Se ejecuta cada cierto intervalo de tiempo
+     */
+    public void teletransportarCerezas() throws BadDopoException {
+        if (!juegoIniciado || pausado || juegoTerminado) {
+            return;
+        }
+        
+        long tiempoActual = System.currentTimeMillis();
+        
+        // Verificar si ha pasado el intervalo necesario
+        if (tiempoActual - ultimoTeletransporteCereza < INTERVALO_CEREZA) {
+            return;
+        }
+
+        tablero.teletransportarCerezas();
+        
+        ultimoTeletransporteCereza = tiempoActual;
+    }
+
+    public String[][] construirRepresentacionActual(){
+        return  tablero.construirRepresentacionActual();
+    }
 
     public String getSabor1() { return sabor1; }
     public String getSabor2() { return sabor2; }

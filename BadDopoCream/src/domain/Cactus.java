@@ -56,4 +56,9 @@ public class Cactus extends FrutaEstatica {
         }
     }
 
+    @Override
+    public String getCodigo() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

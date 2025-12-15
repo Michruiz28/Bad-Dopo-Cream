@@ -198,7 +198,7 @@ public class BoardPanel extends JPanel {
         if (juego != null && juego.isJuegoGanado()) {
             dibujarPantallaVictoria(g);
             return;
-}
+        }
         if (juego == null ||
             cambiandoNivel ||
             juego.getTablero() == null ||
@@ -241,6 +241,10 @@ public class BoardPanel extends JPanel {
 
         if (faseActual != ultimaFaseRenderizada) {
             System.out.println("[BOARD] ¡Cambio de fase detectado! " + ultimaFaseRenderizada + " -> " + faseActual);
+
+                SwingUtilities.invokeLater(() -> {
+                    repaint();
+               });
 
             // Configurar mensaje
             if (faseActual > 0) { // No mostrar mensaje en la fase inicial

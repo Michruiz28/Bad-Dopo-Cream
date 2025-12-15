@@ -1,5 +1,6 @@
 package domain;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Cereza extends FrutaEnMovimiento {
@@ -51,20 +52,35 @@ public class Cereza extends FrutaEnMovimiento {
         //
     }
 
-    @Override
-    public int[] calcularPosicionesMovimieto(int limiteinferior, int limitesuperior) {
+    public int[] calcularPosicionesMovimieto(int limiteInferior, int limiteSuperiorFilas, int limiteSuperiorColumnas) {
         int[] nuevaPosicion = new int[2];
         Random random = new Random();
-        int min = limiteinferior;
-        int max = limitesuperior;
-
-        int NuevaFila = random.nextInt(max - min + 1) + min;
-        int NuevaColumna = random.nextInt(max - min + 1) + min;
-        nuevaPosicion[0] = NuevaFila;
-        nuevaPosicion[1] = NuevaColumna;
-
-        moverConPosicion(nuevaPosicion[0], nuevaPosicion[1]);
+        
+        int nuevaFila = random.nextInt(limiteSuperiorFilas - limiteInferior + 1) + limiteInferior;
+        int nuevaColumna = random.nextInt(limiteSuperiorColumnas - limiteInferior + 1) + limiteInferior;
+        
+        nuevaPosicion[0] = nuevaFila;
+        nuevaPosicion[1] = nuevaColumna;
+        
         return nuevaPosicion;
+    }
+
+    public int[] calcularPosicionAleatoria(ArrayList<int[]> posicionesDisponibles) {
+        if (posicionesDisponibles == null || posicionesDisponibles.isEmpty()) {
+            return null;
+        }
+        
+        Random random = new Random();
+        int indiceAleatorio = random.nextInt(posicionesDisponibles.size());
+        int[] posicionElegida = posicionesDisponibles.get(indiceAleatorio);
+        
+        // Actualizar coordenadas
+        this.fila = posicionElegida[0];
+        this.columna = posicionElegida[1];
+        
+        System.out.println("[CEREZA] Nueva posición calculada: (" + fila + "," + columna + ")");
+        
+        return posicionElegida;
     }
 
     @Override
@@ -76,5 +92,10 @@ public class Cereza extends FrutaEnMovimiento {
     public void moverConPosicion(int filaNueva, int columnaNueva){
         this.fila = filaNueva;
         this.columna = columnaNueva;
+    }
+
+    @Override
+    public int[] calcularPosicionesMovimieto(int limiteInferior, int limiteSuperior) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
