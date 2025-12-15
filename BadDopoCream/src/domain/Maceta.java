@@ -20,6 +20,21 @@ public class Maceta extends Enemigo  {
         setMovimientoStrategy(new EstrategiaPerseguidor());
     }
 
+    // Contador para ralentizar movimiento
+    private int contadorTicks = 0;
+    private int intervaloMovimiento = 16;
+
+    @Override
+    public void ejecutarComportamiento(GrafoTablero grafo, VistaTablero vista, Helado jugador) throws BadDopoException {
+        contadorTicks++;
+        if (contadorTicks < intervaloMovimiento) return;
+        contadorTicks = 0;
+
+        if (estrategiaMovimiento != null) {
+            estrategiaMovimiento.ejecutarTurno(this, vista, jugador, grafo);
+        }
+    }
+
     @Override
     public void aumentarPuntaje(int puntaje) {
 

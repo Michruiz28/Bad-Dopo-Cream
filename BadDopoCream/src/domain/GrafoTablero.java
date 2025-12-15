@@ -341,7 +341,19 @@ public class GrafoTablero {
         if (nodo == null) return;
 
         Celda celda = nodo.getCelda();
+        // Si el elemento que intenta romper hielo es un enemigo que solo rompe un bloque por vez,
+        // romper solo la primera celda de hielo y regresar.
+        if (elementoActual != null && elementoActual.esEnemigo()) {
+            Enemigo enemigo = (Enemigo) elementoActual;
+            if (enemigo.rompeUnBloquePorVez()) {
+                if (celda.getTipo().equals("H")) {
+                    elementoActual.romperHielo(celda, creador);
+                }
+                return;
+            }
+        }
 
+        // Comportamiento por defecto: romper todos los bloques de hielo consecutivos en la dirección
         while (celda.getTipo().equals("H")) {
             Celda celdaARomper = celda;
             elementoActual.romperHielo(celdaARomper, creador);
@@ -368,9 +380,21 @@ public class GrafoTablero {
 
         Celda celda = nodo.getCelda();
 
+        // Sólo permitir que los Helados construyan hielo.
         if (celda.getTipo().equals("V")) {
-            celda.setElementoConTipo("H", creador);
-            elementoActual.crearHielo(celda, creador);
+            // No permitir reconstrucción si la celda fue marcada como no reconstruible
+            if (!celda.permiteReconstruccion()) {
+                if (DEBUG) System.out.println("[GRAFO] Ignorado: celda marcada como no reconstruible en ("+fila+","+columna+")");
+                return;
+            }
+
+            if (elementoActual != null && elementoActual.esHelado()) {
+                celda.setElementoConTipo("H", creador);
+                elementoActual.crearHielo(celda, creador);
+            } else {
+                if (DEBUG) System.out.println("[GRAFO] Ignorado: solo helados pueden crear hielo (actor=" +
+                        (elementoActual == null ? "null" : elementoActual.getClass().getSimpleName()) + ")");
+            }
         }
     }
 

@@ -5,6 +5,8 @@ public class Celda {
     private final int col;
     private Elemento elemento;
     private String tipo;
+    // Indica si en esta celda es posible volver a construir hielo después de ser destruido
+    private boolean permiteReconstruccion = true;
 
     public Celda(int fila, int col, String tipo, CreadorElemento creador) throws BadDopoException {
         this.fila = fila;
@@ -37,6 +39,9 @@ public class Celda {
         this.elemento = creador.creadorElemento(fila, col, tipo);
         this.tipo = tipo;
     }
+
+    public boolean permiteReconstruccion() { return permiteReconstruccion; }
+    public void setPermiteReconstruccion(boolean permiteReconstruccion) { this.permiteReconstruccion = permiteReconstruccion; }
 
     /**
      * Método auxiliar para verificar si hay una fruta
