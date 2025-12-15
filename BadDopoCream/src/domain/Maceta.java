@@ -11,7 +11,6 @@ public class Maceta extends Enemigo  {
         this.persigueJugador = true;
         this.puedeRomperBloques = false;
         this.rompeUnBloquePorVez = false;
-        // Imagenes para Maceta
         this.imagenAbajo = "src/presentation/images/MacetaAbajo.png";
         this.imagenDerecha = "src/presentation/images/MacetaDerecha.png";
         this.imagenIzquierda = "src/presentation/images/MacetaIzquierda.png";
@@ -22,7 +21,7 @@ public class Maceta extends Enemigo  {
 
     // Contador para ralentizar movimiento
     private int contadorTicks = 0;
-    private int intervaloMovimiento = 16;
+    private int intervaloMovimiento = 17;
 
     @Override
     public void ejecutarComportamiento(GrafoTablero grafo, VistaTablero vista, Helado jugador) throws BadDopoException {
@@ -79,6 +78,4 @@ public class Maceta extends Enemigo  {
     public boolean esTransitable() {
         return false;
     }
-
-    // El comportamiento queda delegado a la estrategia (EstrategiaPerseguidor)
 }

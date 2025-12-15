@@ -24,18 +24,14 @@ public class Calamar extends Enemigo {
     // Control de velocidad por ticks
     private int contadorTicks = 0;
     // Mayor = más lento (movimiento normal)
-    private int intervaloMovimiento = 12;
-
-    // Control específico para ruptura de hielo (cuando está frente a un bloque)
+    private int intervaloMovimiento = 20;
     private int contadorRuptura = 0;
     // Menor = rompe más rápido un bloque
-    private int intervaloRuptura = 15;
+    private int intervaloRuptura = 20;
 
     @Override
     public void ejecutarComportamiento(GrafoTablero grafo, VistaTablero vista, Helado jugador) throws BadDopoException {
         if (vista == null || grafo == null || jugador == null) return;
-
-        // Calcular dirección considerando hielo (para poder pararse y romper)
         String direccion = vista.calcularDireccionHaciaObjetivo(
                 this.getFila(), this.getColumna(),
                 jugador.getFila(), jugador.getColumna(),
@@ -99,7 +95,6 @@ public class Calamar extends Enemigo {
         try {
             celdaARomper.setPermiteReconstruccion(false);
         } catch (Exception e) {
-            // No crítico: seguir adelante si no se puede marcar
         }
     }
 
@@ -118,5 +113,4 @@ public class Calamar extends Enemigo {
         return false;
     }
 
-    // El comportamiento delegado a la estrategia (EstrategiaRompeHielo)
 }
