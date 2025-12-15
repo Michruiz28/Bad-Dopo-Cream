@@ -16,6 +16,8 @@ public class GrafoTablero {
     private ArrayList<Fruta> frutasActivas;
     private java.util.Map<String, Elemento> elementosSubyacentes = new java.util.HashMap<>();
     private java.util.Map<String, String> tiposSubyacentes = new java.util.HashMap<>();
+    // Flag para controlar si las piñas deben moverse cuando se mueve un helado
+    private boolean moverPinasAlMoverHelado = false;
 
 
     public GrafoTablero(int filas, int columnas, String[][] infoNivel, CreadorElemento creador) throws BadDopoException {
@@ -358,24 +360,41 @@ public class GrafoTablero {
     }
 
     public void romperHielo(int fila, int columna, String ultimaDireccion, Elemento elementoActual) throws BadDopoException { 
-        Nodo nodo = getNodo(fila, columna); if (nodo == null) return; 
-        Celda celda = nodo.getCelda(); 
-        while (celda.getTipo().equals("H")) { 
-            Celda celdaARomper = celda; 
-            elementoActual.romperHielo(celdaARomper, creador); 
-            if (ultimaDireccion.equals("DERECHA")) { 
-                columna++; 
-            } else if (ultimaDireccion.equals("ARRIBA")) { 
-                fila--; 
-            } else if (ultimaDireccion.equals("ABAJO")) { 
-                fila++; 
-            } else if (ultimaDireccion.equals("IZQUIERDA")) { 
-                columna--; 
-            } 
-            Nodo siguienteNodo = getNodo(fila, columna); 
-            if (siguienteNodo == null) break; 
-            celda = siguienteNodo.getCelda(); 
-        } 
+        Nodo nodo = getNodo(fila, columna);
+        if (nodo == null) return;
+        Celda celda = nodo.getCelda();
+
+        // Si el actor es un enemigo que solo rompe un bloque por vez,
+        // romper únicamente la primera celda de hielo y regresar.
+        if (elementoActual != null && elementoActual.esEnemigo()) {
+            Enemigo enemigo = (Enemigo) elementoActual;
+            if (enemigo.rompeUnBloquePorVez()) {
+                if (celda.getTipo().equals("H")) {
+                    elementoActual.romperHielo(celda, creador);
+                }
+                return;
+            }
+        }
+
+        // Comportamiento por defecto: romper todos los bloques de hielo consecutivos en la dirección
+        while (celda.getTipo().equals("H")) {
+            Celda celdaARomper = celda;
+            elementoActual.romperHielo(celdaARomper, creador);
+
+            if (ultimaDireccion.equals("DERECHA")) {
+                columna++;
+            } else if (ultimaDireccion.equals("ARRIBA")) {
+                fila--;
+            } else if (ultimaDireccion.equals("ABAJO")) {
+                fila++;
+            } else if (ultimaDireccion.equals("IZQUIERDA")) {
+                columna--;
+            }
+
+            Nodo siguienteNodo = getNodo(fila, columna);
+            if (siguienteNodo == null) break;
+            celda = siguienteNodo.getCelda();
+        }
     }
     public void crearHielo(int fila, int columna, String ultimaDireccion, Elemento elementoActual) throws BadDopoException {
         System.out.println("[GRAFO] === Iniciando creación de hielo ===");
@@ -410,9 +429,24 @@ public class GrafoTablero {
                 break;
             }
             
+                // Sólo permitir que los Helados construyan hielo y sólo si la celda permite reconstrucción.
+                if (elementoActual == null || !elementoActual.esHelado() || !celda.permiteReconstruccion()) {
+                    System.out.println("[GRAFO] Ignorado: solo helados pueden crear hielo (actor=" +
+                            (elementoActual == null ? "null" : elementoActual.getClass().getSimpleName()) + ")");
+                    break;
+                }
+
             // Crear hielo en esta celda
             System.out.println("[GRAFO] Creando hielo en (" + fila + "," + columna + ")");
             elementoActual.crearHielo(celda, creador);
+            try {
+                if (elementoActual != null && elementoActual.esHelado()) {
+                    // Permitir reconstrucción cuando un Helado crea el hielo
+                    celda.setPermiteReconstruccion(true);
+                }
+            } catch (Exception ex) {
+                // No crítico
+            }
             celdasCreadas++;
             
             // Avanzar a la siguiente posición en la dirección
@@ -455,9 +489,17 @@ public class GrafoTablero {
         }
     }
 
-    public void procesarMovimientoHelado(int filaOrigen, int columnaOrigen, String direccion, Helado jugador) throws BadDopoException {
+    /** Setter para activar o desactivar la mecánica: "las piñas se mueven cuando se mueve un helado" */
+    public void setMoverPinasAlMoverHelado(boolean activar) {
+        this.moverPinasAlMoverHelado = activar;
+        if (DEBUG) System.out.println("[GRAFO] moverPinasAlMoverHelado = " + activar);
+    }
+
+    public boolean procesarMovimientoHelado(int filaOrigen, int columnaOrigen, String direccion, Helado jugador) throws BadDopoException {
         boolean moved = solicitarMovimientoHacia(filaOrigen, columnaOrigen, direccion);
-        if (!moved) return;
+        if (!moved) return false;
+        // Solo mover piñas si la mecánica está activada (ej: nivel 2 fase 2)
+        if (!moverPinasAlMoverHelado) return true;
 
         java.util.List<int[]> posicionesPinas = new java.util.ArrayList<>();
         for (int f = 0; f < filas; f++) {
@@ -497,6 +539,7 @@ public class GrafoTablero {
                 // Ignorar errores de movimiento individuales
             }
         }
+        return true;
     }
 
     public int[] calcularNuevaPosicion(int f, int c, String direccion) throws BadDopoException {
@@ -847,12 +890,6 @@ public class GrafoTablero {
     }
 
     /**
-
-     * Teletransportar cerezas
-     * @param fila
-     * @param col
-     * @return
-     * @throws BadDopoException
      */
     public void teletransportarCerezas() throws BadDopoException {
         ArrayList<int[]> posicionesCerezas = new ArrayList<>();
@@ -972,13 +1009,13 @@ public class GrafoTablero {
     
         // ===== REALIZAR EL MOVIMIENTO =====
         
-        // 1. Limpiar posición actual
+        // 1. Limpiar posición actual y colocar en destino
         Nodo nodoDestino = getNodo(nuevaPosicion[0], nuevaPosicion[1]);
         Celda celdaDestino = nodoDestino.getCelda();
-    
-        celdaActual.setElemento(null, creador);
-        celdaActual.setTipo("V");  // Restaurar a vacío
-        
+
+        // Usar setElementoConTipo para asegurar que la celda quede en estado consistente
+        celdaActual.setElementoConTipo("V", creador);
+
         // 3. Colocar en nueva posición
         celdaDestino.setElemento(elemento, creador);
         celdaDestino.setTipo("CF");  // Marcar como celda con cereza

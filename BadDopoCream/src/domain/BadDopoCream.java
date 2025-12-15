@@ -264,6 +264,14 @@ public class BadDopoCream implements Serializable {
         System.out.println("[BADDOPO] ===========================================\n");
 
         mensajeEstado = "Fase " + (indiceFase + 1) + " de " + fasesDelNivel.size();
+        // Activar mecánica de movimiento de piñas sólo para Nivel 2 (índice 1) Fase 2 (índice 1)
+        try {
+            boolean activarPinas = (this.nivelActual == 1 && indiceFase == 1);
+            tablero.setMoverPinasAlMoverHelado(activarPinas);
+            System.out.println("[BADDOPO] moverPinasAlMoverHelado = " + activarPinas);
+        } catch (Exception e) {
+            System.err.println("[BADDOPO] Error al configurar movimiento de piñas: " + e.getMessage());
+        }
     }
 
     public boolean isNivel2Desbloqueado() {
@@ -374,11 +382,10 @@ public class BadDopoCream implements Serializable {
         int filaActual = helado.getFila();
         int colActual = helado.getColumna();
 
-        boolean moved = tablero.solicitarMovimientoHacia(filaActual, colActual, direccion);
+        boolean moved = tablero.procesarMovimientoHelado(filaActual, colActual, direccion, helado);
 
         if (moved) {
             verificarRecoleccionFruta(helado.getFila(), helado.getColumna(), helado);
-            moverPinas();
         }
     }
 

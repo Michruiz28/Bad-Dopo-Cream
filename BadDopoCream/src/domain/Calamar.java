@@ -24,10 +24,10 @@ public class Calamar extends Enemigo {
     // Control de velocidad por ticks
     private int contadorTicks = 0;
     // Mayor = más lento (movimiento normal)
-    private int intervaloMovimiento = 20;
+    private int intervaloMovimiento = 50;
     private int contadorRuptura = 0;
     // Menor = rompe más rápido un bloque
-    private int intervaloRuptura = 20;
+    private int intervaloRuptura = 50;
 
     @Override
     public void ejecutarComportamiento(GrafoTablero grafo, VistaTablero vista, Helado jugador) throws BadDopoException {

@@ -10,9 +10,13 @@ public class Pina extends FrutaEnMovimiento {
    private static final String imagen = "src/presentation/images/Piña.png";
    private static final String codigo = "P";
 
-    public Pina(int fila, int columna) throws BadDopoException {
-        super(fila, columna);
-    }
+   private long ultimoTeletransporte;
+   private java.util.Random random = new java.util.Random();
+
+   public Pina(int fila, int columna) throws BadDopoException {
+      super(fila, columna);
+      this.ultimoTeletransporte = System.currentTimeMillis();
+   }
 
    @Override
    public String getCodigo(){
@@ -78,4 +82,12 @@ public class Pina extends FrutaEnMovimiento {
 
      public void mover() {
      }
+
+   public int[] calcularPosicionAleatoria(java.util.ArrayList<int[]> posicionesDisponibles) {
+      if (posicionesDisponibles == null || posicionesDisponibles.isEmpty()) return null;
+      int idx = random.nextInt(posicionesDisponibles.size());
+      int[] p = posicionesDisponibles.get(idx);
+      System.out.println("[PINA] Nueva posición calculada: (" + p[0] + "," + p[1] + ")");
+      return p;
+   }
  }
