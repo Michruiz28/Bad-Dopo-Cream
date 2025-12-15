@@ -499,7 +499,7 @@ public class BadDopoCream implements Serializable {
      * @param helado
      * @return si colisiona con un enemigo
      */
-    private boolean colisionaConEnemigo(Helado helado) {
+    private boolean colisionaConEnemigo(Helado helado) throws BadDopoException {
         int[] posHelado = tablero.getPosicionHelado(helado);
         if (posHelado == null) return false;
 
@@ -508,6 +508,7 @@ public class BadDopoCream implements Serializable {
             if (posEnemigo != null &&
                     posHelado[0] == posEnemigo[0] &&
                     posHelado[1] == posEnemigo[1]) {
+                helado.setPuntaje(0);
                 return true;
             }
         }
@@ -1128,4 +1129,8 @@ public class BadDopoCream implements Serializable {
      * @return String del sabor
      */
     public String getSabor2() { return sabor2; }
+
+    public String getModoJuego() {
+        return modo.toString();
+    }
 }

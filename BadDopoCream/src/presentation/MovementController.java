@@ -123,7 +123,7 @@ public class MovementController extends KeyAdapter {
         Helado helado1 = juego.getHelado1();
         if (helado1 == null) {
             System.out.println("Helado1 es null");
-            
+
             return;
         }
 
