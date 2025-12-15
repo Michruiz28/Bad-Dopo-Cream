@@ -228,7 +228,6 @@ public class BadDopoCream implements Serializable {
     /**
      * Carga una fase específica donde agrega las frutas en sus posiciones sin importar el estado actual del tablero
      * @param indiceFase Fase que se actualizará
-     * @param BadDopoException
      */
     private void cargarFase(int indiceFase) throws BadDopoException {
         System.out.println("\nCARGANDO FASE");
@@ -475,7 +474,7 @@ public class BadDopoCream implements Serializable {
 
         for (Fruta fruta : frutasEnJuego) {
             if (fruta != null && fruta.getCelda() != null && "P".equals(fruta.getCelda().getTipo())) {
-                ((Pina) fruta).mover();
+                ((Pina) fruta).mover(null);
             }
         }
         ultimoMovimientoPina = tiempoActual;

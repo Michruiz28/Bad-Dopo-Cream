@@ -5,76 +5,83 @@ package domain;
   * Clase piña
   */
 public class Pina extends FrutaEnMovimiento {
-    public static final int GANANCIA_PINA = 200;
+   public static final int GANANCIA_PINA = 200;
+   private long ultimoTeletransporte;
+   private java.util.Random random = new java.util.Random();
    private static final String imagen = "src/presentation/images/Piña.png";
    private static final String codigo = "P";
 
-    public Pina(int fila, int columna) throws BadDopoException {
-        super(fila, columna);
-    }
+   private int fila;
+   private int columna;
+
+   public Pina(int fila, int columna) throws BadDopoException {
+      super(fila, columna);
+      this.ultimoTeletransporte = System.currentTimeMillis();
+      this.fila = fila;
+      this.columna = columna;
+   }
 
    @Override
-   public String getCodigo(){
+   public String getCodigo() {
       return codigo;
    }
 
-     @Override
-     public void mover(String direccion) throws BadDopoException {
-        if (direccion == null) throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
-        int f = getFila();
-        int c = getColumna();
-        switch (direccion) {
-            case "ARRIBA": setFila(f - 1); break;
-            case "ABAJO": setFila(f + 1); break;
-            case "DERECHA": setColumna(c + 1); break;
-            case "IZQUIERDA": setColumna(c - 1); break;
-            default: throw new BadDopoException(BadDopoException.DIRECCION_INVALIDA);
-        }
-        actualizarImagen(direccion);
-     }
+   @Override
+   public void actualizar(long timpoActual) throws BadDopoException {
+      // No necesita actualización por cada frame; teletransporte está gestionado por el Grafo/Tablero
+   }
 
-     @Override
-     public void aumentarPuntaje(int puntaje) {
-        // Las frutas no aumentan puntaje por sí mismas; implementación vacía.
-     }
+   @Override
+   public void aumentarPuntaje(int puntaje) {
+      // No aplica
+   }
 
-     @Override
-     public int getGanancia() {
-          return GANANCIA_PINA;
-     }
+   @Override
+   public int getGanancia() {
+      return GANANCIA_PINA;
+   }
 
-     @Override
-     public void actualizarImagen(String ultimaDireccion) {
-      // Actualizar imagen según dirección; implementación por defecto no necesita más
-     }
+   @Override
+   public void actualizarImagen(String ultimaDireccion) {
+      // No aplica
+   }
 
-     @Override
-     public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
-        // La Piña no rompe hielo por comportamiento por defecto
-     }
+   @Override
+   public void romperHielo(Celda celdaARomper, CreadorElemento creador) throws BadDopoException {
+      // No aplica
+   }
 
-     @Override
-     public void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException {
-        // La Piña no crea hielo
-     }
+   @Override
+   public void crearHielo(Celda celdaACrear, CreadorElemento creador) throws BadDopoException {
+      // No aplica
+   }
 
-     @Override
-     public int[] calcularPosicionesMovimieto(int limiteInferior, int limiteSuperior) {
-          return new int[]{getFila(), getColumna()};
-     }
+   @Override
+   public void mover(String direccion) throws BadDopoException {
+      // No aplica para piña (teletransporte en vez de movimiento por dirección)
+   }
 
-     @Override
-     public void moverConPosicion(int filaNueva, int columnaNueva) {
-        setFila(filaNueva);
-        setColumna(columnaNueva);
-     }
+   @Override
+   public void moverConPosicion(int filaNueva, int columnaNueva) {
+      this.fila = filaNueva;
+      this.columna = columnaNueva;
+      setFila(filaNueva);
+      setColumna(columnaNueva);
+   }
 
-     @Override
-    public void actualizar(long tiempoActual) throws BadDopoException{
-        // Por defecto no se mueve automáticamente; el movimiento debe ser disparado por
-        // la lógica que detecta movimiento del Helado (GrafoTablero/Controlador).
-    }
+   @Override
+   public int[] calcularPosicionesMovimieto(int limiteInferior, int limiteSuperior) {
+      return new int[]{getFila(), getColumna()};
+   }
 
-     public void mover() {
-     }
- }
+   public int[] calcularPosicionAleatoria(java.util.ArrayList<int[]> posicionesDisponibles) {
+      if (posicionesDisponibles == null || posicionesDisponibles.isEmpty()) return null;
+      int idx = random.nextInt(posicionesDisponibles.size());
+      int[] p = posicionesDisponibles.get(idx);
+      this.fila = p[0];
+      this.columna = p[1];
+      System.out.println("[PINA] Nueva posición calculada: (" + p[0] + "," + p[1] + ")");
+      return p;
+   }
+
+}

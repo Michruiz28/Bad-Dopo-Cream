@@ -24,7 +24,7 @@ public class Maceta extends Enemigo  {
     }
 
     private int contadorTicks = 0;
-    private int intervaloMovimiento = 17;
+    private int intervaloMovimiento = 50;
 
     @Override
     public void ejecutarComportamiento(GrafoTablero grafo, VistaTablero vista, Helado jugador) throws BadDopoException {

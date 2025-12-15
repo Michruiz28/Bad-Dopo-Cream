@@ -49,6 +49,11 @@ public class Tablero {
         grafo.realizarAccion(fila, columna, ultimaDireccion);
     }
 
+    /** Procesa un movimiento de helado delegando al grafo (mueve helado y, si corresponde, las piñas). */
+    public boolean procesarMovimientoHelado(int filaOrigen, int columnaOrigen, String direccion, Helado jugador) throws BadDopoException {
+        return grafo.procesarMovimientoHelado(filaOrigen, columnaOrigen, direccion, jugador);
+    }
+
     public ArrayList<Fruta> getListaFrutas() {
         return grafo.getFrutas();
     }
@@ -139,6 +144,15 @@ public class Tablero {
         grafo.actualizarEnemigos(jugador);
     }
 
+    /** Permite activar/desactivar el movimiento de piñas cuando se mueve un helado. */
+    public void setMoverPinasAlMoverHelado(boolean activar) {
+        try {
+            grafo.setMoverPinasAlMoverHelado(activar);
+        } catch (Exception e) {
+            System.err.println("[TABLERO] Error al cambiar flag de movimiento de piñas: " + e.getMessage());
+        }
+    }
+
     public HashMap<String, Obstaculo> getPosicionesObstaculos(){
         return grafo.getPosicionesObstaculos();
     }
@@ -158,6 +172,7 @@ public class Tablero {
     public void teletransportarCerezas() throws BadDopoException {
         grafo.teletransportarCerezas();
     }
+
 
     public String[][] construirRepresentacionActual(){
         return  grafo.construirRepresentacionActual();
