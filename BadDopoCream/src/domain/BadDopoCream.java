@@ -71,7 +71,7 @@ public class BadDopoCream implements Serializable {
     private long ultimoCrecimientoCactus;
     private final long INTERVALO_CEREZA = 8_000;
     private final long INTERVALO_CACTUS = 30_000;
-    private final long INTERVALO_PINA = 500;
+    private final long INTERVALO_PINA = 7_000;
 
     private static final int MAX_NIVELES = 2;
 
@@ -158,9 +158,9 @@ public class BadDopoCream implements Serializable {
             tiempoInicioNivel = System.currentTimeMillis();
             tiempoTotalPausado = 0;
             mensajeEstado = "¡Juego iniciado! Recolecta todas las frutas.";
-            System.out.println("[BADDOPO] ✓ Juego iniciado correctamente");
+            System.out.println("[BADDOPO]  Juego iniciado correctamente");
         } catch (Exception e) {
-            System.err.println("[BADDOPO] ✗ ERROR al iniciar juego: " + e.getMessage());
+            System.err.println("[BADDOPO]  ERROR al iniciar juego: " + e.getMessage());
             e.printStackTrace();
             throw new BadDopoException("Error al iniciar juego: " + e.getMessage());
         }
@@ -177,7 +177,7 @@ public class BadDopoCream implements Serializable {
         // Cargar todas las fases del nivel
         this.fasesDelNivel = InfoNivel.getFasesNivel(nivel);
         if (fasesDelNivel == null || fasesDelNivel.isEmpty()) {
-            throw new BadDopoException("Nivel sin fases configuradas");
+            throw new BadDopoException(BadDopoException.NIVEL_INVALIDO);
         }
 
         // Iniciar en la fase 0
@@ -406,16 +406,19 @@ public class BadDopoCream implements Serializable {
     }
 
     private void moverPinas() throws BadDopoException {
+        if (!juegoIniciado || pausado || juegoTerminado) return;
         long tiempoActual = System.currentTimeMillis();
         if (tiempoActual - ultimoMovimientoPina < INTERVALO_PINA) {
             return;
         }
 
-        for (Fruta fruta : frutasEnJuego) {
-            if (fruta != null && fruta.getCelda() != null && "P".equals(fruta.getCelda().getTipo())) {
-                ((Pina) fruta).mover();
-            }
+        // Delegar teletransporte de piñas al tablero/grafo
+        try {
+            tablero.teletransportarPinas();
+        } catch (Exception ex) {
+            System.err.println("[BADDOPO] Error teletransportando piñas: " + ex.getMessage());
         }
+
         ultimoMovimientoPina = tiempoActual;
     }
 

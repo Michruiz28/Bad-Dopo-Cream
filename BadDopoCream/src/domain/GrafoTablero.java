@@ -911,6 +911,24 @@ public class GrafoTablero {
         }  
     
     }
+
+    /** Teletransporta todas las piñas encontradas en el grafo */
+    public void teletransportarPinas() throws BadDopoException {
+        ArrayList<int[]> posicionesPinas = new ArrayList<>();
+        for (int i = 0; i < nodos.length; i++) {
+            for (int j = 0; j < nodos[0].length; j++) {
+                Nodo n = nodos[i][j];
+                Celda c = n.getCelda();
+                if (c.getTipo().equals("P")) {
+                    posicionesPinas.add(new int[]{i, j});
+                }
+            }
+        }
+
+        for (int[] pos : posicionesPinas) {
+            teletransportarPina(pos[0], pos[1]);
+        }
+    }
     
     public String[][] construirRepresentacionActual(){
         int filas = nodos.length;
@@ -1024,6 +1042,81 @@ public class GrafoTablero {
                         ") → (" + nuevaPosicion[0] + "," + nuevaPosicion[1] + ")");
         System.out.println("[GRAFO] ========================================\n");
         
+        return true;
+    }
+
+    /** Teletransporta una piña a una posición aleatoria válida (solo celdas vacías) */
+    public boolean teletransportarPina(int fila, int col) throws BadDopoException {
+        System.out.println("\n[GRAFO] ========== INICIO TELETRANSPORTE PINA ==========");
+        System.out.println("[GRAFO] Piña en posición: (" + fila + "," + col + ")");
+
+        Nodo nodoActual = getNodo(fila, col);
+        Celda celdaActual = nodoActual.getCelda();
+
+        if (!celdaActual.getTipo().equals("P")) {
+            System.err.println("[GRAFO] ✗ La celda no contiene una piña. Tipo: " + celdaActual.getTipo());
+            return false;
+        }
+
+        Elemento elemento = celdaActual.getElemento();
+        if (elemento == null) {
+            System.err.println("[GRAFO] ✗ No hay elemento en la celda");
+            return false;
+        }
+
+        ArrayList<int[]> posicionesDisponibles = new ArrayList<>();
+        // Buscar solo celdas internas (excluye bordes) y únicamente celdas vacías 'V'
+        for (int i = 1; i < filas - 1; i++) {
+            for (int j = 1; j < columnas - 1; j++) {
+                Nodo nodo = getNodo(i, j);
+                Celda celda = nodo.getCelda();
+                String tipo = celda.getTipo();
+                if (tipo.equals("V")) {
+                    posicionesDisponibles.add(new int[]{i, j});
+                }
+            }
+        }
+
+        System.out.println("[GRAFO] Posiciones disponibles encontradas para piña: " + posicionesDisponibles.size());
+
+        if (posicionesDisponibles.isEmpty()) {
+            System.err.println("[GRAFO] ✗ NO HAY POSICIONES DISPONIBLES PARA PINA");
+            return false;
+        }
+
+        final int filaActual = fila;
+        final int colActual = col;
+        posicionesDisponibles.removeIf(pos -> pos[0] == filaActual && pos[1] == colActual);
+
+        if (posicionesDisponibles.isEmpty()) {
+            System.err.println("[GRAFO] ✗ Solo está disponible la posición actual para la piña");
+            return false;
+        }
+
+        Pina pina = (Pina) elemento;
+        int[] nuevaPosicion = pina.calcularPosicionAleatoria(posicionesDisponibles);
+        if (nuevaPosicion == null) {
+            System.err.println("[GRAFO] ✗ La piña no pudo calcular una posición válida");
+            return false;
+        }
+
+        pina.setFila(nuevaPosicion[0]);
+        pina.setColumna(nuevaPosicion[1]);
+
+        System.out.println("[GRAFO] Posición elegida por la piña: (" + nuevaPosicion[0] + "," + nuevaPosicion[1] + ")");
+
+        Nodo nodoDestino = getNodo(nuevaPosicion[0], nuevaPosicion[1]);
+        Celda celdaDestino = nodoDestino.getCelda();
+
+        celdaActual.setElementoConTipo("V", creador);
+
+        celdaDestino.setElemento(elemento, creador);
+        celdaDestino.setTipo("P");
+
+        System.out.println("[GRAFO] ✓ TELETRANSPORTE PINA EXITOSO: (" + fila + "," + col + 
+                        ") → (" + nuevaPosicion[0] + "," + nuevaPosicion[1] + ")");
+        System.out.println("[GRAFO] ========================================\n");
+
         return true;
     }
 

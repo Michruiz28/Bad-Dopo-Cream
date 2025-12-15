@@ -196,6 +196,11 @@ public class Tablero {
         grafo.teletransportarCerezas();
     }
 
+    /** Teletransporta las piñas a nuevas posiciones aleatorias válidas */
+    public void teletransportarPinas() throws BadDopoException {
+        grafo.teletransportarPinas();
+    }
+
     public String[][] construirRepresentacionActual(){
         return  grafo.construirRepresentacionActual();
     }
